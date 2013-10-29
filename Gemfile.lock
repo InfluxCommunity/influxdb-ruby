@@ -2,11 +2,16 @@ PATH
   remote: .
   specs:
     influxdb (0.0.1)
+      json
 
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.3.5)
+    crack (0.4.1)
+      safe_yaml (~> 0.9.0)
     diff-lcs (1.2.4)
+    json (1.8.1)
     rake (10.1.0)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -16,6 +21,10 @@ GEM
     rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.4)
+    safe_yaml (0.9.7)
+    webmock (1.15.0)
+      addressable (>= 2.2.7)
+      crack (>= 0.3.2)
 
 PLATFORMS
   ruby
@@ -25,3 +34,4 @@ DEPENDENCIES
   influxdb!
   rake
   rspec
+  webmock
