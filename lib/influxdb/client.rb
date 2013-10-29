@@ -13,7 +13,7 @@ module InfluxDB
     def create_database(name)
       http = Net::HTTP.new(@host, @port)
       url = "/db?u=#{@username}&p=#{@password}"
-      data = JSON.generate({name: name})
+      data = JSON.generate({:name => name})
       response = http.request(Net::HTTP::Post.new(url), data)
     end
 
