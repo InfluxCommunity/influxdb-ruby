@@ -5,9 +5,9 @@ require 'influxdb/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "influxdb"
-  spec.version       = Influxdb::VERSION
+  spec.version       = InfluxDB::VERSION
   spec.authors       = ["Todd Persen"]
-  spec.email         = ["todd.persen@gmail.com"]
+  spec.email         = ["influxdb@googlegroups.com"]
   spec.description   = %q{This is the official Ruby library for InfluxDB.}
   spec.summary       = %q{Ruby library for InfluxDB.}
   spec.homepage      = "http://influxdb.org"
