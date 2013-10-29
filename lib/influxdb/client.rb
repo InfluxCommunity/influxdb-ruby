@@ -13,7 +13,7 @@ module InfluxDB
     def create_database(name)
       http = Net::HTTP.new(@host, @port)
       url = "/db?u=#{@username}&p=#{@password}"
-      data = %Q{{"name": "#{name}"}}
+      data = JSON.generate({name: name})
       response = http.request(Net::HTTP::Post.new(url), data)
     end
 
@@ -21,6 +21,22 @@ module InfluxDB
       http = Net::HTTP.new(@host, @port)
       url = "/db/#{name}?u=#{@username}&p=#{@password}"
       response = http.request(Net::HTTP::Delete.new(url))
+    end
+
+    def write_point(name, data)
+      http = Net::HTTP.new(@host, @port)
+      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
+      payload = {:name => name, :points => [], :columns => []}
+
+      point = []
+      data.each_pair do |k,v|
+        payload[:columns].push k.to_s
+        point.push v
+      end
+
+      payload[:points].push point
+      data = JSON.generate(payload)
+      response = http.request(Net::HTTP::Post.new(url), data)
     end
   end
 end
