@@ -35,6 +35,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#create_database_user" do
+    it "should POST to create a new database user" do
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
+        :query => {:u => "username", :p => "password"},
+        :body => JSON.generate({:username => "useruser", :password => "passpass"})
+      )
+
+      @influxdb.create_database_user("foo", "useruser", "passpass").should be_a(Net::HTTPOK)
+    end
+  end
 
   describe "#write_point" do
     it "should POST to add points" do

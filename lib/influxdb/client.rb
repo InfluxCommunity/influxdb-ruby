@@ -23,6 +23,13 @@ module InfluxDB
       response = http.request(Net::HTTP::Delete.new(url))
     end
 
+    def create_database_user(database, username, password)
+      http = Net::HTTP.new(@host, @port)
+      url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
+      data = JSON.generate({:username => username, :password => password})
+      response = http.request(Net::HTTP::Post.new(url), data)
+    end
+
     def write_point(name, data)
       http = Net::HTTP.new(@host, @port)
       url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
