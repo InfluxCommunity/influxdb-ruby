@@ -2,7 +2,7 @@ require "net/http"
 
 module InfluxDB
   class Client
-    def initialize(host, port, username, password, database)
+    def initialize(host, port, username, password, database = nil)
       @host = host
       @port = port
       @username = username
