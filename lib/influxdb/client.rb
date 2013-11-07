@@ -23,6 +23,12 @@ module InfluxDB
       response = http.request(Net::HTTP::Delete.new(url))
     end
 
+    def get_database_list
+      http = Net::HTTP.new(@host, @port)
+      url = "/dbs?u=#{@username}&p=#{@password}"
+      response = http.request(Net::HTTP::Get.new(url))
+    end
+
     def create_database_user(database, username, password)
       http = Net::HTTP.new(@host, @port)
       url = "/db/#{database}/users?u=#{@username}&p=#{@password}"

@@ -35,6 +35,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#get_database_list" do
+    it "should GET a list of databases" do
+      stub_request(:get, "http://influxdb.test:9999/dbs").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.get_database_list.should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#create_database_user" do
     it "should POST to create a new database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
