@@ -28,7 +28,7 @@ username = 'root'
 password = 'root'
 database = 'site_development'
 
-influxdb = InfluxDB::Client.new(username, port, username, password)
+influxdb = InfluxDB::Client.new(hostname, port, username, password)
 
 influxdb.create_database(database)
 ```
