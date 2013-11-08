@@ -1,4 +1,5 @@
 require "net/http"
+require 'json'
 
 module InfluxDB
   class Client
