@@ -58,11 +58,11 @@ describe InfluxDB::Client do
 
   describe "#write_point" do
     it "should POST to add points" do
-      body = {
+      body = [{
         :name => "seriez",
         :points => [["juan", 87]],
         :columns => ["name", "age"]
-      }
+      }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
         :query => {:u => "username", :p => "password"},

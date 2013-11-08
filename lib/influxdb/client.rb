@@ -48,7 +48,7 @@ module InfluxDB
       end
 
       payload[:points].push point
-      data = JSON.generate(payload)
+      data = JSON.generate([payload])
       response = http.request(Net::HTTP::Post.new(url), data)
     end
   end
