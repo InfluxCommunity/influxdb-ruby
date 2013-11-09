@@ -3,14 +3,30 @@ require "json"
 
 describe InfluxDB::Client do
   before do
-    @influxdb = InfluxDB::Client.new("influxdb.test", 9999, "username", "password", "database")
+    @influxdb = InfluxDB::Client.new "database", :host => "influxdb.test",
+      :port => 9999, :username => "username", :password => "password"
   end
 
   describe "#new" do
-    it "should instantiate a new InfluxDB client" do
-      @influxdb = InfluxDB::Client.new("host", "port", "username", "password", "database")
+    it "should instantiate a new InfluxDB client and default to localhost" do
+      @influxdb = InfluxDB::Client.new
 
       @influxdb.should be_a(InfluxDB::Client)
+      @influxdb.host.should ==("localhost")
+      @influxdb.port.should ==(8086)
+      @influxdb.username.should ==("root")
+      @influxdb.password.should ==("root")
+    end
+
+    it "should instantiate a new InfluxDB client" do
+      @influxdb = InfluxDB::Client.new "database", :hostname => "host",
+        :port => "port", :username => "username", :password => "password"
+
+      @influxdb.should be_a(InfluxDB::Client)
+      @influxdb.host.should ==("localhost")
+      @influxdb.port.should ==("port")
+      @influxdb.username.should ==("username")
+      @influxdb.password.should ==("password")
     end
   end
 
