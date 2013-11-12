@@ -1,7 +1,7 @@
 influxdb-ruby
 =============
 
-![InfluxDB Build Status](https://travis-ci.org/influxdb/influxdb-ruby.png)
+[![Build Status](https://travis-ci.org/influxdb/influxdb-ruby.png?branch=master)](https://travis-ci.org/influxdb/influxdb-ruby)
 
 Ruby client library for [InfluxDB](http://influxdb.org/).
 
