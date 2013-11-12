@@ -22,13 +22,7 @@ Create a database:
 ``` ruby
 require 'influxdb'
 
-hostname = 'localhost'
-port     = 8086
-username = 'root'
-password = 'root'
-database = 'site_development'
-
-influxdb = InfluxDB::Client.new(hostname, port, username, password)
+influxdb = InfluxDB::Client.new
 
 influxdb.create_database(database)
 ```
@@ -38,14 +32,9 @@ Create a user for a database:
 ``` ruby
 require 'influxdb'
 
-hostname = 'localhost'
-port     = 8086
-username = 'root'
-password = 'root'
+influxdb = InfluxDB::Client.new
+
 database = 'site_development'
-
-influxdb = InfluxDB::Client.new(hostname, port, username, password)
-
 new_username = 'foo'
 new_password = 'bar'
 influxdb.create_database_user(database, new_username, new_password)
@@ -56,14 +45,12 @@ Write some data:
 ``` ruby
 require 'influxdb'
 
-hostname = 'localhost'
-port     = 8086
 username = 'foo'
 password = 'bar'
 database = 'site_development'
 name     = 'foobar'
 
-influxdb = InfluxDB::Client.new(hostname, port, username, password, database)
+influxdb = InfluxDB::Client.new database, :username => username, :password => password
 
 # Enumerator that emits a sine wave
 Value = (0..360).to_a.map {|i| Math.send(:sin, i / 10.0) * 10 }.each
@@ -84,12 +71,7 @@ List databases:
 ``` ruby
 require 'influxdb'
 
-hostname = 'localhost'
-port     = 8086
-username = 'root'
-password = 'root'
-
-influxdb = InfluxDB::Client.new(hostname, 8086, username, password)
+influxdb = InfluxDB::Client.new
 
 influxdb.get_database_list
 ```
@@ -99,15 +81,26 @@ Delete a database:
 ``` ruby
 require 'influxdb'
 
-hostname = 'localhost'
-port     = 8086
-username = 'root'
-password = 'root'
+influxdb = InfluxDB::Client.new
+
+database = 'site_development'
+influxdb.delete_database(database)
+```
+
+Querying:
+
+``` ruby
+require 'influxdb'
+
+username = 'foo'
+password = 'bar'
 database = 'site_development'
 
-influxdb = InfluxDB::Client.new(username, port, username, password)
+influxdb = InfluxDB::Client.new database, :username => username, :password => password
 
-influxdb.delete_database(database)
+influxdb.query 'select * from time_series_1' do |name, points|
+  puts "#{name} => #{points}"
+end
 ```
 
 
