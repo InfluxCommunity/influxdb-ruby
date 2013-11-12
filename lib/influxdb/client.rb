@@ -69,13 +69,16 @@ module InfluxDB
       url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
       payload = {:name => name, :points => [], :columns => []}
 
-      point = []
-      data.each_pair do |k,v|
-        payload[:columns].push k.to_s
-        point.push v
+      data = data.is_a?(Array) ? data : [data]
+      columns = data.reduce(:merge).keys
+      payload[:columns] = columns
+
+      data.each do |p|
+        point = []
+        columns.each { |c| point << p[c] }
+        payload[:points].push point
       end
 
-      payload[:points].push point
       data = JSON.generate([payload])
       response = http.request(Net::HTTP::Post.new(url), data)
     end

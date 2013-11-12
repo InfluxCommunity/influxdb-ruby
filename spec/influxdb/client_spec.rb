@@ -91,5 +91,39 @@ describe InfluxDB::Client do
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
+
+    it "should POST multiple points" do
+      body = [{
+        :name => "seriez",
+        :points => [["juan", 87], ["shahid", 99]],
+        :columns => ["name", "age"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password"},
+        :body => JSON.generate(body)
+      )
+
+      data = [{:name => "juan", :age => 87}, { :name => "shahid", :age => 99}]
+
+      @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
+    end
+
+    it "should POST multiple points with missing columns" do
+      body = [{
+        :name => "seriez",
+        :points => [["juan", 87], ["shahid", nil]],
+        :columns => ["name", "age"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password"},
+        :body => JSON.generate(body)
+      )
+
+      data = [{:name => "juan", :age => 87}, { :name => "shahid"}]
+
+      @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
+    end
   end
 end
