@@ -53,11 +53,12 @@ describe InfluxDB::Client do
 
   describe "#get_database_list" do
     it "should GET a list of databases" do
+      database_list = [{"name" => "foobar"}]
       stub_request(:get, "http://influxdb.test:9999/dbs").with(
         :query => {:u => "username", :p => "password"}
-      )
+      ).to_return(:body => JSON.generate(database_list, :status => 200))
 
-      @influxdb.get_database_list.should be_a(Net::HTTPOK)
+      @influxdb.get_database_list.should == database_list
     end
   end
 
