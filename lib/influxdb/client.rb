@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require 'addressable/uri'
 
 module InfluxDB
   class Client
@@ -81,6 +82,32 @@ module InfluxDB
 
       data = JSON.generate([payload])
       response = http.request(Net::HTTP::Post.new(url), data)
+    end
+
+    def query query
+      http = Net::HTTP.new(@host, @port)
+      url = "/db/#{@database}/query?u=#{@username}&p=#{@password}&q=#{query}"
+      url = Addressable::URI.encode url
+      response = http.request(Net::HTTP::Get.new(url))
+      series = JSON.parse(response.body)
+
+      if block_given?
+        series.each { |s| yield s['name'], denormalize_series(s) }
+      else
+        series.reduce({}) do |col, s|
+          name                  = s['name']
+          denormalized_series   = denormalize_series s
+          col[name]             = denormalized_series
+          col
+        end
+      end
+    end
+
+    private
+
+    def denormalize_series series
+      columns = series['columns']
+      series['values'].map { |point| Hash[columns.zip(point)]}
     end
   end
 end

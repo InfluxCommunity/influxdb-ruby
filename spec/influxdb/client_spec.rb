@@ -126,4 +126,33 @@ describe InfluxDB::Client do
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
   end
+
+  describe "#execute_queries" do
+    before(:each) do
+      data = [{ :name => "foo", :columns => ["name", "age"], :values => [["shahid", 99],["dix", 50]]}]
+
+      stub_request(:get, "http://influxdb.test:9999/db/database/query").with(
+        :query => { :q => "select * from foo", :u => "username", :p => "password"}
+      ).to_return(
+        :body => JSON.generate(data)
+      )
+    end
+
+    expected_series = { 'foo' => [{"name" => "shahid", "age" => 99}, {"name" => "dix", "age" => 50}]}
+
+    it 'can execute a query with a block' do
+      series = { }
+
+      @influxdb.query "select * from foo" do |name, points|
+        series[name] = points
+      end
+
+      series.should ==(expected_series)
+    end
+
+    it 'can execute a query without a block' do
+      series = @influxdb.query 'select * from foo'
+      series.should ==(expected_series)
+    end
+  end
 end
