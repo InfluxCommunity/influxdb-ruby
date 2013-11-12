@@ -86,7 +86,7 @@ module InfluxDB
 
     def query query
       http = Net::HTTP.new(@host, @port)
-      url = "/db/#{@database}/query?u=#{@username}&p=#{@password}&q=#{query}"
+      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}&q=#{query}"
       url = Addressable::URI.encode url
       response = http.request(Net::HTTP::Get.new(url))
       series = JSON.parse(response.body)
