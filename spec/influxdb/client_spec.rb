@@ -73,6 +73,17 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#get_database_user_list" do
+    it "should GET a list of database users" do
+      user_list = [{"username"=>"user1"}, {"username"=>"user2"}]
+      stub_request(:get, "http://influxdb.test:9999/db/foo/users").with(
+        :query => {:u => "username", :p => "password"}
+      ).to_return(:body => JSON.generate(user_list, :status => 200))
+
+      @influxdb.get_database_user_list("foo").should == user_list
+    end
+  end
+
   describe "#write_point" do
     it "should POST to add points" do
       body = [{
