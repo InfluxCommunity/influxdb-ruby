@@ -66,6 +66,14 @@ module InfluxDB
       response = http.request(Net::HTTP::Post.new(url), data)
     end
 
+    def get_database_user_list(database)
+      http = Net::HTTP.new(@host, @port)
+      url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
+
+      response = http.request(Net::HTTP::Get.new(url))
+      JSON.parse(response.body)
+    end
+
     def write_point(name, data)
       http = Net::HTTP.new(@host, @port)
       url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
