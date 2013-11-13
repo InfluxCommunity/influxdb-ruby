@@ -4,6 +4,7 @@ module InfluxDB
   class Config
     attr_accessor :path, :config
 
+    # +:path+:: path to the config file
     # +:config+:: hash representing InfluxDB configuration
     def initialize(*args)
       opts = args.last.is_a?(Hash) ? args.last : {}
