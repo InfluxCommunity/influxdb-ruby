@@ -12,8 +12,8 @@ module InfluxDB
       @config = opts[:config] || default_config
     end
 
-    def render(hash)
-      return JSON.pretty_generate(hash)
+    def render
+      return JSON.pretty_generate(@config)
     end
 
     def valid?(path=@path)
