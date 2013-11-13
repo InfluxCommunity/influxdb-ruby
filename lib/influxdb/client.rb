@@ -1,6 +1,7 @@
+require 'uri'
 require 'net/http'
 require 'json'
-require 'addressable/uri'
+
 
 module InfluxDB
   class Client
@@ -87,7 +88,7 @@ module InfluxDB
     def query query
       http = Net::HTTP.new(@host, @port)
       url = "/db/#{@database}/series?u=#{@username}&p=#{@password}&q=#{query}"
-      url = Addressable::URI.encode url
+      url = URI.encode url
       response = http.request(Net::HTTP::Get.new(url))
       series = JSON.parse(response.body)
 
