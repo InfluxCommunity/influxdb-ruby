@@ -2,10 +2,13 @@ require 'uri'
 require 'net/http'
 require 'json'
 
-
 module InfluxDB
   class Client
     attr_accessor :host, :port, :username, :password, :database
+    attr_accessor :queue
+
+    include InfluxDB::Logger
+    include InfluxDB::Worker
 
     # Initializes a new Influxdb client
     #
@@ -34,54 +37,48 @@ module InfluxDB
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
       @database = args.first
+      @http = Net::HTTP.new(@host, @port)
+      @queue = InfluxDB::MaxQueue.new
+      spawn_threads!
     end
 
     def create_database(name)
-      http = Net::HTTP.new(@host, @port)
       url = "/db?u=#{@username}&p=#{@password}"
       data = JSON.generate({:name => name})
 
-      response = http.request(Net::HTTP::Post.new(url), data)
+      response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def delete_database(name)
-      http = Net::HTTP.new(@host, @port)
       url = "/db/#{name}?u=#{@username}&p=#{@password}"
 
-      response = http.request(Net::HTTP::Delete.new(url))
+      response = @http.request(Net::HTTP::Delete.new(url))
     end
 
     def get_database_list
-      http = Net::HTTP.new(@host, @port)
       url = "/dbs?u=#{@username}&p=#{@password}"
 
-      response = http.request(Net::HTTP::Get.new(url))
+      response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
     end
 
     def create_database_user(database, username, password)
-      http = Net::HTTP.new(@host, @port)
       url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
       data = JSON.generate({:username => username, :password => password})
-      response = http.request(Net::HTTP::Post.new(url), data)
+      response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def get_database_user_list(database)
-      http = Net::HTTP.new(@host, @port)
       url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
 
-      response = http.request(Net::HTTP::Get.new(url))
+      response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
     end
 
-    def write_point(name, data)
-      http = Net::HTTP.new(@host, @port)
-      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
-      payload = {:name => name, :points => [], :columns => []}
-
+    def write_point(name, data, async=false)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys
-      payload[:columns] = columns
+      payload = {:name => name, :points => [], :columns => columns}
 
       data.each do |p|
         point = []
@@ -89,15 +86,20 @@ module InfluxDB
         payload[:points].push point
       end
 
-      data = JSON.generate([payload])
-      response = http.request(Net::HTTP::Post.new(url), data)
+      async ? @queue.push(payload) : _write([payload])
+    end
+
+    def _write(payload)
+      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
+      data = JSON.generate(payload)
+
+      response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def query query
-      http = Net::HTTP.new(@host, @port)
       url = "/db/#{@database}/series?u=#{@username}&p=#{@password}&q=#{query}"
       url = URI.encode url
-      response = http.request(Net::HTTP::Get.new(url))
+      response = @http.request(Net::HTTP::Get.new(url))
       series = JSON.parse(response.body)
 
       if block_given?
