@@ -97,6 +97,16 @@ database = 'site_development'
 influxdb.delete_database(database)
 ```
 
+Delete a database user:
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new
+
+influxdb.delete_database_user(database, username)
+```
+
 Querying:
 
 ``` ruby

@@ -68,6 +68,12 @@ module InfluxDB
       response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
+    def delete_database_user(database, username)
+      url = full_url("db/#{database}/users/#{username}")
+
+      @http.request(Net::HTTP::Delete.new(url))
+    end
+
     def get_database_user_list(database)
       url = full_url("db/#{database}/users")
 
