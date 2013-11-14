@@ -73,6 +73,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#delete_database_user" do
+    it "should DELETE a database user" do
+      stub_request(:delete, "http://influxdb.test:9999/db/foo/users/bar").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.delete_database_user("foo", "bar").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#get_database_user_list" do
     it "should GET a list of database users" do
       user_list = [{"username"=>"user1"}, {"username"=>"user2"}]
