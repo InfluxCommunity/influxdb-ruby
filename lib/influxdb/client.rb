@@ -43,33 +43,33 @@ module InfluxDB
     end
 
     def create_database(name)
-      url = "/db?u=#{@username}&p=#{@password}"
+      url = full_url("db")
       data = JSON.generate({:name => name})
 
       response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def delete_database(name)
-      url = "/db/#{name}?u=#{@username}&p=#{@password}"
+      url = full_url("db/#{name}")
 
       response = @http.request(Net::HTTP::Delete.new(url))
     end
 
     def get_database_list
-      url = "/dbs?u=#{@username}&p=#{@password}"
+      url = full_url("dbs")
 
       response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
     end
 
     def create_database_user(database, username, password)
-      url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
+      url = full_url("db/#{database}/users")
       data = JSON.generate({:username => username, :password => password})
       response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def get_database_user_list(database)
-      url = "/db/#{database}/users?u=#{@username}&p=#{@password}"
+      url = full_url("db/#{database}/users")
 
       response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
@@ -90,14 +90,14 @@ module InfluxDB
     end
 
     def _write(payload)
-      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}"
+      url = full_url("db/#{@database}/series")
       data = JSON.generate(payload)
 
       response = @http.request(Net::HTTP::Post.new(url), data)
     end
 
     def query query
-      url = "/db/#{@database}/series?u=#{@username}&p=#{@password}&q=#{query}"
+      url = full_url("db/#{@database}/series", "q=#{query}")
       url = URI.encode url
       response = @http.request(Net::HTTP::Get.new(url))
       series = JSON.parse(response.body)
@@ -115,6 +115,12 @@ module InfluxDB
     end
 
     private
+    def full_url(path, params=nil)
+      "".tap do |url|
+        url << "/#{path}?u=#{@username}&p=#{@password}"
+        url << "&#{params}" unless params.nil?
+      end
+    end
 
     def denormalize_series series
       columns = series['columns']
