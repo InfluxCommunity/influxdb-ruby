@@ -140,7 +140,7 @@ describe InfluxDB::Client do
 
   describe "#execute_queries" do
     before(:each) do
-      data = [{ :name => "foo", :columns => ["name", "age"], :values => [["shahid", 99],["dix", 50]]}]
+      data = [{ :name => "foo", :columns => ["name", "age"], :points => [["shahid", 99],["dix", 50]]}]
 
       stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
         :query => { :q => "select * from foo", :u => "username", :p => "password"}

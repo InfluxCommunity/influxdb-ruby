@@ -116,7 +116,7 @@ module InfluxDB
 
     def denormalize_series series
       columns = series['columns']
-      series['values'].map { |point| Hash[columns.zip(point)]}
+      series['points'].map { |point| Hash[columns.zip(point)]}
     end
   end
 end
