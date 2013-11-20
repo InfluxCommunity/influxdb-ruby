@@ -73,6 +73,17 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#update_database_user" do
+    it "should POST to update a database user" do
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
+        :query => {:u => "username", :p => "password"},
+        :body => JSON.generate({:password => "passpass"})
+      )
+
+      @influxdb.update_database_user("foo", "useruser", :password => "passpass").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#delete_database_user" do
     it "should DELETE a database user" do
       stub_request(:delete, "http://influxdb.test:9999/db/foo/users/bar").with(
