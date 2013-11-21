@@ -46,7 +46,8 @@ module InfluxDB
       url = full_url("db")
       data = JSON.generate({:name => name})
 
-      response = @http.request(Net::HTTP::Post.new(url), data)
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
     end
 
     def delete_database(name)
@@ -65,13 +66,17 @@ module InfluxDB
     def create_database_user(database, username, password)
       url = full_url("db/#{database}/users")
       data = JSON.generate({:username => username, :password => password})
-      response = @http.request(Net::HTTP::Post.new(url), data)
+
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
     end
 
     def update_database_user(database, username, options = {})
       url = full_url("db/#{database}/users/#{username}")
       data = JSON.generate(options)
-      @http.request(Net::HTTP::Post.new(url), data)
+
+      headers = {"Content-Type" => "application/json"}
+      @http.request(Net::HTTP::Post.new(url, headers), data)
     end
 
     def delete_database_user(database, username)
@@ -89,7 +94,7 @@ module InfluxDB
 
     def write_point(name, data, async=false)
       data = data.is_a?(Array) ? data : [data]
-      columns = data.reduce(:merge).keys
+      columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
 
       data.each do |p|
@@ -105,10 +110,11 @@ module InfluxDB
       url = full_url("db/#{@database}/series")
       data = JSON.generate(payload)
 
-      response = @http.request(Net::HTTP::Post.new(url), data)
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
     end
 
-    def query query
+    def query(query)
       url = full_url("db/#{@database}/series", "q=#{query}")
       url = URI.encode url
       response = @http.request(Net::HTTP::Get.new(url))

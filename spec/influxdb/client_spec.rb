@@ -34,7 +34,7 @@ describe InfluxDB::Client do
     it "should POST to create a new database" do
       stub_request(:post, "http://influxdb.test:9999/db").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate({:name => "foo"})
+        :body => {:name => "foo"}
       )
 
       @influxdb.create_database("foo").should be_a(Net::HTTPOK)
@@ -56,7 +56,7 @@ describe InfluxDB::Client do
       database_list = [{"name" => "foobar"}]
       stub_request(:get, "http://influxdb.test:9999/dbs").with(
         :query => {:u => "username", :p => "password"}
-      ).to_return(:body => JSON.generate(database_list, :status => 200))
+      ).to_return(:body => JSON.generate(database_list), :status => 200)
 
       @influxdb.get_database_list.should == database_list
     end
@@ -66,7 +66,7 @@ describe InfluxDB::Client do
     it "should POST to create a new database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate({:username => "useruser", :password => "passpass"})
+        :body => {:username => "useruser", :password => "passpass"}
       )
 
       @influxdb.create_database_user("foo", "useruser", "passpass").should be_a(Net::HTTPOK)
@@ -77,7 +77,7 @@ describe InfluxDB::Client do
     it "should POST to update a database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate({:password => "passpass"})
+        :body => {:password => "passpass"}
       )
 
       @influxdb.update_database_user("foo", "useruser", :password => "passpass").should be_a(Net::HTTPOK)
@@ -108,17 +108,16 @@ describe InfluxDB::Client do
   describe "#write_point" do
     it "should POST to add points" do
       body = [{
-        :name => "seriez",
-        :points => [["juan", 87]],
-        :columns => ["name", "age"]
+        "name" => "seriez",
+        "points" => [[87, "juan"]],
+        "columns" => ["age", "name"]
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate(body)
+        :body => body
       )
 
-      # data = [{:name => "juan", :age => 87}, {:name => "pablo", :age => 64}]
       data = {:name => "juan", :age => 87}
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
@@ -126,14 +125,14 @@ describe InfluxDB::Client do
 
     it "should POST multiple points" do
       body = [{
-        :name => "seriez",
-        :points => [["juan", 87], ["shahid", 99]],
-        :columns => ["name", "age"]
+        "name" => "seriez",
+        "points" => [[87, "juan"], [99, "shahid"]],
+        "columns" => ["age", "name"]
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate(body)
+        :body => body
       )
 
       data = [{:name => "juan", :age => 87}, { :name => "shahid", :age => 99}]
@@ -143,14 +142,14 @@ describe InfluxDB::Client do
 
     it "should POST multiple points with missing columns" do
       body = [{
-        :name => "seriez",
-        :points => [["juan", 87], ["shahid", nil]],
-        :columns => ["name", "age"]
+        "name" => "seriez",
+        "points" => [[87, "juan"], [nil, "shahid"]],
+        "columns" => ["age", "name"]
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
         :query => {:u => "username", :p => "password"},
-        :body => JSON.generate(body)
+        :body => body
       )
 
       data = [{:name => "juan", :age => 87}, { :name => "shahid"}]
