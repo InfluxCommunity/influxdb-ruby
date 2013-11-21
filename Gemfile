@@ -2,4 +2,4 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "webmock", :git => "git@github.com:influxdb/webmock.git"
+gem "webmock", :git => "https://github.com/influxdb/webmock.git"
