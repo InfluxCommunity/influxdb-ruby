@@ -114,6 +114,14 @@ module InfluxDB
       JSON.parse(response.body)
     end
 
+    def alter_database_privilege(database, username, admin=true)
+      url = full_url("db/#{database}/users/#{username}")
+      data = JSON.generate({:admin => admin})
+
+      headers = {"Content-Type" => "application/json"}
+      @http.request(Net::HTTP::Post.new(url, headers), data)
+    end
+
     def write_point(name, data, async=false)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
