@@ -40,6 +40,16 @@ new_password = 'bar'
 influxdb.create_database_user(database, new_username, new_password)
 ```
 
+Update a database user:
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new
+
+influxdb.update_database_user(database, username, :password => "new_password")
+```
+
 Write some data:
 
 ``` ruby
