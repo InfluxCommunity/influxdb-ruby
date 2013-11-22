@@ -62,6 +62,38 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#create_cluster_admin" do
+    it "should POST to create a new cluster admin" do
+      stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(
+        :query => {:u => "username", :p => "password"},
+        :body => {:username => "adminadmin", :password => "passpass"}
+      )
+
+      @influxdb.create_cluster_admin("adminadmin", "passpass").should be_a(Net::HTTPOK)
+    end
+  end
+
+  describe "#update_cluster_admin" do
+    it "should POST to update a cluster admin" do
+      stub_request(:post, "http://influxdb.test:9999/cluster_admins/adminadmin").with(
+        :query => {:u => "username", :p => "password"},
+        :body => {:password => "passpass"}
+      )
+
+      @influxdb.update_cluster_admin("adminadmin", :password => "passpass").should be_a(Net::HTTPOK)
+    end
+  end
+
+  describe "#delete_cluster_admin" do
+    it "should DELETE a cluster admin" do
+      stub_request(:delete, "http://influxdb.test:9999/cluster_admins/adminadmin").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.delete_cluster_admin("adminadmin").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#create_database_user" do
     it "should POST to create a new database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
@@ -81,6 +113,17 @@ describe InfluxDB::Client do
       )
 
       @influxdb.update_database_user("foo", "useruser", :password => "passpass").should be_a(Net::HTTPOK)
+    end
+  end
+
+  describe "#alter_database_privilege" do
+    it "should POST to alter privileges for a user on a database" do
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").write(
+        :query => {:u => "username", :p => "password"}
+      )
+      
+      @influxdb.alter_database_privilege("foo", "useruser", admin=true).should be_a(Net::HTTPOK)
+      @influxdb.alter_database_privilege("foo", "useruser", admin=false).should be_a(Net::HTTPOK)
     end
   end
 
