@@ -87,7 +87,7 @@ module InfluxDB
 
     def create_database_user(database, username, password)
       url = full_url("db/#{database}/users")
-      data = JSON.generate({:username => username, :password => password})
+      data = JSON.generate({:name => username, :password => password})
 
       headers = {"Content-Type" => "application/json"}
       response = @http.request(Net::HTTP::Post.new(url, headers), data)

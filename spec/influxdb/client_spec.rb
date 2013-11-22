@@ -66,7 +66,7 @@ describe InfluxDB::Client do
     it "should POST to create a new cluster admin" do
       stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(
         :query => {:u => "username", :p => "password"},
-        :body => {:username => "adminadmin", :password => "passpass"}
+        :body => {:name => "adminadmin", :password => "passpass"}
       )
 
       @influxdb.create_cluster_admin("adminadmin", "passpass").should be_a(Net::HTTPOK)
@@ -80,7 +80,7 @@ describe InfluxDB::Client do
         :body => {:password => "passpass"}
       )
 
-      @influxdb.update_cluster_admin("adminadmin", :password => "passpass").should be_a(Net::HTTPOK)
+      @influxdb.update_cluster_admin("adminadmin", "passpass").should be_a(Net::HTTPOK)
     end
   end
 
@@ -98,7 +98,7 @@ describe InfluxDB::Client do
     it "should POST to create a new database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
         :query => {:u => "username", :p => "password"},
-        :body => {:username => "useruser", :password => "passpass"}
+        :body => {:name => "useruser", :password => "passpass"}
       )
 
       @influxdb.create_database_user("foo", "useruser", "passpass").should be_a(Net::HTTPOK)
@@ -118,10 +118,10 @@ describe InfluxDB::Client do
 
   describe "#alter_database_privilege" do
     it "should POST to alter privileges for a user on a database" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").write(
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
         :query => {:u => "username", :p => "password"}
       )
-      
+
       @influxdb.alter_database_privilege("foo", "useruser", admin=true).should be_a(Net::HTTPOK)
       @influxdb.alter_database_privilege("foo", "useruser", admin=false).should be_a(Net::HTTPOK)
     end
