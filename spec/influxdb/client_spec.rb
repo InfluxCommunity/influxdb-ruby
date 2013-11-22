@@ -118,7 +118,7 @@ describe InfluxDB::Client do
 
   describe "#alter_database_privilege" do
     it "should POST to alter privileges for a user on a database" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").write(
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
         :query => {:u => "username", :p => "password"}
       )
       
