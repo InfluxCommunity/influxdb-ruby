@@ -63,6 +63,28 @@ module InfluxDB
       JSON.parse(response.body)
     end
 
+    def create_cluster_admin(username, password)
+      url = full_url("cluster_admins")
+      data = JSON.generate({:name => username, :password => password})
+
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+    end
+
+    def update_cluster_admin(username, password)
+      url = full_url("cluster_admins/#{username}")
+      data = JSON.generate({:password => password})
+
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+    end
+
+    def delete_cluster_admin(username)
+      url = full_url("cluster_admins/#{username}")
+
+      response = @http.request(Net::HTTP::Delete.new(url))
+    end
+
     def create_database_user(database, username, password)
       url = full_url("db/#{database}/users")
       data = JSON.generate({:username => username, :password => password})
@@ -90,6 +112,14 @@ module InfluxDB
 
       response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
+    end
+
+    def alter_database_privilege(database, username, admin=true)
+      url = full_url("db/#{database}/users/#{username}")
+      data = JSON.generate({:admin => admin})
+
+      headers = {"Content-Type" => "application/json"}
+      @http.request(Net::HTTP::Post.new(url, headers), data)
     end
 
     def write_point(name, data, async=false)
