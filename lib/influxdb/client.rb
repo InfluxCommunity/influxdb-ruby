@@ -85,6 +85,13 @@ module InfluxDB
       response = @http.request(Net::HTTP::Delete.new(url))
     end
 
+    def get_cluster_admin_list
+      url = full_url("cluster_admins")
+
+      response = @http.request(Net::HTTP::Get.new(url))
+      JSON.parse(response.body)
+    end
+
     def create_database_user(database, username, password)
       url = full_url("db/#{database}/users")
       data = JSON.generate({:name => username, :password => password})

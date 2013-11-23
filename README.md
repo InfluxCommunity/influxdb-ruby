@@ -76,6 +76,16 @@ loop do
 end
 ```
 
+List cluster admins:
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new
+
+influxdb.get_cluster_admin_list
+```
+
 List databases:
 
 ``` ruby
