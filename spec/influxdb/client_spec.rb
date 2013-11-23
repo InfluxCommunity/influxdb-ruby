@@ -94,6 +94,17 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#get_cluster_admin_list" do
+    it "should GET a list of cluster admins" do
+      admin_list = [{"username"=>"root"}, {"username"=>"admin"}]
+      stub_request(:get, "http://influxdb.test:9999/cluster_admins").with(
+        :query => {:u => "username", :p => "password"}
+      ).to_return(:body => JSON.generate(admin_list), :status => 200)
+
+      @influxdb.get_cluster_admin_list.should == admin_list
+    end
+  end
+
   describe "#create_database_user" do
     it "should POST to create a new database user" do
       stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
