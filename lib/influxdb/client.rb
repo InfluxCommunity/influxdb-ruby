@@ -122,11 +122,7 @@ module InfluxDB
     end
 
     def alter_database_privilege(database, username, admin=true)
-      url = full_url("db/#{database}/users/#{username}")
-      data = JSON.generate({:admin => admin})
-
-      headers = {"Content-Type" => "application/json"}
-      @http.request(Net::HTTP::Post.new(url, headers), data)
+      update_database_user(database, username, :admin => admin)
     end
 
     def write_point(name, data, async=false)
