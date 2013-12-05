@@ -177,6 +177,23 @@ describe InfluxDB::Client do
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
 
+    it "raise an exception if the server didn't return 200" do
+      body = [{
+        "name" => "seriez",
+        "points" => [[87, "juan"]],
+        "columns" => ["age", "name"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password"},
+        :body => body
+      ).to_return(:status => 401)
+
+      data = {:name => "juan", :age => 87}
+
+      expect { @influxdb.write_point("seriez", data) }.to raise_error
+    end
+
     it "should POST multiple points" do
       body = [{
         "name" => "seriez",
@@ -187,7 +204,7 @@ describe InfluxDB::Client do
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
         :query => {:u => "username", :p => "password"},
         :body => body
-      )
+      ).to_return(:status => 200)
 
       data = [{:name => "juan", :age => 87}, { :name => "shahid", :age => 99}]
 

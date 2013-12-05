@@ -145,6 +145,8 @@ module InfluxDB
 
       headers = {"Content-Type" => "application/json"}
       response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      raise "Write failed with '#{response.message}'" unless response.code == "200"
+      response
     end
 
     def query(query)
