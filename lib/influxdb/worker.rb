@@ -52,7 +52,11 @@ module InfluxDB
           data.push p
         end
 
-        _write(data)
+        begin
+          _write(data)
+        rescue => e
+          puts "Cannot write data: #{e.inspect}"
+        end
       end while @queue.length > MAX_POST_POINTS
     end
   end
