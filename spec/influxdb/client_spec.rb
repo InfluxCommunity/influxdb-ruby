@@ -54,7 +54,7 @@ describe InfluxDB::Client do
   describe "#get_database_list" do
     it "should GET a list of databases" do
       database_list = [{"name" => "foobar"}]
-      stub_request(:get, "http://influxdb.test:9999/dbs").with(
+      stub_request(:get, "http://influxdb.test:9999/db").with(
         :query => {:u => "username", :p => "password"}
       ).to_return(:body => JSON.generate(database_list), :status => 200)
 

@@ -57,7 +57,7 @@ module InfluxDB
     end
 
     def get_database_list
-      url = full_url("dbs")
+      url = full_url("db")
 
       response = @http.request(Net::HTTP::Get.new(url))
       JSON.parse(response.body)
