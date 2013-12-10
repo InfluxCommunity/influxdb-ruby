@@ -31,12 +31,12 @@ module InfluxDB
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
     def initialize *args
+      @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
       @host = opts[:host] || "localhost"
       @port = opts[:port] || 8086
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
-      @database = args.first
       @http = Net::HTTP.new(@host, @port)
       @queue = InfluxDB::MaxQueue.new
       spawn_threads!

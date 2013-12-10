@@ -8,25 +8,62 @@ describe InfluxDB::Client do
   end
 
   describe "#new" do
-    it "should instantiate a new InfluxDB client and default to localhost" do
-      @influxdb = InfluxDB::Client.new
+    describe "with no parameters specified" do
+      it "should be initialzed with a nil database and the default options" do
+        @influxdb = InfluxDB::Client.new
 
-      @influxdb.should be_a(InfluxDB::Client)
-      @influxdb.host.should ==("localhost")
-      @influxdb.port.should ==(8086)
-      @influxdb.username.should ==("root")
-      @influxdb.password.should ==("root")
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.database.should be_nil
+        @influxdb.host.should == "localhost"
+        @influxdb.port.should == 8086
+        @influxdb.username.should == "root"
+        @influxdb.password.should == "root"
+      end
     end
 
-    it "should instantiate a new InfluxDB client" do
-      @influxdb = InfluxDB::Client.new "database", :hostname => "host",
-        :port => "port", :username => "username", :password => "password"
+    describe "with no database specified" do
+      it "should be initialized with a nil database and the specified options" do
+        @influxdb = InfluxDB::Client.new :hostname => "host",
+                                         :port => "port",
+                                         :username => "username",
+                                         :password => "password"
 
-      @influxdb.should be_a(InfluxDB::Client)
-      @influxdb.host.should ==("localhost")
-      @influxdb.port.should ==("port")
-      @influxdb.username.should ==("username")
-      @influxdb.password.should ==("password")
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.database.should be_nil
+        @influxdb.host.should == "localhost"
+        @influxdb.port.should == "port"
+        @influxdb.username.should == "username"
+        @influxdb.password.should == "password"
+      end
+    end
+
+    describe "with only a database specified" do
+      it "should be initialized with the specified database and the default options" do
+        @influxdb = InfluxDB::Client.new "database"
+
+        @influxdb.should be_a(InfluxDB::Client)
+        @influxdb.database.should == "database"
+        @influxdb.host.should == "localhost"
+        @influxdb.port.should == 8086
+        @influxdb.username.should == "root"
+        @influxdb.password.should == "root"
+      end
+    end
+
+    describe "with both a database and options specified" do
+      it "should be initialized with the specified database and options" do
+        @influxdb = InfluxDB::Client.new "database", :hostname => "host",
+                                                     :port => "port",
+                                                     :username => "username",
+                                                     :password => "password"
+
+        @influxdb.should be_a(InfluxDB::Client)
+        @influxdb.database.should == "database"
+        @influxdb.host.should == "localhost"
+        @influxdb.port.should == "port"
+        @influxdb.username.should == "username"
+        @influxdb.password.should == "password"
+      end
     end
   end
 
