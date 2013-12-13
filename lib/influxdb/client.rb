@@ -32,6 +32,7 @@ module InfluxDB
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
     # +:use_ssl+:: use ssl to connect
+    # +:async+:: write points asynchronously
     def initialize *args
       @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
@@ -41,8 +42,15 @@ module InfluxDB
       @password = opts[:password] || "root"
       @http = Net::HTTP.new(@host, @port)
       @http.use_ssl = opts[:use_ssl]
-      @queue = InfluxDB::MaxQueue.new
-      spawn_threads!
+      @async = opts[:async] || false
+      if async?
+        @queue = InfluxDB::MaxQueue.new
+        spawn_threads!
+      end
+    end
+
+    def async?
+      @async == true
     end
 
     def create_database(name)
@@ -128,7 +136,7 @@ module InfluxDB
       update_database_user(database, username, :admin => admin)
     end
 
-    def write_point(name, data, async=false)
+    def write_point(name, data)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
@@ -139,7 +147,7 @@ module InfluxDB
         payload[:points].push point
       end
 
-      async ? @queue.push(payload) : _write([payload])
+      async? ? @queue.push(payload) : _write([payload])
     end
 
     def _write(payload)

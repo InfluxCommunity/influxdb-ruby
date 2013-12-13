@@ -19,6 +19,13 @@ describe InfluxDB::Client do
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
         @influxdb.instance_variable_get(:@http).use_ssl?.should == false
+        @influxdb.should_not be_async
+        @influxdb.queue.should == nil
+      end
+
+      it "should not spawn threads" do
+        InfluxDB::Client.any_instance.should_not_receive(:spawn_threads!)
+        @influxdb = InfluxDB::Client.new
       end
     end
 
@@ -70,14 +77,26 @@ describe InfluxDB::Client do
     describe "with ssl option specified" do
       it "should be initialized with ssl enabled" do
         @influxdb = InfluxDB::Client.new nil, :use_ssl => true
-
         @influxdb.should be_a InfluxDB::Client
-        @influxdb.database.should be_nil
-        @influxdb.host.should == "localhost"
-        @influxdb.port.should == 8086
-        @influxdb.username.should == "root"
-        @influxdb.password.should == "root"
         @influxdb.instance_variable_get(:@http).use_ssl?.should == true
+      end
+    end
+
+    describe "with async enabled" do
+      it "should be async" do
+        @influxdb = InfluxDB::Client.new nil, :async => true
+        @influxdb.should be_async
+      end
+
+      it "should create queue" do
+        @influxdb = InfluxDB::Client.new nil, :async => true
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.queue.should_not be_nil
+      end
+
+      it "should spawn threads" do
+        InfluxDB::Client.any_instance.should_receive(:spawn_threads!)
+        @influxdb = InfluxDB::Client.new nil, :async => true
       end
     end
   end
