@@ -18,6 +18,13 @@ describe InfluxDB::Client do
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
+        @influxdb.should_not be_async
+        @influxdb.queue.should == nil
+      end
+
+      it "should not spawn threads" do
+        InfluxDB::Client.any_instance.should_not_receive(:spawn_threads!)
+        @influxdb = InfluxDB::Client.new
       end
     end
 
@@ -63,6 +70,24 @@ describe InfluxDB::Client do
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
+      end
+    end
+
+    describe "with async enabled" do
+      it "should be async" do
+        @influxdb = InfluxDB::Client.new nil, :async => true
+        @influxdb.should be_async
+      end
+
+      it "should create queue" do
+        @influxdb = InfluxDB::Client.new nil, :async => true
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.queue.should_not be_nil
+      end
+
+      it "should spawn threads" do
+        InfluxDB::Client.any_instance.should_receive(:spawn_threads!)
+        @influxdb = InfluxDB::Client.new nil, :async => true
       end
     end
   end
