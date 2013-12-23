@@ -18,6 +18,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
+        @influxdb.instance_variable_get(:@http).use_ssl?.should == false
       end
     end
 
@@ -63,6 +64,20 @@ describe InfluxDB::Client do
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
+      end
+    end
+
+    describe "with ssl option specified" do
+      it "should be initialized with ssl enabled" do
+        @influxdb = InfluxDB::Client.new nil, :use_ssl => true
+
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.database.should be_nil
+        @influxdb.host.should == "localhost"
+        @influxdb.port.should == 8086
+        @influxdb.username.should == "root"
+        @influxdb.password.should == "root"
+        @influxdb.instance_variable_get(:@http).use_ssl?.should == true
       end
     end
   end

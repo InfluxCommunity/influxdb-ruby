@@ -1,5 +1,6 @@
 require 'uri'
 require 'net/http'
+require 'net/https'
 require 'json'
 
 module InfluxDB
@@ -30,6 +31,7 @@ module InfluxDB
     # +:port+:: the port to connect to
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
+    # +:use_ssl+:: use ssl to connect
     def initialize *args
       @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
@@ -38,6 +40,7 @@ module InfluxDB
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
       @http = Net::HTTP.new(@host, @port)
+      @http.use_ssl = opts[:use_ssl]
       @queue = InfluxDB::MaxQueue.new
       spawn_threads!
     end
