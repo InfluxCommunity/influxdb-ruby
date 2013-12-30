@@ -3,7 +3,7 @@ require "net/http"
 require "uri"
 
 module InfluxDB
-  module Worker
+  class Worker
     attr_accessor :queue
 
     include InfluxDB::Logger
@@ -11,6 +11,11 @@ module InfluxDB
     MAX_POST_POINTS = 200
     NUM_WORKER_THREADS = 3
     SLEEP_INTERVAL = 500
+
+    def initialize
+      @queue = InfluxDB::MaxQueue.new
+      spawn_threads!
+    end
 
     def current_threads
       Thread.list.select {|t| t[:influxdb] == self.object_id}

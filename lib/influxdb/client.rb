@@ -6,10 +6,9 @@ require 'json'
 module InfluxDB
   class Client
     attr_accessor :host, :port, :username, :password, :database
-    attr_accessor :queue
+    attr_accessor :queue, :worker
 
     include InfluxDB::Logger
-    include InfluxDB::Worker
 
     # Initializes a new Influxdb client
     #
@@ -41,8 +40,6 @@ module InfluxDB
       @password = opts[:password] || "root"
       @http = Net::HTTP.new(@host, @port)
       @http.use_ssl = opts[:use_ssl]
-      @queue = InfluxDB::MaxQueue.new
-      spawn_threads!
     end
 
     def create_database(name)
@@ -139,7 +136,12 @@ module InfluxDB
         payload[:points].push point
       end
 
-      async ? @queue.push(payload) : _write([payload])
+      if async
+        @worker = InfluxDB::Worker.new if @worker.nil?
+        @worker.queue.push(payload)
+      else
+        _write([payload])
+      end
     end
 
     def _write(payload)
