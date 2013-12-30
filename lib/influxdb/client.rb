@@ -10,19 +10,19 @@ module InfluxDB
 
     include InfluxDB::Logger
 
-    # Initializes a new Influxdb client
+    # Initializes a new InfluxDB client
     #
     # === Examples:
     #
-    #     Influxdb.new                               # connect to localhost using root/root
-    #                                                # as the credentials and doesn't connect to a db
+    #     InfluxDB::Client.new                               # connect to localhost using root/root
+    #                                                        # as the credentials and doesn't connect to a db
     #
-    #     Influxdb.new 'db'                          # connect to localhost using root/root
-    #                                                # as the credentials and 'db' as the db name
+    #     InfluxDB::Client.new 'db'                          # connect to localhost using root/root
+    #                                                        # as the credentials and 'db' as the db name
     #
-    #     Influxdb.new :username => 'username'       # override username, other defaults remain unchanged
+    #     InfluxDB::Client.new :username => 'username'       # override username, other defaults remain unchanged
     #
-    #     Influxdb.new 'db', :username => 'username' # override username, use 'db' as the db name
+    #     Influxdb::Client.new 'db', :username => 'username' # override username, use 'db' as the db name
     #
     # === Valid options in hash
     #
@@ -45,80 +45,55 @@ module InfluxDB
     def create_database(name)
       url = full_url("db")
       data = JSON.generate({:name => name})
-
-      headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      post(url, data)
     end
 
     def delete_database(name)
-      url = full_url("db/#{name}")
-
-      response = @http.request(Net::HTTP::Delete.new(url))
+      delete full_url("db/#{name}")
     end
 
     def get_database_list
-      url = full_url("db")
-
-      response = @http.request(Net::HTTP::Get.new(url))
-      JSON.parse(response.body)
+      get full_url("db")
     end
 
     def create_cluster_admin(username, password)
       url = full_url("cluster_admins")
       data = JSON.generate({:name => username, :password => password})
-
-      headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      post(url, data)
     end
 
     def update_cluster_admin(username, password)
       url = full_url("cluster_admins/#{username}")
       data = JSON.generate({:password => password})
-
-      headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      post(url, data)
     end
 
     def delete_cluster_admin(username)
-      url = full_url("cluster_admins/#{username}")
-
-      response = @http.request(Net::HTTP::Delete.new(url))
+      delete full_url("cluster_admins/#{username}")
     end
 
     def get_cluster_admin_list
-      url = full_url("cluster_admins")
-
-      response = @http.request(Net::HTTP::Get.new(url))
-      JSON.parse(response.body)
+      get full_url("cluster_admins")
     end
 
     def create_database_user(database, username, password)
       url = full_url("db/#{database}/users")
       data = JSON.generate({:name => username, :password => password})
-
-      headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      post(url, data)
     end
 
     def update_database_user(database, username, options = {})
       url = full_url("db/#{database}/users/#{username}")
       data = JSON.generate(options)
-
-      headers = {"Content-Type" => "application/json"}
-      @http.request(Net::HTTP::Post.new(url, headers), data)
+      post(url, data)
     end
 
     def delete_database_user(database, username)
-      url = full_url("db/#{database}/users/#{username}")
-
-      @http.request(Net::HTTP::Delete.new(url))
+      delete full_url("db/#{database}/users/#{username}")
     end
 
     def get_database_user_list(database)
-      url = full_url("db/#{database}/users")
-
-      response = @http.request(Net::HTTP::Get.new(url))
-      JSON.parse(response.body)
+      get full_url("db/#{database}/users")
     end
 
     def alter_database_privilege(database, username, admin=true)
@@ -155,10 +130,8 @@ module InfluxDB
     end
 
     def query(query)
-      url = full_url("db/#{@database}/series", "q=#{query}")
-      url = URI.encode url
-      response = @http.request(Net::HTTP::Get.new(url))
-      series = JSON.parse(response.body)
+      url = URI.encode full_url("db/#{@database}/series", "q=#{query}")
+      series = get(url)
 
       if block_given?
         series.each { |s| yield s['name'], denormalize_series(s) }
@@ -177,6 +150,40 @@ module InfluxDB
       "".tap do |url|
         url << "/#{path}?u=#{@username}&p=#{@password}"
         url << "&#{params}" unless params.nil?
+      end
+    end
+
+    def get(url)
+      response = @http.request(Net::HTTP::Get.new(url))
+      if response.kind_of? Net::HTTPSuccess
+        return JSON.parse(response.body)
+      elsif response.kind_of? Net::HTTPUnauthorized
+        raise InfluxDB::AuthenticationError.new response.body
+      else
+        raise InfluxDB::Error.new response.body
+      end
+    end
+
+    def post(url, data)
+      headers = {"Content-Type" => "application/json"}
+      response = @http.request(Net::HTTP::Post.new(url, headers), data)
+      if response.kind_of? Net::HTTPSuccess
+        return response
+      elsif response.kind_of? Net::HTTPUnauthorized
+        raise InfluxDB::AuthenticationError.new response.body
+      else
+        raise InfluxDB::Error.new response.body
+      end
+    end
+
+    def delete(url)
+      response = @http.request(Net::HTTP::Delete.new(url))
+      if response.kind_of? Net::HTTPSuccess
+        return response
+      elsif response.kind_of? Net::HTTPUnauthorized
+        raise InfluxDB::AuthenticationError.new response.body
+      else
+        raise InfluxDB::Error.new response.body
       end
     end
 
