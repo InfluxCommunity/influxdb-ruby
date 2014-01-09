@@ -42,9 +42,11 @@ module InfluxDB
       @http.use_ssl = opts[:use_ssl]
     end
 
-    def create_database(name)
+    ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
+    def create_database(name, options = {})
       url = full_url("db")
-      data = JSON.generate({:name => name})
+      options[:name] = name
+      data = JSON.generate(options)
       post(url, data)
     end
 
