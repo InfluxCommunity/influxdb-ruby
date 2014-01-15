@@ -26,7 +26,7 @@ module InfluxDB
     #
     # === Valid options in hash
     #
-    # +:hostname+:: the hostname to connect to
+    # +:host+:: the hostname to connect to
     # +:port+:: the port to connect to
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
