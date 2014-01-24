@@ -279,6 +279,42 @@ describe InfluxDB::Client do
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
+
+    it "should dump a hash point value to json" do
+      prefs = [{'favorite_food' => 'lasagna'}]
+      body = [{
+        "name" => "users",
+        "points" => [[1, prefs.to_json]],
+        "columns" => ["id", "prefs"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password"},
+        :body => body
+      )
+
+      data = {id: 1, prefs: prefs}
+
+      @influxdb.write_point("users", data).should be_a(Net::HTTPOK)
+    end
+
+    it "should dump an array point value to json" do
+      line_items = [{'id' => 1, 'product_id' => 2, 'quantity' => 1, 'price' => "100.00"}]
+      body = [{
+        "name" => "seriez",
+        "points" => [[1, line_items.to_json]],
+        "columns" => ["id", "line_items"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password"},
+        :body => body
+      )
+
+      data = {id: 1, line_items: line_items}
+
+      @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
+    end
   end
 
   describe "#execute_queries" do
@@ -307,6 +343,23 @@ describe InfluxDB::Client do
     it 'can execute a query without a block' do
       series = @influxdb.query 'select * from foo'
       series.should ==(expected_series)
+    end
+  end
+
+  describe "#query" do
+
+    it 'should load JSON point value as an array of hashes' do
+      line_items = [{'id' => 1, 'product_id' => 2, 'quantity' => 1, 'price' => "100.00"}]
+
+      data = [{ :name => "orders", :columns => ["id", "line_items"], :points => [[1, line_items.to_json]]}]
+
+      stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
+        :query => { :q => "select * from orders", :u => "username", :p => "password"}
+      ).to_return(
+        :body => JSON.generate(data)
+      )
+
+      @influxdb.query('select * from orders').should == {'orders' => [{'id' => 1, 'line_items' => line_items}]}
     end
   end
 end

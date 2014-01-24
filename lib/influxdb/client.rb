@@ -107,10 +107,10 @@ module InfluxDB
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
 
-      data.each do |p|
-        point = []
-        columns.each { |c| point << p[c] }
-        payload[:points].push point
+      data.each do |point|
+        payload[:points] << columns.inject([]) do |array, column|
+          array << InfluxDB::PointValue.new(point[column]).dump
+        end
       end
 
       if async
@@ -191,7 +191,12 @@ module InfluxDB
 
     def denormalize_series series
       columns = series['columns']
-      series['points'].map { |point| Hash[columns.zip(point)]}
+      series['points'].map do |point|
+        decoded_point = point.map do |value|
+          InfluxDB::PointValue.new(value).load
+        end
+        Hash[columns.zip(decoded_point)]
+      end
     end
   end
 end
