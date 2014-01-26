@@ -293,7 +293,7 @@ describe InfluxDB::Client do
         :body => body
       )
 
-      data = {id: 1, prefs: prefs}
+      data = {:id => 1, :prefs => prefs}
 
       @influxdb.write_point("users", data).should be_a(Net::HTTPOK)
     end
@@ -311,7 +311,7 @@ describe InfluxDB::Client do
         :body => body
       )
 
-      data = {id: 1, line_items: line_items}
+      data = {:id => 1, :line_items => line_items}
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
