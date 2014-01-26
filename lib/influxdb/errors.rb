@@ -7,4 +7,7 @@ module InfluxDB
 
   class ConnectionError < Error
   end
+
+  class JSONParserError < Error
+  end
 end
