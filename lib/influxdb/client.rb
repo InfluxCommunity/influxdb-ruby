@@ -5,7 +5,7 @@ require 'json'
 
 module InfluxDB
   class Client
-    attr_accessor :host, :port, :username, :password, :database
+    attr_accessor :host, :port, :username, :password, :database, :time_precision
     attr_accessor :queue, :worker
 
     include InfluxDB::Logger
@@ -40,6 +40,7 @@ module InfluxDB
       @password = opts[:password] || "root"
       @http = Net::HTTP.new(@host, @port)
       @http.use_ssl = opts[:use_ssl]
+      @time_precision = opts[:time_precision] || "m"
     end
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
@@ -102,7 +103,7 @@ module InfluxDB
       update_database_user(database, username, :admin => admin)
     end
 
-    def write_point(name, data, async=false)
+    def write_point(name, data, async=false, time_precision=nil)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
@@ -117,12 +118,12 @@ module InfluxDB
         @worker = InfluxDB::Worker.new if @worker.nil?
         @worker.queue.push(payload)
       else
-        _write([payload])
+        _write([payload], time_precision)
       end
     end
 
-    def _write(payload)
-      url = full_url("db/#{@database}/series")
+    def _write(payload, time_precision=nil)
+      url = full_url("db/#{@database}/series", "time_precision=#{(time_precision || @time_precision)}")
       data = JSON.generate(payload)
 
       headers = {"Content-Type" => "application/json"}
