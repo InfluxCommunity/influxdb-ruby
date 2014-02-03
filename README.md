@@ -78,7 +78,7 @@ end
 
 Write data with time precision:
 
-Writes time precision can be set 2 ways, either in the client initialization
+Time precision can be set in 2 ways, either in the client initialization
 
 ``` ruby
 require 'influxdb'
