@@ -4,7 +4,7 @@ require "json"
 describe InfluxDB::Client do
   before do
     @influxdb = InfluxDB::Client.new "database", :host => "influxdb.test",
-      :port => 9999, :username => "username", :password => "password"
+      :port => 9999, :username => "username", :password => "password", :time_precision => "s"
   end
 
   describe "#new" do
@@ -19,6 +19,7 @@ describe InfluxDB::Client do
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
         @influxdb.instance_variable_get(:@http).use_ssl?.should == false
+        @influxdb.time_precision.should == "m"
       end
     end
 
@@ -27,7 +28,8 @@ describe InfluxDB::Client do
         @influxdb = InfluxDB::Client.new :hostname => "host",
                                          :port => "port",
                                          :username => "username",
-                                         :password => "password"
+                                         :password => "password",
+                                         :time_precision => "s"
 
         @influxdb.should be_a InfluxDB::Client
         @influxdb.database.should be_nil
@@ -35,6 +37,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
+        @influxdb.time_precision.should == "s"
       end
     end
 
@@ -48,6 +51,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
+        @influxdb.time_precision.should == "m"        
       end
     end
 
@@ -56,7 +60,8 @@ describe InfluxDB::Client do
         @influxdb = InfluxDB::Client.new "database", :hostname => "host",
                                                      :port => "port",
                                                      :username => "username",
-                                                     :password => "password"
+                                                     :password => "password",
+                                                     :time_precision => "s"
 
         @influxdb.should be_a(InfluxDB::Client)
         @influxdb.database.should == "database"
@@ -64,6 +69,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
+        @influxdb.time_precision.should == "s"
       end
     end
 
@@ -220,7 +226,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       )
 
@@ -237,7 +243,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       ).to_return(:status => 401)
 
@@ -254,7 +260,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       ).to_return(:status => 200)
 
@@ -271,7 +277,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       )
 
@@ -289,7 +295,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       )
 
@@ -307,7 +313,7 @@ describe InfluxDB::Client do
       }]
 
       stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
         :body => body
       )
 
@@ -315,6 +321,42 @@ describe InfluxDB::Client do
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
+
+    it "should POST to add points with time field with precision defined in client initialization" do
+      time_in_seconds = Time.now.to_i
+      body = [{
+        "name" => "seriez",
+        "points" => [[87, "juan", time_in_seconds]],
+        "columns" => ["age", "name", "time"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password", :time_precision => "s"},
+        :body => body
+      )
+
+      data = {:name => "juan", :age => 87, :time => time_in_seconds}
+
+      @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
+    end    
+
+    it "should POST to add points with time field with precision defined in call of write function" do
+      time_in_milliseconds = (Time.now.to_f * 1000).to_i
+      body = [{
+        "name" => "seriez",
+        "points" => [[87, "juan", time_in_milliseconds]],
+        "columns" => ["age", "name", "time"]
+      }]
+
+      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+        :query => {:u => "username", :p => "password", :time_precision => "m"},
+        :body => body
+      )
+
+      data = {:name => "juan", :age => 87, :time => time_in_milliseconds}
+
+      @influxdb.write_point("seriez", data, false, "m").should be_a(Net::HTTPOK)
+    end    
   end
 
   describe "#execute_queries" do
