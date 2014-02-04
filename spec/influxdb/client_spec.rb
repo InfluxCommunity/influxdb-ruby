@@ -322,7 +322,7 @@ describe InfluxDB::Client do
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
 
-    it "should POST to add points with time field and precision from as defined in client" do
+    it "should POST to add points with time field with precision defined in client initialization" do
       time_in_seconds = Time.now.to_i
       body = [{
         "name" => "seriez",
@@ -340,7 +340,7 @@ describe InfluxDB::Client do
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end    
 
-    it "should POST to add points with time field and precision defined in call" do
+    it "should POST to add points with time field with precision defined in call of write function" do
       time_in_milliseconds = (Time.now.to_f * 1000).to_i
       body = [{
         "name" => "seriez",
@@ -353,7 +353,7 @@ describe InfluxDB::Client do
         :body => body
       )
 
-      data = {:name => "juan", :age => 87, :time => time_in_milliseconds, }
+      data = {:name => "juan", :age => 87, :time => time_in_milliseconds}
 
       @influxdb.write_point("seriez", data, false, "m").should be_a(Net::HTTPOK)
     end    
