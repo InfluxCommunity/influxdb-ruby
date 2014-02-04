@@ -76,6 +76,52 @@ loop do
 end
 ```
 
+Write data with time precision:
+
+Time precision can be set in 2 ways, either in the client initialization
+
+``` ruby
+require 'influxdb'
+
+username = 'foo'
+password = 'bar'
+database = 'site_development'
+name     = 'foobar'
+time_precision = 's'
+
+influxdb = InfluxDB::Client.new database, :username => username,
+                                          :password => password, 
+                                          :time_precision => time_precision
+
+data = {
+  :value => 0
+  :time => Time.now.to_i
+}
+
+influxdb.write_point(name, data)
+```
+or in the write call
+
+``` ruby
+require 'influxdb'
+
+username = 'foo'
+password = 'bar'
+database = 'site_development'
+name     = 'foobar'
+time_precision = 's'
+
+influxdb = InfluxDB::Client.new database, :username => username, :password => password
+
+data = {
+  :value => 0
+  :time => Time.now.to_i
+}
+
+influxdb.write_point(name, data, false, time_precision)
+```
+
+
 List cluster admins:
 
 ``` ruby
