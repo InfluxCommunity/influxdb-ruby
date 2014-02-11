@@ -197,5 +197,5 @@ Testing
 git clone git@github.com:influxdb/influxdb-ruby.git
 cd influxdb-ruby
 bundle
-rake 
+bundle exec rspec
 ```
