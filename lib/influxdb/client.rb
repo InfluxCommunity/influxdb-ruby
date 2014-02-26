@@ -192,6 +192,10 @@ module InfluxDB
 
     def denormalize_series series
       columns = series['columns']
+
+      h = Hash.new(-1)
+      columns = columns.map {|v| h[v] += 1; h[v] > 0 ? "#{v}~#{h[v]}" : v }
+
       series['points'].map do |point|
         decoded_point = point.map do |value|
           InfluxDB::PointValue.new(value).load

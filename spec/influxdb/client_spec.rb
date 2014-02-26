@@ -361,7 +361,7 @@ describe InfluxDB::Client do
 
   describe "#execute_queries" do
     before(:each) do
-      data = [{ :name => "foo", :columns => ["name", "age"], :points => [["shahid", 99],["dix", 50]]}]
+      data = [{ :name => "foo", :columns => ["name", "age", "count", "count"], :points => [["shahid", 99, 1, 2],["dix", 50, 3, 4]]}]
 
       stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
         :query => { :q => "select * from foo", :u => "username", :p => "password"}
@@ -370,7 +370,7 @@ describe InfluxDB::Client do
       )
     end
 
-    expected_series = { 'foo' => [{"name" => "shahid", "age" => 99}, {"name" => "dix", "age" => 50}]}
+    expected_series = { 'foo' => [{"name" => "shahid", "age" => 99, "count" => 1, "count~1" => 2}, {"name" => "dix", "age" => 50, "count" => 3, "count~1" => 4}]}
 
     it 'can execute a query with a block' do
       series = { }
