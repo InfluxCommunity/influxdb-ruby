@@ -107,6 +107,10 @@ module InfluxDB
       update_database_user(database, username, :admin => admin)
     end
 
+    def continuous_queries
+      get full_url("continuous_queries")
+    end
+
     def write_point(name, data, async=false, time_precision=@time_precision)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
