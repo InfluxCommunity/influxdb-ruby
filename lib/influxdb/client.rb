@@ -99,6 +99,10 @@ module InfluxDB
       get full_url("db/#{database}/users")
     end
 
+    def get_database_user_info(database, username)
+      get full_url("db/#{database}/users/#{username}")
+    end
+
     def alter_database_privilege(database, username, admin=true)
       update_database_user(database, username, :admin => admin)
     end

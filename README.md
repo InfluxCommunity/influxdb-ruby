@@ -152,6 +152,16 @@ influxdb = InfluxDB::Client.new
 influxdb.get_database_user_list(database)
 ```
 
+List a database user:
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new
+
+influxdb.get_database_user_info(database, username)
+```
+
 Delete a database:
 
 ``` ruby
