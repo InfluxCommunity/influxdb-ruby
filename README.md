@@ -94,7 +94,7 @@ influxdb = InfluxDB::Client.new database, :username => username,
                                           :time_precision => time_precision
 
 data = {
-  :value => 0
+  :value => 0,
   :time => Time.now.to_i
 }
 
@@ -114,7 +114,7 @@ time_precision = 's'
 influxdb = InfluxDB::Client.new database, :username => username, :password => password
 
 data = {
-  :value => 0
+  :value => 0,
   :time => Time.now.to_i
 }
 
