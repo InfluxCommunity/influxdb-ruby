@@ -40,7 +40,7 @@ module InfluxDB
       @password = opts[:password] || "root"
       @http = Net::HTTP.new(@host, @port)
       @http.use_ssl = opts[:use_ssl]
-      @time_precision = opts[:time_precision] || "m"
+      @time_precision = opts[:time_precision] || "s"
     end
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
