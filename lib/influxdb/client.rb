@@ -133,11 +133,7 @@ module InfluxDB
     def _write(payload, time_precision=nil)
       url = full_url("db/#{@database}/series", "time_precision=#{time_precision}")
       data = JSON.generate(payload)
-
-      headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
-      raise "Write failed with '#{response.message}'" unless (200...300).include?(response.code.to_i)
-      response
+      post(url, data)
     end
 
     def query(query)
