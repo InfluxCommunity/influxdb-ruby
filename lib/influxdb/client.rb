@@ -47,11 +47,11 @@ module InfluxDB
       @password = opts[:password] || "root"
       @use_ssl = opts[:use_ssl] || false
       @time_precision = opts[:time_precision] || "s"
-      @initial_delay = 0.01
-      @max_delay = 30
-      @open_timeout = 5
-      @read_timeout = 300
-      @async = false
+      @initial_delay = opts[:initial_delay] || 0.01
+      @max_delay = opts[:max_delay] || 30
+      @open_timeout = opts[:write_timeout] || 5
+      @read_timeout = opts[:read_timeout] || 300
+      @async = opts[:async] || false
 
       unless @hosts.is_a? Array
         @hosts = [@hosts]
