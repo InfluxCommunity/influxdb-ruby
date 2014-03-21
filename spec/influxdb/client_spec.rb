@@ -14,18 +14,18 @@ describe InfluxDB::Client do
 
         @influxdb.should be_a InfluxDB::Client
         @influxdb.database.should be_nil
-        @influxdb.host.should == "localhost"
+        @influxdb.hosts.should == ["localhost"]
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
-        @influxdb.instance_variable_get(:@http).use_ssl?.should == false
+        @influxdb.use_ssl.should be_false
         @influxdb.time_precision.should == "s"
       end
     end
 
     describe "with no database specified" do
       it "should be initialized with a nil database and the specified options" do
-        @influxdb = InfluxDB::Client.new :hostname => "host",
+        @influxdb = InfluxDB::Client.new :host => "host",
                                          :port => "port",
                                          :username => "username",
                                          :password => "password",
@@ -33,7 +33,7 @@ describe InfluxDB::Client do
 
         @influxdb.should be_a InfluxDB::Client
         @influxdb.database.should be_nil
-        @influxdb.host.should == "localhost"
+        @influxdb.hosts.should == ["host"]
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
@@ -47,7 +47,7 @@ describe InfluxDB::Client do
 
         @influxdb.should be_a(InfluxDB::Client)
         @influxdb.database.should == "database"
-        @influxdb.host.should == "localhost"
+        @influxdb.hosts.should == ["localhost"]
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
@@ -57,7 +57,7 @@ describe InfluxDB::Client do
 
     describe "with both a database and options specified" do
       it "should be initialized with the specified database and options" do
-        @influxdb = InfluxDB::Client.new "database", :hostname => "host",
+        @influxdb = InfluxDB::Client.new "database", :host => "host",
                                                      :port => "port",
                                                      :username => "username",
                                                      :password => "password",
@@ -65,7 +65,7 @@ describe InfluxDB::Client do
 
         @influxdb.should be_a(InfluxDB::Client)
         @influxdb.database.should == "database"
-        @influxdb.host.should == "localhost"
+        @influxdb.hosts.should == ["host"]
         @influxdb.port.should == "port"
         @influxdb.username.should == "username"
         @influxdb.password.should == "password"
@@ -75,15 +75,28 @@ describe InfluxDB::Client do
 
     describe "with ssl option specified" do
       it "should be initialized with ssl enabled" do
-        @influxdb = InfluxDB::Client.new nil, :use_ssl => true
+        @influxdb = InfluxDB::Client.new :use_ssl => true
 
         @influxdb.should be_a InfluxDB::Client
         @influxdb.database.should be_nil
-        @influxdb.host.should == "localhost"
+        @influxdb.hosts.should == ["localhost"]
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
-        @influxdb.instance_variable_get(:@http).use_ssl?.should == true
+        @influxdb.use_ssl.should be_true
+      end
+    end
+
+    describe "with multiple hosts specified" do
+      it "should be initialized with ssl enabled" do
+        @influxdb = InfluxDB::Client.new :hosts => ["1.1.1.1", "2.2.2.2"]
+
+        @influxdb.should be_a InfluxDB::Client
+        @influxdb.database.should be_nil
+        @influxdb.hosts.should == ["1.1.1.1", "2.2.2.2"]
+        @influxdb.port.should == 8086
+        @influxdb.username.should == "root"
+        @influxdb.password.should == "root"
       end
     end
   end
@@ -349,7 +362,7 @@ describe InfluxDB::Client do
       data = {:name => "juan", :age => 87, :time => time_in_seconds}
 
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
-    end    
+    end
 
     it "should POST to add points with time field with precision defined in call of write function" do
       time_in_milliseconds = (Time.now.to_f * 1000).to_i
@@ -367,7 +380,7 @@ describe InfluxDB::Client do
       data = {:name => "juan", :age => 87, :time => time_in_milliseconds}
 
       @influxdb.write_point("seriez", data, false, "m").should be_a(Net::HTTPOK)
-    end    
+    end
   end
 
   describe "#execute_queries" do

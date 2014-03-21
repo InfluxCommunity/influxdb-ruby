@@ -5,7 +5,14 @@ require 'json'
 
 module InfluxDB
   class Client
-    attr_accessor :host, :port, :username, :password, :database, :time_precision
+    attr_accessor :hosts,
+                  :port,
+                  :username,
+                  :password,
+                  :database,
+                  :time_precision,
+                  :use_ssl
+
     attr_accessor :queue, :worker
 
     include InfluxDB::Logger
@@ -34,13 +41,21 @@ module InfluxDB
     def initialize *args
       @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
-      @host = opts[:host] || "localhost"
+      @hosts = opts[:hosts] || opts[:host] || ["localhost"]
       @port = opts[:port] || 8086
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
-      @http = Net::HTTP.new(@host, @port)
-      @http.use_ssl = opts[:use_ssl]
+      @use_ssl = opts[:use_ssl] || false
       @time_precision = opts[:time_precision] || "s"
+      @initial_delay = 0.01
+      @max_delay = 30
+      @open_timeout = 5
+      @read_timeout = 300
+      @async = false
+
+      unless @hosts.is_a? Array
+        @hosts = [@hosts]
+      end
     end
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
@@ -111,7 +126,7 @@ module InfluxDB
       get full_url("continuous_queries")
     end
 
-    def write_point(name, data, async=false, time_precision=@time_precision)
+    def write_point(name, data, async=@async, time_precision=@time_precision)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
@@ -123,14 +138,14 @@ module InfluxDB
       end
 
       if async
-        @worker = InfluxDB::Worker.new if @worker.nil?
+        @worker = InfluxDB::Worker.new(self) if @worker.nil?
         @worker.queue.push(payload)
       else
         _write([payload], time_precision)
       end
     end
 
-    def _write(payload, time_precision=nil)
+    def _write(payload, time_precision=@time_precision)
       url = full_url("db/#{@database}/series", "time_precision=#{time_precision}")
       data = JSON.generate(payload)
       post(url, data)
@@ -161,36 +176,63 @@ module InfluxDB
     end
 
     def get(url)
-      response = @http.request(Net::HTTP::Get.new(url))
-      if response.kind_of? Net::HTTPSuccess
-        return JSON.parse(response.body)
-      elsif response.kind_of? Net::HTTPUnauthorized
-        raise InfluxDB::AuthenticationError.new response.body
-      else
-        raise InfluxDB::Error.new response.body
+      connect_with_retry do |http|
+        response = http.request(Net::HTTP::Get.new(url))
+        if response.kind_of? Net::HTTPSuccess
+          return JSON.parse(response.body)
+        elsif response.kind_of? Net::HTTPUnauthorized
+          raise InfluxDB::AuthenticationError.new response.body
+        else
+          raise InfluxDB::Error.new response.body
+        end
       end
     end
 
     def post(url, data)
       headers = {"Content-Type" => "application/json"}
-      response = @http.request(Net::HTTP::Post.new(url, headers), data)
-      if response.kind_of? Net::HTTPSuccess
-        return response
-      elsif response.kind_of? Net::HTTPUnauthorized
-        raise InfluxDB::AuthenticationError.new response.body
-      else
-        raise InfluxDB::Error.new response.body
+      connect_with_retry do |http|
+        response = http.request(Net::HTTP::Post.new(url, headers), data)
+        if response.kind_of? Net::HTTPSuccess
+          return response
+        elsif response.kind_of? Net::HTTPUnauthorized
+          raise InfluxDB::AuthenticationError.new response.body
+        else
+          raise InfluxDB::Error.new response.body
+        end
       end
     end
 
     def delete(url)
-      response = @http.request(Net::HTTP::Delete.new(url))
-      if response.kind_of? Net::HTTPSuccess
-        return response
-      elsif response.kind_of? Net::HTTPUnauthorized
-        raise InfluxDB::AuthenticationError.new response.body
-      else
-        raise InfluxDB::Error.new response.body
+      connect_with_retry do |http|
+        response = http.request(Net::HTTP::Delete.new(url))
+        if response.kind_of? Net::HTTPSuccess
+          return response
+        elsif response.kind_of? Net::HTTPUnauthorized
+          raise InfluxDB::AuthenticationError.new response.body
+        else
+          raise InfluxDB::Error.new response.body
+        end
+      end
+    end
+
+    def connect_with_retry(&block)
+      hosts = @hosts.dup
+      delay = @initial_delay
+
+      begin
+        hosts.push(host = hosts.shift)
+        http = Net::HTTP.new(host, @port)
+        http.open_timeout = @open_timeout
+        http.read_timeout = @read_timeout
+        http.use_ssl = @use_ssl
+        block.call(http)
+      rescue StandardError => e
+        log :error, "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s."
+        log :info, "Queue size is #{@queue.length}." unless @queue.nil?
+
+        sleep delay
+        delay = [@max_delay, delay * 2].min
+        retry
       end
     end
 
