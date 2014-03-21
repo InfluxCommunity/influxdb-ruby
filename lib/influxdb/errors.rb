@@ -1,5 +1,5 @@
 module InfluxDB
-  class Error < StandardError
+  class Error < Exception
   end
 
   class AuthenticationError < Error
