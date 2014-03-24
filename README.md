@@ -17,6 +17,22 @@ Or add it to your `Gemfile`, etc.
 Usage
 -----
 
+Connecting to a single host:
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new host: "influxdb.domain.com"
+```
+
+Connecting to multiple hosts (with built-in load balancing and failover):
+
+``` ruby
+require 'influxdb'
+
+influxdb = InfluxDB::Client.new hosts: ["influxdb1.domain.com", "influxdb2.domain.com"]
+```
+
 Create a database:
 
 ``` ruby
