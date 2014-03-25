@@ -122,8 +122,8 @@ module InfluxDB
       update_database_user(database, username, :admin => admin)
     end
 
-    def continuous_queries
-      get full_url("continuous_queries")
+    def continuous_queries(database)
+      get full_url("db/#{database}/continuous_queries")
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)
