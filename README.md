@@ -223,5 +223,5 @@ Testing
 git clone git@github.com:influxdb/influxdb-ruby.git
 cd influxdb-ruby
 bundle
-bundle exec rspec
+bundle exec rake
 ```
