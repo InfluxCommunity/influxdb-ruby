@@ -1,3 +1,5 @@
+require "net/http"
+
 module InfluxDB
   class Error < StandardError
   end
