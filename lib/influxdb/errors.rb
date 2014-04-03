@@ -11,8 +11,7 @@ module InfluxDB
   class JSONParserError < Error
   end
 
-  # Taken from
-  # https://github.com/lostisland/faraday/blob/master/lib/faraday/adapter/net_http.rb
+  # Taken from: https://github.com/lostisland/faraday/blob/master/lib/faraday/adapter/net_http.rb
   NET_HTTP_EXCEPTIONS = [
     EOFError,
     Errno::ECONNABORTED,
