@@ -226,7 +226,11 @@ module InfluxDB
         http.read_timeout = @read_timeout
         http.use_ssl = @use_ssl
         block.call(http)
-      rescue StandardError => e
+
+      # we do want to catch anything from net/http in order to issue a retry.
+      # The NET_HTTP_EXCEPTIONS list is taken from
+      # https://github.com/lostisland/faraday/blob/master/lib/faraday/adapter/net_http.rb
+      rescue *InfluxDB::NET_HTTP_EXCEPTIONS, Timeout::Error => e
         log :error, "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s."
         log :info, "Queue size is #{@queue.length}." unless @queue.nil?
 
