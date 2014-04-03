@@ -1,4 +1,5 @@
 require "net/http"
+require "zlib"
 
 module InfluxDB
   class Error < StandardError
