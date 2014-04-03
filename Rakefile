@@ -16,3 +16,11 @@ RSpec.configure do |config|
 end
 
 task :default => :spec
+
+task :console do
+  require 'irb'
+  require 'irb/completion'
+  require 'influxdb'
+  ARGV.clear
+  IRB.start
+end
