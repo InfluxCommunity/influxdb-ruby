@@ -45,7 +45,7 @@ module InfluxDB
 
           while true
             self.check_background_queue(thread_num)
-            sleep SLEEP_INTERVAL
+            sleep rand(SLEEP_INTERVAL)
           end
         end
       end
