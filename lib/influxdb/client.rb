@@ -53,6 +53,8 @@ module InfluxDB
       @read_timeout = opts[:read_timeout] || 300
       @async = opts[:async] || false
 
+      @worker = InfluxDB::Worker.new(self) if @async
+
       unless @hosts.is_a? Array
         @hosts = [@hosts]
       end
@@ -138,8 +140,7 @@ module InfluxDB
       end
 
       if async
-        @worker = InfluxDB::Worker.new(self) if @worker.nil?
-        @worker.queue.push(payload)
+        worker.push(payload)
       else
         _write([payload], time_precision)
       end
@@ -248,6 +249,16 @@ module InfluxDB
           InfluxDB::PointValue.new(value).load
         end
         Hash[columns.zip(decoded_point)]
+      end
+    end
+
+    WORKER_MUTEX = Mutex.new
+    def worker
+      return @worker if @worker
+      WORKER_MUTEX.synchronize do
+        #this return is necessary because the previous mutex holder might have already assigned the @worker
+        return @worker if @worker
+        @worker = InfluxDB::Worker.new(self)
       end
     end
   end
