@@ -381,6 +381,27 @@ describe InfluxDB::Client do
 
       @influxdb.write_point("seriez", data, false, "m").should be_a(Net::HTTPOK)
     end
+
+    describe "async" do
+
+      it "should push to the worker with payload if client is async" do
+        @influxdb = InfluxDB::Client.new "database", :host => "influxdb.test", :async => true
+
+        data = {:name => "juan", :age => 87, :time => Time.now.to_i}
+        @influxdb.stub_chain(:worker, :push).with(hash_including({:name => 'seriez'})).and_return(:ok)
+        @influxdb.write_point("seriez", data).should eq(:ok)
+      end
+
+      it "should push to the worker with payload if write_point call is async" do
+        @influxdb = InfluxDB::Client.new "database", :host => "influxdb.test", :async => false
+
+        data = {:name => "juan", :age => 87, :time => Time.now.to_i}
+        @influxdb.stub_chain(:worker, :push).with(hash_including({:name => 'seriez'})).and_return(:ok)
+        @influxdb.write_point("seriez", data, true).should eq(:ok)
+      end
+
+    end
+
   end
 
   describe "#execute_queries" do

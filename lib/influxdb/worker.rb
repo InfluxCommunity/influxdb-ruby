@@ -27,6 +27,10 @@ module InfluxDB
       Thread.list.count {|t| t[:influxdb] == self.object_id}
     end
 
+    def push(payload)
+      queue.push(payload)
+    end
+
     def spawn_threads!
       NUM_WORKER_THREADS.times do |thread_num|
         log :debug, "Spawning background worker thread #{thread_num}."
