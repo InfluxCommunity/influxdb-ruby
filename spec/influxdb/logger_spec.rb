@@ -1,29 +1,36 @@
 require 'spec_helper'
+require 'logger'
 
-describe InfluxDB::Logger do
+describe InfluxDB::Logging do
   class LoggerTest
-    include InfluxDB::Logger
+    include InfluxDB::Logging
 
     def write_to_log(level, message)
       log(level, message)
     end
+
   end
 
-  subject { LoggerTest.new }
+  before { @old_logger = InfluxDB::Logging.logger }
+  after { InfluxDB::Logging.logger = @old_logger }
 
-  context 'with DEBUG level' do
-    it 'should not write a log message to STDERR' do
-      expect(STDERR).to_not receive(:puts)
-
-      subject.write_to_log(:debug, 'debug')
-    end
+  it "has a default logger" do
+    expect(InfluxDB::Logging.logger).to be_a(Logger)
   end
 
-  context 'with non-DEBUG level' do
-    it 'should write a log message to STDERR' do
-      expect(STDERR).to receive(:puts).with('[InfluxDB] (info) info')
+  it "allows setting of a logger" do
+    new_logger = Logger.new(STDOUT)
+    InfluxDB::Logging.logger = new_logger
+    expect(InfluxDB::Logging.logger).to eq(new_logger)
+  end
 
-      subject.write_to_log(:info, 'info')
+  context "when included in classes" do
+
+    subject { LoggerTest.new }
+
+    it "logs" do
+      expect(InfluxDB::Logging.logger).to receive(:debug).with(an_instance_of(String)).once
+      subject.write_to_log(:debug, 'test')
     end
   end
 end
