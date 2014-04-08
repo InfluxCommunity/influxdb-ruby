@@ -7,7 +7,7 @@ module InfluxDB
     attr_reader :client
     attr_accessor :queue
 
-    include InfluxDB::Logger
+    include InfluxDB::Logging
 
     MAX_POST_POINTS = 1000
     NUM_WORKER_THREADS = 3

@@ -15,7 +15,7 @@ module InfluxDB
 
     attr_accessor :queue, :worker
 
-    include InfluxDB::Logger
+    include InfluxDB::Logging
 
     # Initializes a new InfluxDB client
     #
