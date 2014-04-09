@@ -2,7 +2,7 @@ require "spec_helper"
 require 'timeout'
 
 describe InfluxDB::Worker do
-  let(:fake_client) { double() }
+  let(:fake_client) { double(stopped?: false) }
   let(:worker) { InfluxDB::Worker.new(fake_client) }
 
   describe "#push" do
