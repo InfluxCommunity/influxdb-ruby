@@ -277,7 +277,7 @@ describe InfluxDB::Client do
         stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
             :query => {:u => "username", :p => "password", :time_precision => "s"},
             :body => body
-        ).to_raise(Timeout::Error).then.to_return(status: 200)
+        ).to_raise(Timeout::Error).then.to_return(:status => 200)
       end
 
       it "retries on http errors when not stopped" do
@@ -290,8 +290,6 @@ describe InfluxDB::Client do
       end
 
     end
-
-
 
     it "raise an exception if the server didn't return 200" do
       body = [{
