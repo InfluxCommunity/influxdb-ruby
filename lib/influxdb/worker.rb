@@ -43,7 +43,7 @@ module InfluxDB
             check_background_queue(thread_num) until @queue.empty?
           end
 
-          while true
+          while !client.stopped?
             self.check_background_queue(thread_num)
             sleep rand(SLEEP_INTERVAL)
           end

@@ -259,6 +259,40 @@ describe InfluxDB::Client do
       @influxdb.write_point("seriez", data).should be_a(Net::HTTPOK)
     end
 
+    describe "retrying requests" do
+      let(:body) do
+        [{
+             "name" => "seriez",
+             "points" => [[87, "juan"]],
+             "columns" => ["age", "name"]
+         }]
+      end
+
+      let(:data) { {:name => "juan", :age => 87} }
+
+      subject { @influxdb.write_point("seriez", data) }
+
+      before do
+        allow(@influxdb).to receive(:log)
+        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
+            :query => {:u => "username", :p => "password", :time_precision => "s"},
+            :body => body
+        ).to_raise(Timeout::Error).then.to_return(status: 200)
+      end
+
+      it "retries on http errors when not stopped" do
+        expect(subject).to be_a(Net::HTTPOK)
+      end
+
+      it "raises when stopped" do
+        @influxdb.stop!
+        expect { subject }.to raise_error(Timeout::Error)
+      end
+
+    end
+
+
+
     it "raise an exception if the server didn't return 200" do
       body = [{
         "name" => "seriez",

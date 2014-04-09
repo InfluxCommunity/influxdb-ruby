@@ -11,7 +11,8 @@ module InfluxDB
                   :password,
                   :database,
                   :time_precision,
-                  :use_ssl
+                  :use_ssl,
+                  :stopped
 
     attr_accessor :queue, :worker
 
@@ -41,7 +42,7 @@ module InfluxDB
     def initialize *args
       @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
-      @hosts = opts[:hosts] || opts[:host] || ["localhost"]
+      @hosts = Array(opts[:hosts] || opts[:host] || ["localhost"])
       @port = opts[:port] || 8086
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
@@ -55,9 +56,7 @@ module InfluxDB
 
       @worker = InfluxDB::Worker.new(self) if @async
 
-      unless @hosts.is_a? Array
-        @hosts = [@hosts]
-      end
+      at_exit { stop! }
     end
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
@@ -168,6 +167,14 @@ module InfluxDB
       end
     end
 
+    def stop!
+      @stopped = true
+    end
+
+    def stopped?
+      @stopped
+    end
+
     private
     def full_url(path, params=nil)
       "".tap do |url|
@@ -229,12 +236,15 @@ module InfluxDB
         block.call(http)
 
       rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
-        log :error, "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s."
+        log :error, "Failed to contact host #{host}: #{e.inspect} #{"- retrying in #{delay}s." unless stopped?}"
         log :info, "Queue size is #{@queue.length}." unless @queue.nil?
-
-        sleep delay
-        delay = [@max_delay, delay * 2].min
-        retry
+        if stopped?
+          raise e
+        else
+          sleep delay
+          delay = [@max_delay, delay * 2].min
+          retry
+        end
       end
     end
 
