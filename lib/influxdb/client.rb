@@ -151,8 +151,8 @@ module InfluxDB
       post(url, data)
     end
 
-    def query(query)
-      url = URI.encode full_url("db/#{@database}/series", "q=#{query}")
+    def query(query, time_precision=@time_precision)
+      url = URI.encode full_url("db/#{@database}/series", "q=#{query}&time_precision=#{time_precision}")
       series = get(url)
 
       if block_given?

@@ -441,7 +441,7 @@ describe InfluxDB::Client do
       data = [{ :name => "foo", :columns => ["name", "age", "count", "count"], :points => [["shahid", 99, 1, 2],["dix", 50, 3, 4]]}]
 
       stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
-        :query => { :q => "select * from foo", :u => "username", :p => "password"}
+        :query => { :q => "select * from foo", :u => "username", :p => "password", :time_precision => "s"}
       ).to_return(
         :body => JSON.generate(data)
       )
@@ -473,7 +473,7 @@ describe InfluxDB::Client do
       data = [{ :name => "orders", :columns => ["id", "line_items"], :points => [[1, line_items.to_json]]}]
 
       stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
-        :query => { :q => "select * from orders", :u => "username", :p => "password"}
+        :query => { :q => "select * from orders", :u => "username", :p => "password", :time_precision => "s"}
       ).to_return(
         :body => JSON.generate(data)
       )
