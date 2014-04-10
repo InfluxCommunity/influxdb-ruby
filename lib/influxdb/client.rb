@@ -245,6 +245,8 @@ module InfluxDB
           delay = [@max_delay, delay * 2].min
           retry
         end
+      ensure
+        http.finish if http.started?
       end
     end
 
