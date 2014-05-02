@@ -53,6 +53,7 @@ module InfluxDB
       @open_timeout = opts[:write_timeout] || 5
       @read_timeout = opts[:read_timeout] || 300
       @async = opts[:async] || false
+      @retry = opts.fetch(:retry) { true }
 
       @worker = InfluxDB::Worker.new(self) if @async
 
@@ -236,8 +237,9 @@ module InfluxDB
         block.call(http)
 
       rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
-        log :error, "Failed to contact host #{host}: #{e.inspect} #{"- retrying in #{delay}s." unless stopped?}"
+        log :error, "Failed to contact host #{host}: #{e.inspect} #{"- retrying in #{delay}s." if retry?}"
         log :info, "Queue size is #{@queue.length}." unless @queue.nil?
+        stop! unless retry?
         if stopped?
           raise e
         else
@@ -248,6 +250,10 @@ module InfluxDB
       ensure
         http.finish if http.started?
       end
+    end
+
+    def retry?
+      !stopped? && @retry
     end
 
     def denormalize_series series

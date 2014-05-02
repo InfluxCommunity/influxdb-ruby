@@ -3,9 +3,11 @@ require "json"
 
 describe InfluxDB::Client do
   before do
-    @influxdb = InfluxDB::Client.new "database", :host => "influxdb.test",
-      :port => 9999, :username => "username", :password => "password", :time_precision => "s"
+    @influxdb = InfluxDB::Client.new "database", {
+      :host => "influxdb.test", :port => 9999, :username => "username",
+      :password => "password", :time_precision => "s" }.merge(args)
   end
+  let(:args) { {} }
 
   describe "#new" do
     describe "with no parameters specified" do
@@ -289,6 +291,13 @@ describe InfluxDB::Client do
         expect { subject }.to raise_error(Timeout::Error)
       end
 
+      context "when retry disabled" do
+        let(:args) { { :retry => false } }
+
+        it "raises" do
+          expect { subject }.to raise_error(Timeout::Error)
+        end
+      end
     end
 
     it "raise an exception if the server didn't return 200" do
