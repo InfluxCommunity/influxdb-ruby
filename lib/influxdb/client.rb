@@ -1,4 +1,5 @@
 require 'uri'
+require 'cgi'
 require 'net/http'
 require 'net/https'
 require 'json'
@@ -61,62 +62,62 @@ module InfluxDB
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
     def create_database(name, options = {})
-      url = full_url("db")
+      url = full_url("/db")
       options[:name] = name
       data = JSON.generate(options)
       post(url, data)
     end
 
     def delete_database(name)
-      delete full_url("db/#{name}")
+      delete full_url("/db/#{name}")
     end
 
     def get_database_list
-      get full_url("db")
+      get full_url("/db")
     end
 
     def create_cluster_admin(username, password)
-      url = full_url("cluster_admins")
+      url = full_url("/cluster_admins")
       data = JSON.generate({:name => username, :password => password})
       post(url, data)
     end
 
     def update_cluster_admin(username, password)
-      url = full_url("cluster_admins/#{username}")
+      url = full_url("/cluster_admins/#{username}")
       data = JSON.generate({:password => password})
       post(url, data)
     end
 
     def delete_cluster_admin(username)
-      delete full_url("cluster_admins/#{username}")
+      delete full_url("/cluster_admins/#{username}")
     end
 
     def get_cluster_admin_list
-      get full_url("cluster_admins")
+      get full_url("/cluster_admins")
     end
 
     def create_database_user(database, username, password)
-      url = full_url("db/#{database}/users")
+      url = full_url("/db/#{database}/users")
       data = JSON.generate({:name => username, :password => password})
       post(url, data)
     end
 
     def update_database_user(database, username, options = {})
-      url = full_url("db/#{database}/users/#{username}")
+      url = full_url("/db/#{database}/users/#{username}")
       data = JSON.generate(options)
       post(url, data)
     end
 
     def delete_database_user(database, username)
-      delete full_url("db/#{database}/users/#{username}")
+      delete full_url("/db/#{database}/users/#{username}")
     end
 
     def get_database_user_list(database)
-      get full_url("db/#{database}/users")
+      get full_url("/db/#{database}/users")
     end
 
     def get_database_user_info(database, username)
-      get full_url("db/#{database}/users/#{username}")
+      get full_url("/db/#{database}/users/#{username}")
     end
 
     def alter_database_privilege(database, username, admin=true)
@@ -124,7 +125,7 @@ module InfluxDB
     end
 
     def continuous_queries(database)
-      get full_url("db/#{database}/continuous_queries")
+      get full_url("/db/#{database}/continuous_queries")
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)
@@ -146,13 +147,13 @@ module InfluxDB
     end
 
     def _write(payload, time_precision=@time_precision)
-      url = full_url("db/#{@database}/series", "time_precision=#{time_precision}")
+      url = full_url("/db/#{@database}/series", :time_precision => time_precision)
       data = JSON.generate(payload)
       post(url, data)
     end
 
     def query(query, time_precision=@time_precision)
-      url = URI.encode full_url("db/#{@database}/series", "q=#{query}&time_precision=#{time_precision}")
+      url = full_url("/db/#{@database}/series", :q => query, :time_precision => time_precision)
       series = get(url)
 
       if block_given?
@@ -176,11 +177,14 @@ module InfluxDB
     end
 
     private
-    def full_url(path, params=nil)
-      "".tap do |url|
-        url << "/#{path}?u=#{@username}&p=#{@password}"
-        url << "&#{params}" unless params.nil?
-      end
+
+    def full_url(path, params={})
+      params[:u] = @username
+      params[:p] = @password
+
+      query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
+
+      URI::Generic.build(:path => path, :query => query).to_s
     end
 
     def get(url)
