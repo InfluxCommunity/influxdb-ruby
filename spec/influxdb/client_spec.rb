@@ -481,4 +481,15 @@ describe InfluxDB::Client do
       @influxdb.query('select * from orders').should == {'orders' => [{'id' => 1, 'line_items' => line_items}]}
     end
   end
+
+  describe "#full_url" do
+    it "should return String" do
+      @influxdb.send(:full_url, "/unknown").should be_a String
+    end
+
+    it "should escape params" do
+      url = @influxdb.send(:full_url, "/unknown", :value => " !@#$%^&*()/\\_+-=?|`~")
+      url.should == "/unknown?value=+%21%40%23%24%25%5E%26%2A%28%29%2F%5C_%2B-%3D%3F%7C%60%7E&u=username&p=password"
+    end
+  end
 end

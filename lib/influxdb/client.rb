@@ -147,13 +147,13 @@ module InfluxDB
     end
 
     def _write(payload, time_precision=@time_precision)
-      url = full_url("/db/#{@database}/series", time_precision: time_precision)
+      url = full_url("/db/#{@database}/series", :time_precision => time_precision)
       data = JSON.generate(payload)
       post(url, data)
     end
 
     def query(query, time_precision=@time_precision)
-      url = full_url("/db/#{@database}/series", q: query, time_precision: time_precision)
+      url = full_url("/db/#{@database}/series", :q => query, :time_precision => time_precision)
       series = get(url)
 
       if block_given?
@@ -184,7 +184,7 @@ module InfluxDB
 
       query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
 
-      URI::HTTP.build(path: path, query: query)
+      URI::Generic.build(:path => path, :query => query).to_s
     end
 
     def get(url)
