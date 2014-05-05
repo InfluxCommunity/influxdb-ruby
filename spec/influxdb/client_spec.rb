@@ -488,8 +488,8 @@ describe InfluxDB::Client do
     end
 
     it "should escape params" do
-      url = @influxdb.send(:full_url, "/unknown", :value => " !@#$%^&*()/\\_+-=?|`~")
-      url.should == "/unknown?value=+%21%40%23%24%25%5E%26%2A%28%29%2F%5C_%2B-%3D%3F%7C%60%7E&u=username&p=password"
+      url = @influxdb.send(:full_url, "/unknown", :value => ' !@#$%^&*()/\\_+-=?|`~')
+      url.should include("value=+%21%40%23%24%25%5E%26%2A%28%29%2F%5C_%2B-%3D%3F%7C%60%7E")
     end
   end
 end
