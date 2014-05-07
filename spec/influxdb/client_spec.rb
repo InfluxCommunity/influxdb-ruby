@@ -243,6 +243,54 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#create_continuous_query" do
+    it "should GET to create a continuous query" do
+      stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
+        :query => { :q => "select sys from cpu into sys", :u => "username", :p => "password", :time_precision => "s"}
+      ).to_return(:body => JSON.generate({}))
+
+      @influxdb.create_continuous_query("select sys from cpu", "sys").should == {}
+    end
+  end
+
+  describe "#get_continuous_query_list" do
+    it "should GET to get continuous query list" do
+      body = [{
+        "name"=>"continuous queries",
+        "columns"=>["time", "sequence_number", "id", "query"],
+        "points"=>[
+          [1399, 1, 1, "select sys from cpu into sys"]
+        ]
+      }]
+      expected = {
+        "continuous queries" => [
+          {
+            "time" => 1399,
+            "sequence_number" => 1,
+            "id" => 1,
+            "query" => "select sys from cpu into sys"
+          }
+        ]
+      }
+      stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
+        :query => { :q => "list continuous queries", :u => "username", :p => "password", :time_precision => "s"}
+      ).to_return(:body => JSON.generate(body))
+
+      @influxdb.get_continuous_query_list.should == expected
+    end
+  end
+
+  describe "#delete_continuous_query" do
+    it "should GET to delete continuous query" do
+      id = 1
+      stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
+        :query => { :q => "drop continuous query #{id}", :u => "username", :p => "password", :time_precision => "s"}
+      ).to_return(:body => JSON.generate({}))
+
+      @influxdb.delete_continuous_query(id).should == {}
+    end
+  end
+
   describe "#write_point" do
     it "should POST to add points" do
       body = [{

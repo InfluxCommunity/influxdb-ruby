@@ -125,8 +125,31 @@ module InfluxDB
       update_database_user(database, username, :admin => admin)
     end
 
+    # NOTE: Only cluster admin can call this
     def continuous_queries(database)
       get full_url("/db/#{database}/continuous_queries")
+    end
+
+    # EXAMPLE:
+    #
+    # db.create_continuous_query(
+    #   "select mean(sys) as sys, mean(usr) as usr from cpu group by time(15m)",
+    #   "cpu.15m",
+    # )
+    #
+    # NOTE: Only cluster admin can call this
+    def create_continuous_query(query, name)
+      query("#{query} into #{name}")
+    end
+
+    # NOTE: Only cluster admin can call this
+    def get_continuous_query_list
+      query("list continuous queries")
+    end
+    
+    # NOTE: Only cluster admin can call this
+    def delete_continuous_query(id)
+      query("drop continuous query #{id}")
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)
