@@ -129,6 +129,15 @@ module InfluxDB
       get full_url("/db/#{database}/continuous_queries")
     end
 
+    def get_shard_list()
+      get full_url("/cluster/shards")
+    end
+
+    def delete_shard(shard_id, server_ids, username, password)
+      data = JSON.generate({"serverIds" => server_ids})
+      delete full_url("/cluster/shards/#{shard_id}", :u => username, :p => password), data
+    end
+
     def write_point(name, data, async=@async, time_precision=@time_precision)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
@@ -215,9 +224,10 @@ module InfluxDB
       end
     end
 
-    def delete(url)
+    def delete(url, data = nil)
+      headers = {"Content-Type" => "application/json"}
       connect_with_retry do |http|
-        response = http.request(Net::HTTP::Delete.new(url))
+        response = http.request(Net::HTTP::Delete.new(url, headers), data)
         if response.kind_of? Net::HTTPSuccess
           return response
         elsif response.kind_of? Net::HTTPUnauthorized

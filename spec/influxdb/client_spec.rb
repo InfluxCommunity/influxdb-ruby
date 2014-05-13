@@ -243,6 +243,28 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#get_shard_list" do
+    it "should GET a list of shards" do
+      shard_list = {"longTerm" => [], "shortTerm" => []}
+      stub_request(:get, "http://influxdb.test:9999/cluster/shards").with(
+        :query => {:u => "username", :p => "password"}
+      ).to_return(:body => JSON.generate(shard_list, :status => 200))
+
+      @influxdb.get_shard_list.should == shard_list
+    end
+  end
+
+  describe "#delete_shard" do
+    it "should DELETE a shard by id" do
+      shard_id = 1
+      stub_request(:delete, "http://influxdb.test:9999/cluster/shards/#{shard_id}").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.delete_shard(shard_id, [1, 2], "username", "password").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#write_point" do
     it "should POST to add points" do
       body = [{
