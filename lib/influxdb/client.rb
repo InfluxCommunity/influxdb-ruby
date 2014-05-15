@@ -178,6 +178,10 @@ module InfluxDB
       end
     end
 
+    def delete_series(series)
+      delete full_url("/db/#{@database}/series/#{series}")
+    end
+
     def stop!
       @stopped = true
     end
