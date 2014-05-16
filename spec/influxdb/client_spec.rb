@@ -513,6 +513,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#delete_series" do
+    it "should DELETE to remove a series" do
+      stub_request(:delete, "http://influxdb.test:9999/db/database/series/foo").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.delete_series("foo").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#full_url" do
     it "should return String" do
       @influxdb.send(:full_url, "/unknown").should be_a String
