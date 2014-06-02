@@ -215,6 +215,38 @@ influxdb.query 'select * from time_series_1' do |name, points|
 end
 ```
 
+By default, influxdb tries to connect 3 times to the database when it
+gets connection denied, if you want to retry more times, you should pass
+the `:retry` value. 
+
+```
+> require 'influxdb'
+=> true
+
+> influxdb = InfluxDB::Client.new 'database', :retry => 4
+=> #<InfluxDB::Client:0x00000002bb5ce0 @database="database", @hosts=["localhost"],
+@port=8086, @username="root", @password="root", @use_ssl=false,
+@time_precision="s", @initial_delay=0.01, @max_delay=30,
+@open_timeout=5, @read_timeout=300, @async=false, @retry=4>
+
+> influxdb.query 'select * from serie limit 1'
+E, [2014-06-02T11:04:13.416209 #22825] ERROR -- : [InfluxDB] Failed to
+contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
+retrying in 0.01s.
+E, [2014-06-02T11:04:13.433646 #22825] ERROR -- : [InfluxDB] Failed to
+contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
+retrying in 0.02s.
+E, [2014-06-02T11:04:13.462566 #22825] ERROR -- : [InfluxDB] Failed to
+contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
+retrying in 0.04s.
+E, [2014-06-02T11:04:13.510853 #22825] ERROR -- : [InfluxDB] Failed to
+contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
+retrying in 0.08s.
+SocketError: Tried 4 times to reconnect but failed.
+
+```
+If you pass `:retry => -1` it will keep trying forever
+until get the connection.
 
 Testing
 -------
