@@ -246,7 +246,7 @@ SocketError: Tried 4 times to reconnect but failed.
 
 ```
 If you pass `:retry => -1` it will keep trying forever
-until get the connection.
+until it gets the connection.
 
 Testing
 -------
