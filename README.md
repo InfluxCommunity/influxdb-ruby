@@ -106,7 +106,7 @@ name     = 'foobar'
 time_precision = 's'
 
 influxdb = InfluxDB::Client.new database, :username => username,
-                                          :password => password, 
+                                          :password => password,
                                           :time_precision => time_precision
 
 data = {
@@ -215,9 +215,12 @@ influxdb.query 'select * from time_series_1' do |name, points|
 end
 ```
 
-By default, influxdb tries to connect 3 times to the database when it
-gets connection denied, if you want to retry more times, you should pass
-the `:retry` value. 
+By default, an InfluxDB::Client will keep trying to connect to the database when
+it gets connection denied, if you want to retry a finite number of times
+(or disable retries altogether), you should pass the `:retry`
+value. `:retry` can be either `true`, `false` or an `Integer` to retry
+infinite times, disable retries or retry a finite number of times,
+respectively. `0` is equivalent to `false`
 
 ```
 > require 'influxdb'

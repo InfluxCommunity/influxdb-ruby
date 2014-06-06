@@ -54,7 +54,15 @@ module InfluxDB
       @open_timeout = opts[:write_timeout] || 5
       @read_timeout = opts[:read_timeout] || 300
       @async = opts[:async] || false
-      @retry = opts.fetch(:retry, 3)
+      @retry = opts.fetch(:retry, nil)
+      @retry = case @retry
+      when Integer
+        @retry
+      when true, nil
+        -1
+      when false
+        0
+      end
 
       @worker = InfluxDB::Worker.new(self) if @async
 
