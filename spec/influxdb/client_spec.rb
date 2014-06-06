@@ -20,7 +20,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
-        @influxdb.use_ssl.should be_false
+        @influxdb.use_ssl.should be_falsey
         @influxdb.time_precision.should == "s"
       end
     end
@@ -85,7 +85,7 @@ describe InfluxDB::Client do
         @influxdb.port.should == 8086
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
-        @influxdb.use_ssl.should be_true
+        @influxdb.use_ssl.should be_truthy
       end
     end
 
@@ -335,7 +335,7 @@ describe InfluxDB::Client do
             :body => body
           ).to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_return(:status => 200)
         end
-        
+
         it "keep trying until get the connection" do
           @influxdb.should_receive(:sleep).at_least(4).times
           expect { subject }.to_not raise_error
