@@ -14,6 +14,7 @@ module InfluxDB
                   :time_precision,
                   :use_ssl,
                   :cert,
+                  :allow_insecure,
                   :stopped
 
     attr_accessor :queue, :worker
@@ -50,6 +51,7 @@ module InfluxDB
       @password = opts[:password] || "root"
       @use_ssl = opts[:use_ssl] || false
       @cert = opts[:cert] || nil
+      @allow_insecure = opts[:allow_insecure] || false
       @time_precision = opts[:time_precision] || "s"
       @initial_delay = opts[:initial_delay] || 0.01
       @max_delay = opts[:max_delay] || 30
@@ -262,11 +264,16 @@ module InfluxDB
         http = Net::HTTP.new(host, @port)
         http.open_timeout = @open_timeout
         http.read_timeout = @read_timeout
-        http.use_ssl = @use_ssl
-        if @cert
-          cert_data = File.read(@cert)
-          http.cert = OpenSSL::X509::Certificate.new(cert_data)
-          http.key = OpenSSL::PKey::RSA.new(cert_data, nil)
+        if @use_ssl
+          http.use_ssl = @use_ssl
+          if @cert
+            cert_data = File.read(@cert)
+            http.cert = OpenSSL::X509::Certificate.new(cert_data)
+            http.key = OpenSSL::PKey::RSA.new(cert_data, nil)
+          end
+          if @allow_insecure
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
         end
         block.call(http)
 
