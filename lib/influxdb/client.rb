@@ -258,7 +258,6 @@ module InfluxDB
       hosts = @hosts.dup
       delay = @initial_delay
       retry_count = 0
-
       begin
         hosts.push(host = hosts.shift)
         http = Net::HTTP.new(host, @port)
