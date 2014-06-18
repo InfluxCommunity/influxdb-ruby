@@ -14,6 +14,15 @@ $ [sudo] gem install influxdb
 
 Or add it to your `Gemfile`, etc.
 
+To install for chef;
+
+```
+cd $REPO_ROOT
+gem build influxdb.gemspec
+gem install influxdb-version.gem
+cp influxdb-version.gem $CHEF_ROOT/cookbooks/$COOKBOOK/files/default/
+```
+
 Usage
 -----
 
