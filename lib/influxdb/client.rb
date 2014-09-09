@@ -69,6 +69,10 @@ module InfluxDB
       at_exit { stop! }
     end
 
+    def ping
+      get "/ping"
+    end
+
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
     def create_database(name, options = {})
       url = full_url("/db")
