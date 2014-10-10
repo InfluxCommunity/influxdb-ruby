@@ -69,10 +69,10 @@ module InfluxDB
       at_exit { stop! }
     end
 
-    ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
+    ## allow options & shard_spaces definition at db creation
+    ## please see : http://influxdb.com/docs/v0.8/advanced_topics/sharding_and_storage.html#configuration
     def create_database(name, options = {})
-      url = full_url("/db")
-      options[:name] = name
+      url = full_url("/cluster/database_configs/#{name}")
       data = JSON.generate(options)
       post(url, data)
     end
@@ -83,6 +83,17 @@ module InfluxDB
 
     def get_database_list
       get full_url("/db")
+    end
+
+    ## default options are specified to avoid 'nullifying' shard_space with an empty hash
+    def update_shard_space(name, shard, options = {"regex"=>"/.*/", "retentionPolicy"=>"inf", "shardDuration"=>"7d", "replicationFactor"=>1, "split"=>1})
+      url = full_url("/cluster/shard_spaces/#{name}/#{shard}")
+      data = JSON.generate(options)
+      post(url, data)
+    end
+
+    def get_shard_space_list()
+      get full_url("/cluster/shard_spaces")
     end
 
     def create_cluster_admin(username, password)
