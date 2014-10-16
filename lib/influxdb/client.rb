@@ -143,9 +143,9 @@ module InfluxDB
       get full_url("/cluster/shards")
     end
 
-    def delete_shard(shard_id, server_ids, username, password)
+    def delete_shard(shard_id, server_ids)
       data = JSON.generate({"serverIds" => server_ids})
-      delete full_url("/cluster/shards/#{shard_id}", :u => username, :p => password), data
+      delete full_url("/cluster/shards/#{shard_id}"), data
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)

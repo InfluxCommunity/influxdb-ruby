@@ -290,7 +290,7 @@ describe InfluxDB::Client do
         :query => {:u => "username", :p => "password"}
       )
 
-      @influxdb.delete_shard(shard_id, [1, 2], "username", "password").should be_a(Net::HTTPOK)
+      @influxdb.delete_shard(shard_id, [1, 2]).should be_a(Net::HTTPOK)
     end
   end
 
