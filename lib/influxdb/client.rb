@@ -13,7 +13,8 @@ module InfluxDB
                   :database,
                   :time_precision,
                   :use_ssl,
-                  :stopped
+                  :stopped,
+                  :auth_method
 
     attr_accessor :queue, :worker
 
@@ -47,6 +48,7 @@ module InfluxDB
       @port = opts[:port] || 8086
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
+      @auth_method = %w{params basic_auth}.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
       @use_ssl = opts[:use_ssl] || false
       @time_precision = opts[:time_precision] || "s"
       @initial_delay = opts[:initial_delay] || 0.01
@@ -201,17 +203,25 @@ module InfluxDB
     private
 
     def full_url(path, params={})
-      params[:u] = @username
-      params[:p] = @password
+      unless basic_auth? 
+        params[:u] = @username
+        params[:p] = @password
+      end
 
       query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
 
       URI::Generic.build(:path => path, :query => query).to_s
     end
 
+    def basic_auth?
+      @auth_method == 'basic_auth'
+    end
+
     def get(url)
       connect_with_retry do |http|
-        response = http.request(Net::HTTP::Get.new(url))
+        request = Net::HTTP::Get.new(url)
+        request.basic_auth @username, @password if basic_auth?
+        response = http.request(request)
         if response.kind_of? Net::HTTPSuccess
           return JSON.parse(response.body)
         elsif response.kind_of? Net::HTTPUnauthorized
@@ -225,7 +235,9 @@ module InfluxDB
     def post(url, data)
       headers = {"Content-Type" => "application/json"}
       connect_with_retry do |http|
-        response = http.request(Net::HTTP::Post.new(url, headers), data)
+        request = Net::HTTP::Post.new(url, headers)
+        request.basic_auth @username, @password if basic_auth?
+        response = http.request(request, data)
         if response.kind_of? Net::HTTPSuccess
           return response
         elsif response.kind_of? Net::HTTPUnauthorized
@@ -239,7 +251,9 @@ module InfluxDB
     def delete(url, data = nil)
       headers = {"Content-Type" => "application/json"}
       connect_with_retry do |http|
-        response = http.request(Net::HTTP::Delete.new(url, headers), data)
+        request = Net::HTTP::Delete.new(url, headers)
+        request.basic_auth @username, @password if basic_auth?
+        response = http.request(request, data)
         if response.kind_of? Net::HTTPSuccess
           return response
         elsif response.kind_of? Net::HTTPUnauthorized
