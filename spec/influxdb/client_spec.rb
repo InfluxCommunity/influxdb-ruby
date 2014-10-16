@@ -138,7 +138,7 @@ describe InfluxDB::Client do
   describe "#authenticate_cluster_admin" do
     it "should GET to authenticate a cluster admin" do
       stub_request(:get, "http://influxdb.test:9999/cluster_admins/authenticate").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password"}
       )
 
       @influxdb.authenticate_cluster_admin.should be_a(Net::HTTPOK)
@@ -191,7 +191,7 @@ describe InfluxDB::Client do
   describe "#authenticate_database_user" do
     it "should GET to authenticate a database database" do
       stub_request(:get, "http://influxdb.test:9999/db/foo/authenticate").with(
-        :query => {:u => "username", :p => "password"},
+        :query => {:u => "username", :p => "password"}
       ).to_return(:body => '', :status => 200)
 
       @influxdb.authenticate_database_user("foo").should be_a(Net::HTTPOK)
