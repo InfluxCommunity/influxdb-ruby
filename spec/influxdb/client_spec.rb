@@ -22,6 +22,7 @@ describe InfluxDB::Client do
         @influxdb.password.should == "root"
         @influxdb.use_ssl.should be_falsey
         @influxdb.time_precision.should == "s"
+        @influxdb.auth_method.should == "params"
       end
     end
 
@@ -100,6 +101,34 @@ describe InfluxDB::Client do
         @influxdb.username.should == "root"
         @influxdb.password.should == "root"
       end
+    end
+
+    describe "with auth_method basic auth specified" do
+      it "should be initialized with basic auth enabled" do
+        @influxdb = InfluxDB::Client.new :auth_method => 'basic_auth'
+
+        @influxdb.should be_a(InfluxDB::Client)
+        @influxdb.auth_method.should == 'basic_auth'
+        @influxdb.username.should == "root"
+        @influxdb.password.should == "root"
+      end
+    end
+  end
+
+
+  context "with basic auth enabled" do
+    let(:args) { { :auth_method => 'basic_auth' } }
+    it "should use basic authorization for get" do
+      stub_request(:get, "http://username:password@influxdb.test:9999/").to_return(:body => '[]')
+      @influxdb.send(:get , @influxdb.send(:full_url,'/')).should == [] 
+    end
+    it "should use basic authorization for post" do
+      stub_request(:post, "http://username:password@influxdb.test:9999/")
+      @influxdb.send(:post , @influxdb.send(:full_url,'/'), {}).should be_a(Net::HTTPOK)
+    end
+    it "should use basic authorization for delete" do
+      stub_request(:delete, "http://username:password@influxdb.test:9999/")
+      @influxdb.send(:delete , @influxdb.send(:full_url,'/')).should be_a(Net::HTTPOK)
     end
   end
 
