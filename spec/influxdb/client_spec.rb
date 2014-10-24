@@ -113,6 +113,20 @@ describe InfluxDB::Client do
         @influxdb.password.should == "root"
       end
     end
+
+    describe "with udp specified" do
+      it "should initialize a udp client" do
+        @influxdb = InfluxDB::Client.new :udp => { :host => 'localhost', :port => 4444 }
+        expect(@influxdb.udp_client).to be_a(InfluxDB::UDPClient)
+      end
+
+      context "without udp specfied" do
+        it "does not initialize a udp client" do
+          @influxdb = InfluxDB::Client.new
+          expect(@influxdb.udp_client).to be_nil
+        end
+      end
+    end
   end
 
 
@@ -120,7 +134,7 @@ describe InfluxDB::Client do
     let(:args) { { :auth_method => 'basic_auth' } }
     it "should use basic authorization for get" do
       stub_request(:get, "http://username:password@influxdb.test:9999/").to_return(:body => '[]')
-      @influxdb.send(:get , @influxdb.send(:full_url,'/')).should == [] 
+      @influxdb.send(:get , @influxdb.send(:full_url,'/')).should == []
     end
     it "should use basic authorization for post" do
       stub_request(:post, "http://username:password@influxdb.test:9999/")
@@ -513,6 +527,22 @@ describe InfluxDB::Client do
         @influxdb.write_point("seriez", data, true).should eq(:ok)
       end
 
+    end
+
+    describe "udp" do
+      let(:udp_client) { double }
+      let(:time) { Time.now.to_i }
+      let(:influxdb)  { InfluxDB::Client.new(:udp => { :host => "localhost", :port => 44444 }) }
+
+      before do
+        allow(InfluxDB::UDPClient).to receive(:new).with('localhost', 44444).and_return(udp_client)
+      end
+
+      it "should send payload via udp if udp client is set up" do
+        expect(udp_client).to receive(:send).with([{:name=>"seriez", :points=>[[87, "juan", time]], :columns=>[:age, :name, :time]}])
+        data = {:name => "juan", :age => 87, :time => time}
+        influxdb.write_point("seriez", data)
+      end
     end
 
   end

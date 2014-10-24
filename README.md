@@ -137,6 +137,25 @@ data = {
 influxdb.write_point(name, data, false, time_precision)
 ```
 
+Write data via UDP:
+
+``` ruby
+require 'influxdb'
+host = '127.0.0.1'
+port = 4444
+
+influxdb = InfluxDB::Client.new :udp => { :host => host, :port => port }
+
+name = 'hitchhiker'
+
+data = {
+  :answer => 42,
+  :question => "life the universe and everything?"
+}
+
+influxdb.write_point(name, data)
+```
+
 
 List cluster admins:
 

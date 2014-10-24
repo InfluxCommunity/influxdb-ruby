@@ -16,7 +16,7 @@ module InfluxDB
                   :stopped,
                   :auth_method
 
-    attr_accessor :queue, :worker
+    attr_accessor :queue, :worker, :udp_client
 
     include InfluxDB::Logging
 
@@ -67,6 +67,7 @@ module InfluxDB
       end
 
       @worker = InfluxDB::Worker.new(self) if @async
+      self.udp_client = opts[:udp] ? InfluxDB::UDPClient.new(opts[:udp][:host], opts[:udp][:port]) : nil
 
       at_exit { stop! }
     end
@@ -161,6 +162,8 @@ module InfluxDB
 
       if async
         worker.push(payload)
+      elsif udp_client
+        udp_client.send([payload])
       else
         _write([payload], time_precision)
       end
@@ -203,7 +206,7 @@ module InfluxDB
     private
 
     def full_url(path, params={})
-      unless basic_auth? 
+      unless basic_auth?
         params[:u] = @username
         params[:p] = @password
       end
