@@ -164,6 +164,17 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#create_database_config" do
+    it "should POST to create a new database config" do
+      stub_request(:post, "http://influxdb.test:9999/cluster/database_configs/foo").with(
+        :query => {:u => "username", :p => "password"},
+        :body => {:spaces => [@influxdb.default_shard_space_config]}
+      )
+
+      @influxdb.create_database_config("foo").should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#create_cluster_admin" do
     it "should POST to create a new cluster admin" do
       stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(

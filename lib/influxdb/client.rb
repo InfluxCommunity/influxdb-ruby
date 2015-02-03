@@ -87,6 +87,24 @@ module InfluxDB
       get full_url("/db")
     end
 
+    def create_database_config(database_name, config = {})
+      url  = full_url("/cluster/database_configs/#{database_name}")
+      data = JSON.generate({:spaces => [default_shard_space_config.merge(config)]})
+
+      post(url, data)
+    end
+
+    def default_shard_space_config
+      {
+        :name              => "default",
+        :regEx             => "/.*/",
+        :retentionPolicy   => "inf",
+        :shardDuration     => "7d",
+        :replicationFactor => 1,
+        :split             => 1
+      }
+    end
+
     def create_cluster_admin(username, password)
       url = full_url("/cluster_admins")
       data = JSON.generate({:name => username, :password => password})
