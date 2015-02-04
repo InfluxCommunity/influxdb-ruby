@@ -164,17 +164,6 @@ describe InfluxDB::Client do
     end
   end
 
-  describe "#create_database_config" do
-    it "should POST to create a new database config" do
-      stub_request(:post, "http://influxdb.test:9999/cluster/database_configs/foo").with(
-        :query => {:u => "username", :p => "password"},
-        :body => {:spaces => [@influxdb.default_shard_space_config]}
-      )
-
-      @influxdb.create_database_config("foo").should be_a(Net::HTTPOK)
-    end
-  end
-
   describe "#create_cluster_admin" do
     it "should POST to create a new cluster admin" do
       stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(
@@ -302,6 +291,125 @@ describe InfluxDB::Client do
       )
 
       @influxdb.delete_shard(shard_id, [1, 2]).should be_a(Net::HTTPOK)
+    end
+  end
+
+  describe "#get_shard_space_list" do
+    let(:url)            { "http://influxdb.test:9999/cluster/shard_spaces" }
+    let(:request_params) { {:query => {:u => "username", :p => "password"}} }
+    let(:response)       { {:body => JSON.generate(shard_spaces, :status => 200)} }
+    let(:shard_spaces)   { [@influxdb.default_shard_space_options.merge(:database => "foo")] }
+
+    it 'should GET a list of shard spaces' do
+      request = stub_request(:get, url).with(request_params).to_return(response)
+
+      @influxdb.get_shard_space_list
+
+      expect(request).to have_been_requested
+    end
+  end
+
+  describe "#get_shard_space" do
+    let(:url)            { "http://influxdb.test:9999/cluster/shard_spaces" }
+    let(:request_params) { {:query => {:u => "username", :p => "password"}} }
+    let(:response)       { {:body => JSON.generate(shard_spaces, :status => 200)} }
+
+    describe "#get_shard_space_list returns a non-empty list" do
+      let(:shard_spaces) { [@influxdb.default_shard_space_options.merge("database" => "foo")] }
+
+      it "finds the indicated shard space" do
+        request = stub_request(:get, url).with(request_params).to_return(response)
+
+        expect(@influxdb.get_shard_space('foo', 'default')).to eq shard_spaces.first
+
+        expect(request).to have_been_requested
+      end
+    end
+
+    describe "#get_shard_space_list returns an empty list" do
+      let(:shard_spaces) { [] }
+
+      it "finds no shard space" do
+        request = stub_request(:get, url).with(request_params).to_return(response)
+
+        expect(@influxdb.get_shard_space('foo', 'default')).to eq nil
+
+        expect(request).to have_been_requested
+      end
+    end
+  end
+
+  describe "#create_shard_space" do
+    let(:url) { "http://influxdb.test:9999/cluster/shard_spaces/foo" }
+    let(:request_params) do
+      {
+        :query => {:u => "username", :p => "password"},
+        :body  => @influxdb.default_shard_space_options
+      }
+    end
+
+    it 'should POST to create a shard space' do
+      request = stub_request(:post, url).with(request_params)
+
+      @influxdb.create_shard_space("foo", @influxdb.default_shard_space_options)
+
+      expect(request).to have_been_requested
+    end
+  end
+
+  describe "#delete_shard_space" do
+    let(:url)            { "http://influxdb.test:9999/cluster/shard_spaces/foo/default" }
+    let(:request_params) { {:query => {:u => "username", :p => "password"}} }
+
+    it 'should DELETE to delete the shard space' do
+      request = stub_request(:delete, url).with(request_params)
+
+      @influxdb.delete_shard_space("foo", "default")
+
+      expect(request).to have_been_requested
+    end
+  end
+
+  describe "#update_shard_space" do
+    let(:get_url)            { "http://influxdb.test:9999/cluster/shard_spaces" }
+    let(:get_request_params) { {:query => {:u => "username", :p => "password"}} }
+    let(:get_response)       { {:body => JSON.generate(shard_spaces, :status => 200)} }
+    let(:shard_spaces)       { [@influxdb.default_shard_space_options.merge("database" => "foo")] }
+
+    let(:post_url) { "http://influxdb.test:9999/cluster/shard_spaces/foo/default" }
+    let(:post_request_params) do
+      {
+        :query => {:u => "username", :p => "password"},
+        :body  => @influxdb.default_shard_space_options.merge("shardDuration" => "30d")
+      }
+    end
+
+    it 'should GET the shard space and then POST to update the shard space' do
+      get_request  = stub_request(:get, get_url).with(get_request_params).to_return(get_response)
+      post_request = stub_request(:post, post_url).with(post_request_params)
+
+      @influxdb.update_shard_space("foo", "default", {"shardDuration" => "30d"})
+
+      expect(get_request).to have_been_requested
+      expect(post_request).to have_been_requested
+    end
+  end
+
+  describe "#configure_database" do
+    let(:url) { "http://influxdb.test:9999/cluster/database_configs/foo" }
+    let(:request_params) do
+      {
+        :query => {:u => "username", :p => "password"},
+        :body => @influxdb.default_database_configuration
+      }
+    end
+
+    it "should POST to create a new database config" do
+      request = stub_request(:post, url).with(request_params)
+
+      @influxdb.configure_database("foo").should be_a(Net::HTTPOK)
+
+      expect(request).to have_been_requested
     end
   end
 
