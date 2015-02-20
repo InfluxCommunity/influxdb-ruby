@@ -17,6 +17,11 @@ module InfluxDB
       @queue = InfluxDB::MaxQueue.new
       @client = client
       spawn_threads!
+
+      at_exit do
+        log :debug, "Thread exiting, flushing queue."
+        check_background_queue until @queue.empty?
+      end
     end
 
     def current_threads
@@ -37,11 +42,6 @@ module InfluxDB
 
         Thread.new do
           Thread.current[:influxdb] = self.object_id
-
-          at_exit do
-            log :debug, "Thread exiting, flushing queue."
-            check_background_queue(thread_num) until @queue.empty?
-          end
 
           while !client.stopped?
             self.check_background_queue(thread_num)
