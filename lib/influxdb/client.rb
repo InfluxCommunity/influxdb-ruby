@@ -108,9 +108,9 @@ module InfluxDB
       get full_url("/cluster_admins")
     end
 
-    def create_database_user(database, username, password)
+    def create_database_user(database, username, password, options={})
       url = full_url("/db/#{database}/users")
-      data = JSON.generate({:name => username, :password => password})
+      data = JSON.generate({:name => username, :password => password}.merge(options))
       post(url, data)
     end
 

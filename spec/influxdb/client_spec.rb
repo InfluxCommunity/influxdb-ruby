@@ -230,6 +230,20 @@ describe InfluxDB::Client do
 
       @influxdb.create_database_user("foo", "useruser", "passpass").should be_a(Net::HTTPOK)
     end
+
+    it "should POST to create a new database user with permissions" do
+      stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
+        :query => {:u => "username", :p => "password"},
+        :body => {:name => "useruser", :password => "passpass", :readFrom => "/read*/", :writeTo => "/write*/"}
+      )
+
+      @influxdb.create_database_user(
+        "foo",
+        "useruser",
+        "passpass",
+        {:readFrom => "/read*/", :writeTo => "/write*/"}
+      ).should be_a(Net::HTTPOK)
+    end
   end
 
   describe "#update_database_user" do
