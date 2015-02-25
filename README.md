@@ -40,6 +40,8 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
+database = 'site_development'
+
 influxdb.create_database(database)
 ```
 
