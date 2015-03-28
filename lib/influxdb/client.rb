@@ -69,7 +69,7 @@ module InfluxDB
       @worker = InfluxDB::Worker.new(self) if @async
       self.udp_client = opts[:udp] ? InfluxDB::UDPClient.new(opts[:udp][:host], opts[:udp][:port]) : nil
 
-      at_exit { stop! }
+      at_exit { stop! } if @retry > 0
     end
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
