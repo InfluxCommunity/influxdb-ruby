@@ -34,6 +34,9 @@ module InfluxDB
     #
     #     Influxdb::Client.new 'db', :username => 'username' # override username, use 'db' as the db name
     #
+    #     Influxdb::Client.new 'db', :path => '/prefix'      # use the specified path prefix when building the
+    #                                                        # url e.g.: /prefix/db/dbname...
+    #
     # === Valid options in hash
     #
     # +:host+:: the hostname to connect to
@@ -46,6 +49,7 @@ module InfluxDB
       opts = args.last.is_a?(Hash) ? args.last : {}
       @hosts = Array(opts[:hosts] || opts[:host] || ["localhost"])
       @port = opts[:port] || 8086
+      @path = opts[:path] || ""
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
       @auth_method = %w{params basic_auth}.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
@@ -213,7 +217,7 @@ module InfluxDB
 
       query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
 
-      URI::Generic.build(:path => path, :query => query).to_s
+      URI::Generic.build(:path => "#{@path}#{path}", :query => query).to_s
     end
 
     def basic_auth?
