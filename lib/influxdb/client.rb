@@ -150,7 +150,7 @@ module InfluxDB
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)
-      write_points([{name: name, data: data}], async, time_precision)
+      write_points([{:name => name, :data => data}], async, time_precision)
     end
 
     # Example:
