@@ -530,7 +530,7 @@ describe InfluxDB::Client do
 
         time = Time.now.to_i
         data = {:name => "juan", :age => 87, :time => time}
-        expected_data = [{name: 'seriez', points: [[87, 'juan', time]], columns: [:age, :name, :time]}]
+        expected_data = [{:name => 'seriez', :points => [[87, 'juan', time]], :columns => [:age, :name, :time]}]
         @influxdb.stub_chain(:worker, :push).with(expected_data).and_return(:ok)
         @influxdb.write_point("seriez", data).should eq(:ok)
       end
@@ -540,7 +540,7 @@ describe InfluxDB::Client do
 
         time = Time.now.to_i
         data = {:name => "juan", :age => 87, :time => time}
-        expected_data = [{name: 'seriez', points: [[87, 'juan', time]], columns: [:age, :name, :time]}]
+        expected_data = [{:name => 'seriez', :points => [[87, 'juan', time]], :columns => [:age, :name, :time]}]
         @influxdb.stub_chain(:worker, :push).with(expected_data).and_return(:ok)
         @influxdb.write_point("seriez", data, true).should eq(:ok)
       end
