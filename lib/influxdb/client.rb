@@ -72,10 +72,8 @@ module InfluxDB
       at_exit { stop! }
     end
 
-    ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
     def create_database(name, options = {})
-      url = full_url("/db")
-      options[:name] = name
+      url = full_url("/cluster/database_configs/#{name}")
       data = JSON.generate(options)
       post(url, data)
     end
