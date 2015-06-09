@@ -1,8 +1,7 @@
 require 'json'
 
 module InfluxDB
-
-  class PointValue
+  class PointValue # :nodoc:
     attr_accessor :value
 
     def initialize(value)
@@ -21,7 +20,7 @@ module InfluxDB
       if maybe_json?
         begin
           JSON.parse(value)
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           value
         end
       else

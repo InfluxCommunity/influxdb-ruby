@@ -1,26 +1,23 @@
 require "spec_helper"
 require 'timeout'
 
-describe InfluxDB::Worker do
-  let(:fake_client) { double(:stopped? => false) }
-  let(:worker) { InfluxDB::Worker.new(fake_client) }
+describe InfluxDB::Writer::Async::Worker do
+  let(:fake_client) { double(stopped?: false) }
+  let(:worker) { described_class.new(fake_client, {}) }
 
   describe "#push" do
-    let(:payload) { {:name => "juan", :age => 87, :time => Time.now.to_i} }
+    let(:payload) { { name: "juan", age: 87, time: Time.now.to_i } }
 
-    it "should _write to the client" do
+    it "writes to the client" do
       queue = Queue.new
-      expect(fake_client).to receive(:_write).once.with([payload]) do |data|
+      expect(fake_client).to receive(:write).once.with([payload]) do |_data|
         queue.push(:received)
       end
       worker.push(payload)
 
-      Timeout.timeout(InfluxDB::Worker::SLEEP_INTERVAL) do
-        queue.pop()
+      Timeout.timeout(described_class::SLEEP_INTERVAL) do
+        queue.pop
       end
     end
-
   end
-
-
 end

@@ -1,9 +1,19 @@
 require "influxdb/version"
 require "influxdb/errors"
-require "influxdb/logger"
-
+require "influxdb/logging"
 require "influxdb/max_queue"
-require "influxdb/worker"
-require "influxdb/client"
-require "influxdb/udp_client"
 require "influxdb/point_value"
+require "influxdb/config"
+
+require "influxdb/writer/async"
+require "influxdb/writer/udp"
+
+require "influxdb/query/core"
+require "influxdb/query/cluster"
+require "influxdb/query/database"
+require "influxdb/query/series"
+require "influxdb/query/shard"
+require "influxdb/query/user"
+
+require "influxdb/client/http"
+require "influxdb/client"

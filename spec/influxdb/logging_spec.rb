@@ -2,13 +2,12 @@ require 'spec_helper'
 require 'logger'
 
 describe InfluxDB::Logging do
-  class LoggerTest
+  class LoggerTest # :nodoc
     include InfluxDB::Logging
 
     def write_to_log(level, message)
       log(level, message)
     end
-
   end
 
   before { @old_logger = InfluxDB::Logging.logger }
@@ -41,7 +40,6 @@ describe InfluxDB::Logging do
   end
 
   context "when included in classes" do
-
     subject { LoggerTest.new }
 
     it "logs" do

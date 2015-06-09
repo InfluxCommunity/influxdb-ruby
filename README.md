@@ -69,7 +69,7 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
-influxdb.update_database_user(database, username, :password => "new_password")
+influxdb.update_database_user(database, username, password: "new_password")
 ```
 
 Write some data:
@@ -82,14 +82,16 @@ password = 'bar'
 database = 'site_development'
 name     = 'foobar'
 
-influxdb = InfluxDB::Client.new database, :username => username, :password => password
+influxdb = InfluxDB::Client.new database,
+                                username: username,
+                                password: password
 
 # Enumerator that emits a sine wave
 Value = (0..360).to_a.map {|i| Math.send(:sin, i / 10.0) * 10 }.each
 
 loop do
   data = {
-    :value => Value.next
+    value: Value.next
   }
 
   influxdb.write_point(name, data)
@@ -111,18 +113,19 @@ database = 'site_development'
 name     = 'foobar'
 time_precision = 's'
 
-influxdb = InfluxDB::Client.new database, :username => username,
-                                          :password => password,
-                                          :time_precision => time_precision
+influxdb = InfluxDB::Client.new database, username: username,
+                                          password: password,
+                                          time_precision: time_precision
 
 data = {
-  :value => 0,
-  :time => Time.now.to_i
+  value: 0,
+  time: Time.now.to_i
 }
 
 influxdb.write_point(name, data)
 ```
-or in the write call
+
+Write asynchronously:
 
 ``` ruby
 require 'influxdb'
@@ -133,14 +136,17 @@ database = 'site_development'
 name     = 'foobar'
 time_precision = 's'
 
-influxdb = InfluxDB::Client.new database, :username => username, :password => password
+influxdb = InfluxDB::Client.new database, 
+                                username: username,
+                                password: password,
+                                async: true
 
 data = {
-  :value => 0,
-  :time => Time.now.to_i
+  value: 0,
+  time: Time.now.to_i
 }
 
-influxdb.write_point(name, data, false, time_precision)
+influxdb.write_point(name, data)
 ```
 
 Write data via UDP:
@@ -150,13 +156,13 @@ require 'influxdb'
 host = '127.0.0.1'
 port = 4444
 
-influxdb = InfluxDB::Client.new :udp => { :host => host, :port => port }
+influxdb = InfluxDB::Client.new udp: { host: host, port: port }
 
 name = 'hitchhiker'
 
 data = {
-  :answer => 42,
-  :question => "life the universe and everything?"
+  answer: 42,
+  question: "life the universe and everything?"
 }
 
 influxdb.write_point(name, data)
@@ -170,7 +176,7 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
-influxdb.get_cluster_admin_list
+influxdb.list_cluster_admins
 ```
 
 List databases:
@@ -180,7 +186,7 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
-influxdb.get_database_list
+influxdb.list_databases
 ```
 
 List database users:
@@ -190,7 +196,7 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
-influxdb.get_database_user_list(database)
+influxdb.list_database_users(database)
 ```
 
 List a database user:
@@ -200,7 +206,7 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new
 
-influxdb.get_database_user_info(database, username)
+influxdb.database_user_info(database, username)
 ```
 
 Delete a database:
@@ -233,15 +239,22 @@ username = 'foo'
 password = 'bar'
 database = 'site_development'
 
-influxdb = InfluxDB::Client.new database, :username => username, :password => password
+influxdb = InfluxDB::Client.new database,
+                                username: username,
+                                password: password
 
 influxdb.query 'select * from time_series_1' do |name, points|
   puts "#{name} => #{points}"
 end
 ```
 
-By default, an InfluxDB::Client will keep trying to connect to the database when
-it gets connection denied, if you want to retry a finite number of times
+By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
+
+``` ruby
+influxdb.query('select * from time_series_1', denormalize: false)
+```
+
+By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied, if you want to retry a finite number of times
 (or disable retries altogether), you should pass the `:retry`
 value. `:retry` can be either `true`, `false` or an `Integer` to retry
 infinite times, disable retries or retry a finite number of times,
@@ -285,3 +298,9 @@ cd influxdb-ruby
 bundle
 bundle exec rake
 ```
+
+
+Versioning
+-------
+
+Gem major and minor versions correspond to InfuxDB version, i.e. if you're using InfluxDB 0.8.x you must use influxdb-ruby 0.8.x and so on.
