@@ -1,6 +1,14 @@
 influxdb-ruby
 =============
 
+# This library is not updated for InfluxDB 0.9.0. There are breaking changes to the API, use at your own risk.
+
+We encourage you to submit a pull request if you have a contribution.
+
+----------
+
+
+
 [![Build Status](https://travis-ci.org/influxdb/influxdb-ruby.png?branch=master)](https://travis-ci.org/influxdb/influxdb-ruby)
 
 Ruby client library for [InfluxDB](http://influxdb.org/).
