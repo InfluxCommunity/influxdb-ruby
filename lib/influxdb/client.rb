@@ -74,68 +74,121 @@ module InfluxDB
 
     ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
     def create_database(name, options = {})
-      url = full_url("/db")
-      options[:name] = name
-      data = JSON.generate(options)
-      post(url, data)
+      # url = full_url("/db")
+      # options[:name] = name
+      # data = JSON.generate(options)
+      # post(url, data)
+      execute("CREATE DATABASE #{name}")
     end
 
     def delete_database(name)
-      delete full_url("/db/#{name}")
+      # delete full_url("/db/#{name}")
+      execute("DROP DATABASE #{name}")
     end
 
+    # => [{"name"=>"mydb"}, {"name"=>"testdb"}]
     def get_database_list
-      get full_url("/db")
+      # get full_url("/db")
+      resp = execute("SHOW DATABASES", parse: true)
+      resp["results"][0]["series"][0]["values"].flatten.map {|v| { "name" => v }}
     end
 
     def create_cluster_admin(username, password)
-      url = full_url("/cluster_admins")
-      data = JSON.generate({:name => username, :password => password})
-      post(url, data)
+      # url = full_url("/cluster_admins")
+      # data = JSON.generate({:name => username, :password => password})
+      # post(url, data)
+      execute("CREATE USER #{username} WITH PASSWORD '#{password}' WITH ALL PRIVILEGES")
     end
 
-    def update_cluster_admin(username, password)
-      url = full_url("/cluster_admins/#{username}")
-      data = JSON.generate({:password => password})
-      post(url, data)
-    end
+    # DEPRECATED, use update_user_password
+    # def update_cluster_admin(username, password)
+      # url = full_url("/cluster_admins/#{username}")
+      # data = JSON.generate({:password => password})
+      # post(url, data)
+    # end
 
-    def delete_cluster_admin(username)
-      delete full_url("/cluster_admins/#{username}")
-    end
+    # DEPRECATED, use delete_user
+    # def delete_cluster_admin(username)
+      # delete full_url("/cluster_admins/#{username}")
+    # end
 
     def get_cluster_admin_list
-      get full_url("/cluster_admins")
+      # get full_url("/cluster_admins")
+      get_user_list.select{|u| u['admin']}.map {|u| u.except('admin')}
     end
 
+    # create_database_user('testdb', 'user', 'pass') => grants all privileges by default
+    # create_database_user('testdb', 'user', 'pass', :permissions => :read) => use [:read|:write|:all]
     def create_database_user(database, username, password, options={})
-      url = full_url("/db/#{database}/users")
-      data = JSON.generate({:name => username, :password => password}.merge(options))
-      post(url, data)
+      # url = full_url("/db/#{database}/users")
+      # data = JSON.generate({:name => username, :password => password}.merge(options))
+      # post(url, data)
+      permissions = options[:permissions] || 'ALL'
+      execute("CREATE user #{username} WITH PASSWORD '#{password}'; GRANT #{permissions.to_s.upcase} ON #{database} TO #{username}")
     end
 
-    def update_database_user(database, username, options = {})
-      url = full_url("/db/#{database}/users/#{username}")
-      data = JSON.generate(options)
-      post(url, data)
+    # DEPRECATED, use:
+    # * update_user_password
+    # * grant_user_privileges
+    # def update_database_user(database, username, options = {})
+      # url = full_url("/db/#{database}/users/#{username}")
+      # data = JSON.generate(options)
+      # post(url, data)
+    # end
+
+    ###################### NEW METHODS ########################
+    def update_user_password(username, password)
+      execute("SET PASSWORD FOR #{username} = '#{password}'")
     end
 
-    def delete_database_user(database, username)
-      delete full_url("/db/#{database}/users/#{username}")
+    # permission => [:read|:write|:all]
+    def grant_user_privileges(username, database, permission)
+      execute("GRANT #{permission.to_s.upcase} ON #{database} TO #{username}")
     end
 
-    def get_database_user_list(database)
-      get full_url("/db/#{database}/users")
+    # permission => [:read|:write|:all]
+    def revoke_user_privileges(username, database, permission)
+      execute("REVOKE #{permission.to_s.upcase} ON #{database} FROM #{username}")
     end
 
-    def get_database_user_info(database, username)
-      get full_url("/db/#{database}/users/#{username}")
+    def revoke_cluster_admin_privileges(username)
+      execute("REVOKE ALL PRIVILEGES FROM #{username}")
     end
 
-    def alter_database_privilege(database, username, admin=true)
-      update_database_user(database, username, :admin => admin)
+    def delete_user(username)
+      execute("DROP USER #{username}")
     end
 
+    # => {"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
+    def get_user_list
+      resp = execute("SHOW USERS", parse: true)
+      resp["results"][0]["series"][0]["values"].map do |v|
+        {'username' => v.first, 'admin' => v.last}
+      end
+    end
+    ############################################################
+
+    # DEPRECATED, use delete_user
+    # def delete_database_user(database, username)
+      # delete full_url("/db/#{database}/users/#{username}")
+    # end
+
+    # DEPRECATED, use get_user_list
+    # def get_database_user_list(database)
+      # get full_url("/db/#{database}/users")
+    # end
+
+    # DEPRECATED, get_user_list returns privileges
+    # def get_database_user_info(database, username)
+      # get full_url("/db/#{database}/users/#{username}")
+    # end
+
+    # DEPRECATED, use revoke_user_privileges & grant_user_privileges
+    # def alter_database_privilege(database, username, admin=true)
+      # update_database_user(database, username, :admin => admin)
+    # end
+
+    # TODO: https://influxdb.com/docs/v0.9/query_language/continuous_queries.html
     def continuous_queries(database)
       get full_url("/db/#{database}/continuous_queries")
     end
@@ -220,13 +273,25 @@ module InfluxDB
       @auth_method == 'basic_auth'
     end
 
-    def get(url)
+    def execute(query, params={})
+      url = full_url("/query", q: query)
+      get(url, params)
+    end
+
+    def get(url, params={})
       connect_with_retry do |http|
         request = Net::HTTP::Get.new(url)
         request.basic_auth @username, @password if basic_auth?
         response = http.request(request)
         if response.kind_of? Net::HTTPSuccess
-          return JSON.parse(response.body)
+          parsed_response = JSON.parse(response.body)
+          if parsed_response["results"][0]["error"].present?
+            raise InfluxDB::QueryError.new parsed_response
+          elsif params[:parse]
+            parsed_response
+          else
+            response
+          end
         elsif response.kind_of? Net::HTTPUnauthorized
           raise InfluxDB::AuthenticationError.new response.body
         else

@@ -14,6 +14,9 @@ module InfluxDB
   class JSONParserError < Error
   end
 
+  class QueryError < Error
+  end
+
   # Taken from: https://github.com/lostisland/faraday/blob/master/lib/faraday/adapter/net_http.rb
   NET_HTTP_EXCEPTIONS = [
     EOFError,
