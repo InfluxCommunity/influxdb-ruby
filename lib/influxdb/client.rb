@@ -72,6 +72,11 @@ module InfluxDB
       at_exit { stop! } if @retry > 0
     end
 
+    def ping
+      get "/ping"
+    end
+
+    ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
     def create_database(name, options = {})
       url = full_url("/cluster/database_configs/#{name}")
       data = JSON.generate(options)

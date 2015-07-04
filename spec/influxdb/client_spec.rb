@@ -146,6 +146,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#ping" do
+    it "should return status ok" do
+      status_ok = {"status" => "ok"}
+      stub_request(:get, "http://influxdb.test:9999/ping"
+      ).to_return(:body => JSON.generate(status_ok), :status => 200)
+
+      @influxdb.ping.should == status_ok
+    end
+  end
+
   describe "#create_database" do
     it "should POST to create a new database" do
       stub_request(
