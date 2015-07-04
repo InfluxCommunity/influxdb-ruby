@@ -86,6 +86,10 @@ module InfluxDB
       get full_url("/db")
     end
 
+    def authenticate_cluster_admin
+      get(full_url('/cluster_admins/authenticate'), true)
+    end
+
     def create_cluster_admin(username, password)
       url = full_url("/cluster_admins")
       data = JSON.generate({:name => username, :password => password})
@@ -104,6 +108,10 @@ module InfluxDB
 
     def get_cluster_admin_list
       get full_url("/cluster_admins")
+    end
+
+    def authenticate_database_user(database)
+      get(full_url("/db/#{database}/authenticate"), true)
     end
 
     def create_database_user(database, username, password, options={})
@@ -218,13 +226,17 @@ module InfluxDB
       @auth_method == 'basic_auth'
     end
 
-    def get(url)
+    def get(url, return_response = false)
       connect_with_retry do |http|
         request = Net::HTTP::Get.new(url)
         request.basic_auth @username, @password if basic_auth?
         response = http.request(request)
         if response.kind_of? Net::HTTPSuccess
-          return JSON.parse(response.body)
+          if return_response
+            return response
+          else
+            return JSON.parse(response.body)
+          end
         elsif response.kind_of? Net::HTTPUnauthorized
           raise InfluxDB::AuthenticationError.new response.body
         else

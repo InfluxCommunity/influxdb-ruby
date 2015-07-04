@@ -180,6 +180,16 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#authenticate_cluster_admin" do
+    it "should GET to authenticate a cluster admin" do
+      stub_request(:get, "http://influxdb.test:9999/cluster_admins/authenticate").with(
+        :query => {:u => "username", :p => "password"}
+      )
+
+      @influxdb.authenticate_cluster_admin.should be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#create_cluster_admin" do
     it "should POST to create a new cluster admin" do
       stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(
@@ -220,6 +230,16 @@ describe InfluxDB::Client do
       ).to_return(:body => JSON.generate(admin_list), :status => 200)
 
       @influxdb.get_cluster_admin_list.should == admin_list
+    end
+  end
+
+  describe "#authenticate_database_user" do
+    it "should GET to authenticate a database database" do
+      stub_request(:get, "http://influxdb.test:9999/db/foo/authenticate").with(
+        :query => {:u => "username", :p => "password"}
+      ).to_return(:body => '', :status => 200)
+
+      @influxdb.authenticate_database_user("foo").should be_a(Net::HTTPOK)
     end
   end
 
