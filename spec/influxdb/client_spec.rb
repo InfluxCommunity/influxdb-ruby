@@ -563,14 +563,18 @@ describe InfluxDB::Client do
       it "raises when stopped" do
         @influxdb.stop!
         @influxdb.should_not_receive :sleep
-        expect { subject }.to raise_error(Timeout::Error)
+        expect { subject }.to raise_error(InfluxDB::ConnectionError) do |e|
+          expect(e.cause).to be_an_instance_of(Timeout::Error)
+        end
       end
 
       context "when retry is 0" do
         let(:args) { { :retry => 0 } }
         it "raise error directly" do
           @influxdb.should_not_receive :sleep
-          expect { subject }.to raise_error(Timeout::Error)
+          expect { subject }.to raise_error(InfluxDB::ConnectionError) do |e|
+            expect(e.cause).to be_an_instance_of(Timeout::Error)
+          end
         end
       end
 
@@ -579,7 +583,9 @@ describe InfluxDB::Client do
 
         it "raise error after 'n' attemps" do
           @influxdb.should_receive(:sleep).exactly(3).times
-          expect { subject }.to raise_error(Timeout::Error)
+          expect { subject }.to raise_error(InfluxDB::ConnectionError) do |e|
+            expect(e.cause).to be_an_instance_of(Timeout::Error)
+          end
         end
       end
 

@@ -438,7 +438,7 @@ module InfluxDB
           delay = [@max_delay, delay * 2].min
           retry
         else
-          raise e, "Tried #{retry_count-1} times to reconnect but failed."
+          raise InfluxDB::ConnectionError, "Tried #{retry_count-1} times to reconnect but failed."
         end
       ensure
         http.finish if http.started?
