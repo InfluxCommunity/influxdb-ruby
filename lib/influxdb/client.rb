@@ -54,6 +54,9 @@ module InfluxDB
       @username = opts[:username] || "root"
       @password = opts[:password] || "root"
       @auth_method = %w{params basic_auth}.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
+      @verify_mode = opts[:verify_mode] || OpenSSL::SSL::VERIFY_PEER
+      @cert_key = opts[:cert_key] || nil
+      @cert_path = opts[:cert_path] || nil
       @use_ssl = opts[:use_ssl] || false
       @verify_ssl = opts.fetch(:verify_ssl, true)
       @time_precision = opts[:time_precision] || "s"
@@ -397,6 +400,14 @@ module InfluxDB
       end
     end
 
+    def certificate_path
+      OpenSSL::X509::Certificate.new(File.read(@cert_path)) unless @cert_path.nil?
+    end
+
+    def certificate_key
+      OpenSSL::PKey::RSA.new(File.read(@cert_key)) unless @cert_key.nil?
+    end
+
     def connect_with_retry(&block)
       hosts = @hosts.dup
       delay = @initial_delay
@@ -405,6 +416,9 @@ module InfluxDB
       begin
         hosts.push(host = hosts.shift)
         http = Net::HTTP.new(host, @port)
+        http.cert = certificate_path
+        http.key = certificate_key
+        http.verify_mode = @verify_mode
         http.open_timeout = @open_timeout
         http.read_timeout = @read_timeout
         http.use_ssl = @use_ssl
