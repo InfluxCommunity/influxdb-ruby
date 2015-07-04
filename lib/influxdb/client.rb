@@ -44,6 +44,7 @@ module InfluxDB
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
     # +:use_ssl+:: use ssl to connect
+    # +:verify_ssl+:: verify ssl server certificate
     def initialize *args
       @database = args.first if args.first.is_a? String
       opts = args.last.is_a?(Hash) ? args.last : {}
@@ -54,6 +55,7 @@ module InfluxDB
       @password = opts[:password] || "root"
       @auth_method = %w{params basic_auth}.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
       @use_ssl = opts[:use_ssl] || false
+      @verify_ssl = opts.fetch(:verify_ssl, true)
       @time_precision = opts[:time_precision] || "s"
       @initial_delay = opts[:initial_delay] || 0.01
       @max_delay = opts[:max_delay] || 30
@@ -406,6 +408,7 @@ module InfluxDB
         http.open_timeout = @open_timeout
         http.read_timeout = @read_timeout
         http.use_ssl = @use_ssl
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless @verify_ssl
         block.call(http)
 
       rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
