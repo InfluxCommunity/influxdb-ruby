@@ -31,6 +31,8 @@ Connecting to a single host:
 require 'influxdb'
 
 influxdb = InfluxDB::Client.new host: "influxdb.domain.com"
+# or
+influxdb = InfluxDB::Client.new  # no host given defaults connecting to localhost
 ```
 
 Connecting to multiple hosts (with built-in load balancing and failover):
