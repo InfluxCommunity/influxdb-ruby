@@ -3,6 +3,7 @@ require 'cgi'
 require 'net/http'
 require 'net/https'
 require 'json'
+require 'cause'
 
 module InfluxDB
   class Client
