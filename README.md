@@ -1,13 +1,7 @@
 influxdb-ruby
 =============
 
-# This library is not updated for InfluxDB 0.9.0. There are breaking changes to the API, use at your own risk.
-
-We encourage you to submit a pull request if you have a contribution.
-
-----------
-
-
+> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and tagged on this repository. If you're reading this message, then you should only expect support for InfluxDB v0.9.0 and higher.
 
 [![Build Status](https://travis-ci.org/influxdb/influxdb-ruby.png?branch=master)](https://travis-ci.org/influxdb/influxdb-ruby)
 
