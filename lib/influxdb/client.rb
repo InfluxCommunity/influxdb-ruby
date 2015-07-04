@@ -156,6 +156,43 @@ module InfluxDB
     end
 
     def write_point(name, data, async=@async, time_precision=@time_precision)
+      write_points([{:name => name, :data => data}], async, time_precision)
+    end
+
+    # Example:
+    # db.write_points(
+    #     [
+    #         {
+    #             name: 'first_name',
+    #             data: {
+    #                 value: 'val1'
+    #             }
+    #         },
+    #         {
+    #             name: 'first_name',
+    #             data: {
+    #                 value: 'val1'
+    #             }
+    #         }
+    #     ]
+    # )
+    def write_points(name_data_hashes_array, async=@async, time_precision=@time_precision)
+
+      payloads = []
+      name_data_hashes_array.each do |attrs|
+        payloads << generate_payload(attrs[:name], attrs[:data])
+      end
+
+      if async
+        worker.push(payloads)
+      elsif udp_client
+        udp_client.send(payloads)
+      else
+        _write(payloads, time_precision)
+      end
+    end
+
+    def generate_payload(name, data)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
       payload = {:name => name, :points => [], :columns => columns}
@@ -166,13 +203,7 @@ module InfluxDB
         end
       end
 
-      if async
-        worker.push(payload)
-      elsif udp_client
-        udp_client.send([payload])
-      else
-        _write([payload], time_precision)
-      end
+      payload
     end
 
     def _write(payload, time_precision=@time_precision)

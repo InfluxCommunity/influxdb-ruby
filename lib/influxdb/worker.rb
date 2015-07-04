@@ -33,7 +33,11 @@ module InfluxDB
     end
 
     def push(payload)
-      queue.push(payload)
+      if payload.is_a? Array
+        payload.each {|p| queue.push(p) }
+      else
+        queue.push(payload)
+      end
     end
 
     def spawn_threads!
