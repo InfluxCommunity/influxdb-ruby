@@ -17,6 +17,8 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
+  specify { is_expected.not_to be_stopped }
+
   context "with basic auth" do
     let(:args) { { auth_method: 'basic_auth' } }
 

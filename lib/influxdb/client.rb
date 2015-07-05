@@ -51,7 +51,7 @@ module InfluxDB
       opts = args.last.is_a?(Hash) ? args.last : {}
       opts[:database] = args.first if args.first.is_a? String
       @config = InfluxDB::Config.new(opts)
-      @stopper = false
+      @stopped = false
 
       @writer = self
 
