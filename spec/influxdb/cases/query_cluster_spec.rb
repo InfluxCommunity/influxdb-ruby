@@ -59,4 +59,15 @@ describe InfluxDB::Client do
       expect(subject.list_cluster_admins).to eq admin_list
     end
   end
+
+  describe "GET #authenticate_cluster_admin" do
+    it "returns OK" do
+      stub_request(:get, "http://influxdb.test:9999/cluster_admins/authenticate")
+        .with(
+          query:  { u: "username", p: "password" }
+        )
+
+      expect(subject.authenticate_cluster_admin).to be_a(Net::HTTPOK)
+    end
+  end
 end

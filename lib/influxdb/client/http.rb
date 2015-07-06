@@ -12,7 +12,7 @@ module InfluxDB
         response = do_request http, Net::HTTP::Get.new(url)
         if response.is_a? Net::HTTPSuccess
           return JSON.parse(response.body) if options.fetch(:json, true)
-          response.body
+          response
         elsif response.is_a? Net::HTTPUnauthorized
           fail InfluxDB::AuthenticationError, response.body
         else

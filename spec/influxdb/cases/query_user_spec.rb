@@ -97,4 +97,15 @@ describe InfluxDB::Client do
       expect(subject.database_user_info("foo", "bar")).to eq user_info
     end
   end
+
+  describe "GET #authenticate_database_user" do
+    it "return OK" do
+      stub_request(:get, "http://influxdb.test:9999/db/foo/authenticate")
+        .with(
+          query: { u: "username", p: "password" }
+        ).to_return(body: '', status: 200)
+
+      expect(subject.authenticate_database_user("foo")).to be_a(Net::HTTPOK)
+    end
+  end
 end
