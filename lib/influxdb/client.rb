@@ -17,6 +17,8 @@ module InfluxDB
     include InfluxDB::Query::Shard
     include InfluxDB::Query::Series
     include InfluxDB::Query::User
+    include InfluxDB::Query::ContinuousQuery
+    include InfluxDB::Query::ShardSpace
 
     # Initializes a new InfluxDB client
     #
@@ -77,18 +79,49 @@ module InfluxDB
     #         },
     #         {
     #             name: 'first_name',
-    #             data: {
+    #             data: [{
     #                 value: 'val1'
-    #             }
+    #             },
+    #             {
+    #                 value: 'val2'
+    #             }]
     #         }
     #     ]
     # )
     def write_points(points)
-      # todo:
+      payloads = []
+      points.each do |attrs|
+        payloads << generate_payload(attrs[:name], attrs[:data])
+      end
+      write_raw payloads
     end
 
     # Write data point for series `name`
     def write_point(name, data)
+      write_raw [generate_payload(name, data)]
+    end
+
+    # Write raw data to InfluxDB
+    def write_raw(payload)
+      writer.write(payload)
+    end
+
+    def write(payload, opts = {})
+      opts[:time_precision] ||= config.time_precision
+      url = full_url("/db/#{config.database}/series", opts)
+      data = JSON.generate(payload)
+      post(url, data)
+    end
+
+    def stop!
+      @stopped = true
+    end
+
+    def stopped?
+      @stopped
+    end
+
+    def generate_payload(name, data)
       data = data.is_a?(Array) ? data : [data]
       columns = data.reduce(:merge).keys.sort { |a, b| a.to_s <=> b.to_s }
       payload = { name: name, points: [], columns: columns }
@@ -98,21 +131,7 @@ module InfluxDB
           array << InfluxDB::PointValue.new(point[column]).dump
         end
       end
-
-      write_raw [payload]
-    end
-
-    # Write raw data to InfluxDB
-    def write_raw(payload)
-      writer.write(payload)
-    end
-
-    def stop!
-      @stopped = true
-    end
-
-    def stopped?
-      @stopped
+      payload
     end
   end
 end

@@ -299,8 +299,3 @@ bundle
 bundle exec rake
 ```
 
-
-Versioning
--------
-
-Gem major and minor versions correspond to InfuxDB version, i.e. if you're using InfluxDB 0.8.x you must use influxdb-ruby 0.8.x and so on.

@@ -14,6 +14,8 @@ require "influxdb/query/database"
 require "influxdb/query/series"
 require "influxdb/query/shard"
 require "influxdb/query/user"
+require "influxdb/query/continuous_query"
+require "influxdb/query/shard_space"
 
 require "influxdb/client/http"
 require "influxdb/client"
