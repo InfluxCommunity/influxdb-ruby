@@ -19,12 +19,12 @@ describe InfluxDB::Client do
 
   describe "POST #create_database" do
     it "creates a new database" do
-      stub_request(:post, "http://influxdb.test:9999/db").with(
+      stub_request(:post, 'http://influxdb.test:9999/cluster/database_configs/foo').with(
         query: { u: "username", p: "password" },
-        body: { name: "foo" }
+        body: { spaces: [] }
       )
 
-      expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
+      expect(subject.create_database("foo", spaces: [])).to be_a(Net::HTTPOK)
     end
   end
 
