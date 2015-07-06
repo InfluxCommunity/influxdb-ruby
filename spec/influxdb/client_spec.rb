@@ -53,6 +53,16 @@ describe InfluxDB::Client do
   end
 
   describe "#query" do
+    describe "GET #ping" do
+      it "returns OK" do
+        status_ok = { "status" => "ok" }
+        stub_request(:get, "http://influxdb.test:9999/ping")
+          .to_return(body: JSON.generate(status_ok), status: 200)
+
+        expect(subject.ping).to eq status_ok
+      end
+    end
+
     context "execute queries" do
       before(:each) do
         data = [{
