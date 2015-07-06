@@ -81,6 +81,32 @@ describe InfluxDB::Client do
       specify { expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK) }
     end
 
+    context "multiple series" do
+      let(:body) do
+        [
+          {
+            "name" => "seriez",
+            "points" => [[87, "juan"]],
+            "columns" => %w(age name)
+          },
+          {
+            "name" => "seriez_2",
+            "points" => [[nil, "jack"], [true, "john"]],
+            "columns" => %w(active name)
+          }
+        ]
+      end
+
+      let(:data) do
+        [
+          { name: "seriez", data: { name: "juan", age: 87 } },
+          { name: "seriez_2", data: [{ name: "jack" }, { name: "john", active: true }] }
+        ]
+      end
+
+      specify { expect(subject.write_points(data)).to be_a(Net::HTTPOK) }
+    end
+
     context "data dump" do
       it "dumps a hash point value to json" do
         prefs = [{ 'favorite_food' => 'lasagna' }]
