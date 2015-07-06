@@ -1,17 +1,20 @@
 module InfluxDB
 
   class PointValue
-    attr_accessor :values, :tags
 
-    def initialize(series, data)
-      @series    = series
+    def initialize(data)
+      @series    = data[:series]
       @values    = stringify(data[:values])
       @tags      = stringify(data[:tags])
       @timestamp = data[:timestamp]
     end
 
     def dump
-      "#{@series},#{@tags} #{@values} #{@timestamp}"
+      dump = "#{@series}"
+      dump << ",#{@tags}" if @tags
+      dump << " #{@values}"
+      dump << " #{@timestamp}" if @timestamp
+      dump
     end
 
     private

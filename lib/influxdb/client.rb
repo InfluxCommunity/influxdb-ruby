@@ -72,45 +72,23 @@ module InfluxDB
       at_exit { stop! }
     end
 
-    ## allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
-    def create_database(name, options = {})
-      # url = full_url("/db")
-      # options[:name] = name
-      # data = JSON.generate(options)
-      # post(url, data)
+    def create_database(name)
       execute("CREATE DATABASE #{name}")
     end
 
     def delete_database(name)
-      # delete full_url("/db/#{name}")
       execute("DROP DATABASE #{name}")
     end
 
     # => [{"name"=>"mydb"}, {"name"=>"testdb"}]
     def get_database_list
-      # get full_url("/db")
       resp = execute("SHOW DATABASES", parse: true)
       resp["results"][0]["series"][0]["values"].flatten.map {|v| { "name" => v }}
     end
 
     def create_cluster_admin(username, password)
-      # url = full_url("/cluster_admins")
-      # data = JSON.generate({:name => username, :password => password})
-      # post(url, data)
       execute("CREATE USER #{username} WITH PASSWORD '#{password}' WITH ALL PRIVILEGES")
     end
-
-    # DEPRECATED, use update_user_password
-    # def update_cluster_admin(username, password)
-      # url = full_url("/cluster_admins/#{username}")
-      # data = JSON.generate({:password => password})
-      # post(url, data)
-    # end
-
-    # DEPRECATED, use delete_user
-    # def delete_cluster_admin(username)
-      # delete full_url("/cluster_admins/#{username}")
-    # end
 
     def get_cluster_admin_list
       # get full_url("/cluster_admins")
@@ -120,23 +98,10 @@ module InfluxDB
     # create_database_user('testdb', 'user', 'pass') => grants all privileges by default
     # create_database_user('testdb', 'user', 'pass', :permissions => :read) => use [:read|:write|:all]
     def create_database_user(database, username, password, options={})
-      # url = full_url("/db/#{database}/users")
-      # data = JSON.generate({:name => username, :password => password}.merge(options))
-      # post(url, data)
       permissions = options[:permissions] || 'ALL'
       execute("CREATE user #{username} WITH PASSWORD '#{password}'; GRANT #{permissions.to_s.upcase} ON #{database} TO #{username}")
     end
 
-    # DEPRECATED, use:
-    # * update_user_password
-    # * grant_user_privileges
-    # def update_database_user(database, username, options = {})
-      # url = full_url("/db/#{database}/users/#{username}")
-      # data = JSON.generate(options)
-      # post(url, data)
-    # end
-
-    ###################### NEW METHODS ########################
     def update_user_password(username, password)
       execute("SET PASSWORD FOR #{username} = '#{password}'")
     end
@@ -166,30 +131,8 @@ module InfluxDB
         {'username' => v.first, 'admin' => v.last}
       end
     end
-    ############################################################
-
-    # DEPRECATED, use delete_user
-    # def delete_database_user(database, username)
-      # delete full_url("/db/#{database}/users/#{username}")
-    # end
-
-    # DEPRECATED, use get_user_list
-    # def get_database_user_list(database)
-      # get full_url("/db/#{database}/users")
-    # end
-
-    # DEPRECATED, get_user_list returns privileges
-    # def get_database_user_info(database, username)
-      # get full_url("/db/#{database}/users/#{username}")
-    # end
-
-    # DEPRECATED, use revoke_user_privileges & grant_user_privileges
-    # def alter_database_privilege(database, username, admin=true)
-      # update_database_user(database, username, :admin => admin)
-    # end
 
     def continuous_queries(database)
-      # get full_url("/db/#{database}/continuous_queries")
       resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
       data = resp["results"][0]["series"].select {|v| v["name"] == database}.try(:[], 0).try(:[], "values")
       data.blank? ? [] : data.map {|v| {'name' => v.first, 'query' => v.last}}
@@ -211,15 +154,32 @@ module InfluxDB
       # delete full_url("/db/#{@database}/series/#{series}")
     end
 
-
-    # data => {tags: {host: 'server', regios: 'us'}, values: {testcolumn: 0.5434, value: 0.434545}, timestamp: 1422568543702900257}
-    # tags and timestamp are optional
-    def write_point(series, data, async=@async, time_precision=@time_precision)
-
+    # Example:
+    #
+    # Single point:
+    # write_points(series: 'cpu', tags: {region: 'us'}, values: {internal: 66})
+    #
+    # Multiple points:
+    # write_points([
+    #   {
+    #     series: 'cpu',
+    #     tags: { host: 'server_nl', regios: 'us' },
+    #     values: {internal: 5, external: 6},
+    #     timestamp: 1422568543702900257
+    #   },
+    #   {
+    #     series: 'gpu',
+    #     values: {value: 0.9999},
+    #   }
+    # ])
+    #
+    # NOTE: +tags+ are optional
+    # NOTE: +timestamp+ is optional, if you decide to provide it, remember to
+    # keep it compatible with requested time_precision
+    def write_points(data, async=@async, time_precision=@time_precision)
       data = data.is_a?(Array) ? data : [data]
-
       payload = data.map do |point|
-        InfluxDB::PointValue.new(series, point).dump
+        InfluxDB::PointValue.new(point).dump
       end.join("\n")
 
       if async
@@ -232,9 +192,6 @@ module InfluxDB
     end
 
     def _write(payload, time_precision=@time_precision)
-      # url = full_url("/db/#{@database}/series", :time_precision => time_precision)
-      # data = JSON.generate(payload)
-      # post(url, data)
       url = full_url("/write", db: @database, precision: time_precision)
       post(url, payload)
     end
