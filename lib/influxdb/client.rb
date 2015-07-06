@@ -63,7 +63,7 @@ module InfluxDB
         @writer = InfluxDB::Writer::UDP.new(self, config.udp)
       end
 
-      at_exit { stop! }
+      at_exit { stop! } if config.retry > 0
     end
 
     # Write several points
