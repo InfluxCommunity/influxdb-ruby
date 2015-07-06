@@ -21,6 +21,8 @@ module InfluxDB
       # NOTE: Only cluster admin can call this
       def list_continuous_queries
         query("list continuous queries")
+          .fetch("continuous queries", [])
+          .map { |l| l["query"] }
       end
 
       # NOTE: Only cluster admin can call this
