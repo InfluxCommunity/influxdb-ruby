@@ -188,44 +188,55 @@ module InfluxDB
       # update_database_user(database, username, :admin => admin)
     # end
 
-    # TODO: https://influxdb.com/docs/v0.9/query_language/continuous_queries.html
     def continuous_queries(database)
-      get full_url("/db/#{database}/continuous_queries")
+      # get full_url("/db/#{database}/continuous_queries")
+      resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
+      data = resp["results"][0]["series"].select {|v| v["name"] == database}.try(:[], 0).try(:[], "values")
+      data.blank? ? [] : data.map {|v| {'name' => v.first, 'query' => v.last}}
     end
 
+    # TODO
     def get_shard_list()
-      get full_url("/cluster/shards")
+    #   get full_url("/cluster/shards")
     end
 
+    # TODO
     def delete_shard(shard_id, server_ids)
-      data = JSON.generate({"serverIds" => server_ids})
-      delete full_url("/cluster/shards/#{shard_id}"), data
+      # data = JSON.generate({"serverIds" => server_ids})
+      # delete full_url("/cluster/shards/#{shard_id}"), data
     end
 
-    def write_point(name, data, async=@async, time_precision=@time_precision)
-      data = data.is_a?(Array) ? data : [data]
-      columns = data.reduce(:merge).keys.sort {|a,b| a.to_s <=> b.to_s}
-      payload = {:name => name, :points => [], :columns => columns}
+    # TODO
+    def delete_series(series)
+      # delete full_url("/db/#{@database}/series/#{series}")
+    end
 
-      data.each do |point|
-        payload[:points] << columns.inject([]) do |array, column|
-          array << InfluxDB::PointValue.new(point[column]).dump
-        end
-      end
+
+    # data => {tags: {host: 'server', regios: 'us'}, values: {testcolumn: 0.5434, value: 0.434545}, timestamp: 1422568543702900257}
+    # tags and timestamp are optional
+    def write_point(series, data, async=@async, time_precision=@time_precision)
+
+      data = data.is_a?(Array) ? data : [data]
+
+      payload = data.map do |point|
+        InfluxDB::PointValue.new(series, point).dump
+      end.join("\n")
 
       if async
-        worker.push(payload)
+        worker.push(payload) # TODO: support
       elsif udp_client
-        udp_client.send([payload])
+        udp_client.send(payload) # TODO: support
       else
-        _write([payload], time_precision)
+        _write(payload, time_precision)
       end
     end
 
     def _write(payload, time_precision=@time_precision)
-      url = full_url("/db/#{@database}/series", :time_precision => time_precision)
-      data = JSON.generate(payload)
-      post(url, data)
+      # url = full_url("/db/#{@database}/series", :time_precision => time_precision)
+      # data = JSON.generate(payload)
+      # post(url, data)
+      url = full_url("/write", db: @database, precision: time_precision)
+      post(url, payload)
     end
 
     def query(query, time_precision=@time_precision)
@@ -242,10 +253,6 @@ module InfluxDB
           col
         end
       end
-    end
-
-    def delete_series(series)
-      delete full_url("/db/#{@database}/series/#{series}")
     end
 
     def stop!
@@ -301,11 +308,12 @@ module InfluxDB
     end
 
     def post(url, data)
-      headers = {"Content-Type" => "application/json"}
+      headers = {"Content-Type" => "application/octet-stream"}
       connect_with_retry do |http|
         request = Net::HTTP::Post.new(url, headers)
         request.basic_auth @username, @password if basic_auth?
-        response = http.request(request, data)
+        request.body = data
+        response = http.request(request)
         if response.kind_of? Net::HTTPSuccess
           return response
         elsif response.kind_of? Net::HTTPUnauthorized

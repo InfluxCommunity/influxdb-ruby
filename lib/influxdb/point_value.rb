@@ -1,36 +1,23 @@
-require 'json'
-
 module InfluxDB
 
   class PointValue
-    attr_accessor :value
+    attr_accessor :values, :tags
 
-    def initialize(value)
-      @value = value
+    def initialize(series, data)
+      @series    = series
+      @values    = stringify(data[:values])
+      @tags      = stringify(data[:tags])
+      @timestamp = data[:timestamp]
     end
 
     def dump
-      if value.is_a?(Array) || value.is_a?(Hash)
-        JSON.generate(value)
-      else
-        value
-      end
+      "#{@series},#{@tags} #{@values} #{@timestamp}"
     end
 
-    def load
-      if maybe_json?
-        begin
-          JSON.parse(value)
-        rescue JSON::ParserError => e
-          value
-        end
-      else
-        value
-      end
-    end
+    private
 
-    def maybe_json?
-      value.is_a?(String) && value =~ /\A(\{|\[).*(\}|\])$/
+    def stringify(hash)
+      hash.blank? ? nil : hash.map{|k,v| "#{k}=#{v}"}.join(',')
     end
   end
 end
