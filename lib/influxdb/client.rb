@@ -197,8 +197,11 @@ module InfluxDB
     end
 
     def query(query, time_precision=@time_precision)
-      url = full_url("/db/#{@database}/series", :q => query, :time_precision => time_precision)
-      series = get(url)
+      url = full_url("/query", q: query, db: database, precision: time_precision)
+      resp = get(url, parse: true)
+
+      series = resp["results"][0]["series"]
+      return nil unless series
 
       if block_given?
         series.each { |s| yield s['name'], denormalize_series(s) }
@@ -326,18 +329,11 @@ module InfluxDB
       end
     end
 
-    def denormalize_series series
-      columns = series['columns']
-
-      h = Hash.new(-1)
-      columns = columns.map {|v| h[v] += 1; h[v] > 0 ? "#{v}~#{h[v]}" : v }
-
-      series['points'].map do |point|
-        decoded_point = point.map do |value|
-          InfluxDB::PointValue.new(value).load
-        end
-        Hash[columns.zip(decoded_point)]
-      end
+    def denormalize_series(series)
+      {
+        tags: series['tags'],
+        values: Hash[series["columns"].zip(series["values"].flatten)]
+      }.compact
     end
 
     WORKER_MUTEX = Mutex.new
