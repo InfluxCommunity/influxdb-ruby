@@ -3,7 +3,7 @@ module InfluxDB
   class PointValue
 
     def initialize(data)
-      @series    = data[:series]
+      @series    = data[:series].gsub(/\s/, '\ ')
       @values    = stringify(data[:values])
       @tags      = stringify(data[:tags])
       @timestamp = data[:timestamp]
@@ -20,7 +20,12 @@ module InfluxDB
     private
 
     def stringify(hash)
-      hash.blank? ? nil : hash.map{|k,v| "#{k}=#{v}"}.join(',')
+      return nil if hash.blank?
+      hash.map do |k,v|
+        key = k.to_s.gsub(/\s/, '\ ')
+        val = v.is_a?(String) ? v.gsub(/\s/, '\ ') : v
+        "#{key}=#{val}"
+      end.join(',')
     end
   end
 end
