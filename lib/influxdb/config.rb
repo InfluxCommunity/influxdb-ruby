@@ -10,6 +10,8 @@ module InfluxDB
                   :database,
                   :time_precision,
                   :use_ssl,
+                  :verify_ssl,
+                  :ssl_ca_cert,
                   :auth_method,
                   :initial_delay,
                   :max_delay,
@@ -31,6 +33,8 @@ module InfluxDB
       @password = opts.fetch(:password, "root")
       @auth_method = AUTH_METHODS.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
       @use_ssl = opts.fetch(:use_ssl, false)
+      @verify_ssl = opts.fetch(:verify_ssl, true)
+      @ssl_ca_cert = opts.fetch(:ssl_ca_cert, false)
       @time_precision = opts.fetch(:time_precision, "s")
       @initial_delay = opts.fetch(:initial_delay, 0.01)
       @max_delay = opts.fetch(:max_delay, 30)
