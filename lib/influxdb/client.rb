@@ -84,7 +84,7 @@ module InfluxDB
     def get_database_list
       resp = execute("SHOW DATABASES", parse: true)
       values = resp["results"][0]["series"][0]["values"]
-      values.blank? ? [] : values.flatten.map {|v| { "name" => v }}
+      values && !values.empty? ? values.flatten.map {|v| { "name" => v }} : []
     end
 
     def create_cluster_admin(username, password)
@@ -92,7 +92,7 @@ module InfluxDB
     end
 
     def get_cluster_admin_list
-      get_user_list.select{|u| u['admin']}.map {|u| u.except('admin')}
+      get_user_list.select{|u| u['admin']}.map {|u| u.delete_if {|k,_| k == 'admin'}}
     end
 
     # create_database_user('testdb', 'user', 'pass') => grants all privileges by default
@@ -128,14 +128,14 @@ module InfluxDB
     def get_user_list
       resp = execute("SHOW USERS", parse: true)
       values = resp["results"][0]["series"][0]["values"]
-      values.blank? ? [] : values.map {|v| {'username' => v.first, 'admin' => v.last}}
+      values && !values.empty? ? values.map {|v| {'username' => v.first, 'admin' => v.last}} : []
     end
 
     def continuous_queries(database)
       resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
       data = resp["results"][0]["series"].select {|v| v["name"] == database}
       values = data.try(:[], 0).try(:[], "values")
-      values.blank? ? [] : values.map {|v| {'name' => v.first, 'query' => v.last}}
+      values && !values.empty? ? values.map {|v| {'name' => v.first, 'query' => v.last}} : []
     end
 
     # TODO
@@ -189,6 +189,13 @@ module InfluxDB
       else
         _write(payload, time_precision)
       end
+    end
+
+    # Example:
+    # write_point('cpu', tags: {region: 'us'}, values: {internal: 60})
+    def write_point(series, data, async=@async, time_precision=@time_precision)
+      data.merge!(series: series)
+      write_points(data, async, time_precision)
     end
 
     def _write(payload, time_precision=@time_precision)
@@ -251,8 +258,8 @@ module InfluxDB
         request.basic_auth @username, @password if basic_auth?
         response = http.request(request)
         if response.kind_of? Net::HTTPSuccess
-          parsed_response = JSON.parse(response.body)
-          if parsed_response["results"][0]["error"].present?
+          parsed_response = JSON.parse(response.body) if response.body
+          if response_with_errors(parsed_response)
             raise InfluxDB::QueryError.new parsed_response
           elsif params[:parse]
             parsed_response
@@ -334,6 +341,10 @@ module InfluxDB
         tags: series['tags'],
         values: Hash[series["columns"].zip(series["values"].flatten)]
       }.compact
+    end
+
+    def response_with_errors(response)
+      response && response.is_a?(Hash) && response["results"][0]["error"]
     end
 
     WORKER_MUTEX = Mutex.new
