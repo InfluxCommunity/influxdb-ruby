@@ -45,7 +45,7 @@ module InfluxDB
     #
     # +:host+:: the hostname to connect to
     # +:port+:: the port to connect to
-    # +:path+:: the specified path prefix when building the url e.g.: /prefix/db/dbname...
+    # +:prefix+:: the specified path prefix when building the url e.g.: /prefix/db/dbname...
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
     # +:use_ssl+:: use ssl to connect

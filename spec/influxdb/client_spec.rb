@@ -50,6 +50,14 @@ describe InfluxDB::Client do
       url = subject.send(:full_url, "/unknown", value: ' !@#$%^&*()/\\_+-=?|`~')
       expect(url).to include("value=+%21%40%23%24%25%5E%26%2A%28%29%2F%5C_%2B-%3D%3F%7C%60%7E")
     end
+
+    context "with prefix" do
+      let(:args) { { prefix: '/dev' } }
+
+      it "returns path with prefix" do
+        expect(subject.send(:full_url, "/series")).to start_with("/dev")
+      end
+    end
   end
 
   describe "#query" do

@@ -54,7 +54,7 @@ module InfluxDB
 
         query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
 
-        URI::Generic.build(path: path, query: query).to_s
+        URI::Generic.build(path: File.join(config.prefix, path), query: query).to_s
       end
     end
   end

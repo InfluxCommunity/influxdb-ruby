@@ -16,6 +16,7 @@ module InfluxDB
                   :open_timeout,
                   :read_timeout,
                   :retry,
+                  :prefix,
                   :denormalize
 
     attr_reader :async, :udp
@@ -25,6 +26,7 @@ module InfluxDB
       @database = opts[:database]
       @hosts = Array(opts[:hosts] || opts[:host] || ["localhost"])
       @port = opts.fetch(:port, 8086)
+      @prefix = opts.fetch(:prefix, '')
       @username = opts.fetch(:username, "root")
       @password = opts.fetch(:password, "root")
       @auth_method = AUTH_METHODS.include?(opts[:auth_method]) ? opts[:auth_method] : "params"
