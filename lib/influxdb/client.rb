@@ -83,7 +83,8 @@ module InfluxDB
     # => [{"name"=>"mydb"}, {"name"=>"testdb"}]
     def get_database_list
       resp = execute("SHOW DATABASES", parse: true)
-      resp["results"][0]["series"][0]["values"].flatten.map {|v| { "name" => v }}
+      values = resp["results"][0]["series"][0]["values"]
+      values.blank? ? [] : values.flatten.map {|v| { "name" => v }}
     end
 
     def create_cluster_admin(username, password)
@@ -91,7 +92,6 @@ module InfluxDB
     end
 
     def get_cluster_admin_list
-      # get full_url("/cluster_admins")
       get_user_list.select{|u| u['admin']}.map {|u| u.except('admin')}
     end
 
@@ -124,18 +124,18 @@ module InfluxDB
       execute("DROP USER #{username}")
     end
 
-    # => {"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
+    # => [{"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
     def get_user_list
       resp = execute("SHOW USERS", parse: true)
-      resp["results"][0]["series"][0]["values"].map do |v|
-        {'username' => v.first, 'admin' => v.last}
-      end
+      values = resp["results"][0]["series"][0]["values"]
+      values.blank? ? [] : values.map {|v| {'username' => v.first, 'admin' => v.last}}
     end
 
     def continuous_queries(database)
       resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
-      data = resp["results"][0]["series"].select {|v| v["name"] == database}.try(:[], 0).try(:[], "values")
-      data.blank? ? [] : data.map {|v| {'name' => v.first, 'query' => v.last}}
+      data = resp["results"][0]["series"].select {|v| v["name"] == database}
+      values = data.try(:[], 0).try(:[], "values")
+      values.blank? ? [] : values.map {|v| {'name' => v.first, 'query' => v.last}}
     end
 
     # TODO
@@ -201,7 +201,7 @@ module InfluxDB
       resp = get(url, parse: true)
 
       series = resp["results"][0]["series"]
-      return nil unless series
+      return nil unless series.present?
 
       if block_given?
         series.each { |s| yield s['name'], denormalize_series(s) }
@@ -211,7 +211,7 @@ module InfluxDB
           denormalized_series   = denormalize_series s
           col[name]             = denormalized_series
           col
-        end
+        end.with_indifferent_access
       end
     end
 
