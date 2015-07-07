@@ -15,12 +15,8 @@ RSpec.configure do |config|
   config.formatter = :documentation
 end
 
-task :default => :spec
+task default: :spec
 
 task :console do
-  require 'irb'
-  require 'irb/completion'
-  require 'influxdb'
-  ARGV.clear
-  IRB.start
+  sh 'pry -r ./lib/influxdb.rb'
 end

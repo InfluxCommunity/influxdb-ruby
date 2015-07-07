@@ -1,11 +1,8 @@
-require 'influxdb'
-require 'webmock/rspec'
-
-RSpec.configure do |config|
-  config.mock_with :rspec do |mocks|
-    mocks.syntax = [:should, :expect]
-  end
-  config.expect_with :rspec do |expectations|
-    expectations.syntax = [:should, :expect]
-  end
+require "influxdb"
+require "webmock/rspec"
+begin
+  require "pry-byebug"
+rescue LoadError
 end
+
+InfluxDB::Logging.logger = Logger.new(STDOUT) if ENV['LOG']

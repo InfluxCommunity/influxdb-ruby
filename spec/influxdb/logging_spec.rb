@@ -2,13 +2,12 @@ require 'spec_helper'
 require 'logger'
 
 describe InfluxDB::Logging do
-  class LoggerTest
+  class LoggerTest # :nodoc:
     include InfluxDB::Logging
 
     def write_to_log(level, message)
       log(level, message)
     end
-
   end
 
   before { @old_logger = InfluxDB::Logging.logger }
@@ -23,25 +22,22 @@ describe InfluxDB::Logging do
     InfluxDB::Logging.logger = new_logger
     expect(InfluxDB::Logging.logger).to eq(new_logger)
   end
-  
+
   it "allows disabling of a logger" do
     InfluxDB::Logging.logger = false
     expect(InfluxDB::Logging.logger).to eql false
   end
-  
+
   context "when logging is disabled" do
-    
     subject { LoggerTest.new }
-    
     it "does not log" do
       InfluxDB::Logging.logger = false
       expect(InfluxDB::Logging.logger).not_to receive(:debug)
       subject.write_to_log(:debug, 'test')
-    end      
+    end
   end
 
   context "when included in classes" do
-
     subject { LoggerTest.new }
 
     it "logs" do

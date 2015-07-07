@@ -1,27 +1,25 @@
 require "spec_helper"
 
 describe InfluxDB::PointValue do
-
-  describe 'load' do
-
-    it 'should parse json as array' do
-      val = InfluxDB::PointValue.new('["foo", "bar"]')
-      val.load.should == %w(foo bar)
+  describe '#load' do
+    it 'parses json as array' do
+      val = described_class.new('["foo", "bar"]')
+      expect(val.load).to eq %w(foo bar)
     end
 
-    it 'should parse json as hash' do
-      val = InfluxDB::PointValue.new('{"foo":"bar"}')
-      val.load.should == {"foo" => "bar"}
+    it 'parses json as hash' do
+      val = described_class.new('{"foo":"bar"}')
+      expect(val.load).to eq("foo" => "bar")
     end
 
-    it 'should return string value if invalid json array' do
-      val = InfluxDB::PointValue.new('[foo,bar]')
-      val.load.should == '[foo,bar]'
+    it 'return string value if invalid json array' do
+      val = described_class.new('[foo,bar]')
+      expect(val.load).to eq '[foo,bar]'
     end
 
-    it 'should return string value if invalid json hash' do
-      val = InfluxDB::PointValue.new('{foo:"bar"}')
-      val.load.should == '{foo:"bar"}'
+    it 'return string value if invalid json hash' do
+      val = described_class.new('{foo:"bar"}')
+      expect(val.load).to eq '{foo:"bar"}'
     end
   end
 end
