@@ -3,15 +3,16 @@ require "json"
 
 describe InfluxDB::UDPClient do
   subject { described_class.new("localhost", 44444) }
-  let(:message) { [{ "foo" => "bar" }] }
+  let(:message) { "responses,region=eu value=5" }
 
   describe "#send" do
     it "sends a UPD packet" do
       s = UDPSocket.new
       s.bind("localhost", 44444)
       subject.send(message)
-      rec_mesage = JSON.parse(s.recvfrom(15).first)
-      expect(rec_mesage).to eq message
+
+      rec_message = s.recvfrom(30).first
+      expect(rec_message).to eq message
     end
 
     context "it can't connect" do
