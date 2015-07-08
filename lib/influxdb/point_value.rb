@@ -20,7 +20,7 @@ module InfluxDB
     private
 
     def stringify(hash)
-      return nil if hash.blank?
+      return nil unless hash && !hash.empty?
       hash.map do |k,v|
         key = k.to_s.gsub(/\s/, '\ ')
         val = v.is_a?(String) ? v.gsub(/\s/, '\ ') : v

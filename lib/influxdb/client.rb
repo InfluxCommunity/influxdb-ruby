@@ -183,9 +183,9 @@ module InfluxDB
       end.join("\n")
 
       if async
-        worker.push(payload) # TODO: support
+        worker.push(payload)
       elsif udp_client
-        udp_client.send(payload) # TODO: support
+        udp_client.send(payload)
       else
         _write(payload, time_precision)
       end
@@ -211,14 +211,15 @@ module InfluxDB
       return nil unless series.present?
 
       if block_given?
-        series.each { |s| yield s['name'], denormalize_series(s) }
+        series.each { |s| yield s['name'], s['tags'], denormalize_series(s) }
       else
-        series.reduce({}) do |col, s|
-          name                  = s['name']
-          denormalized_series   = denormalize_series s
-          col[name]             = denormalized_series
-          col
-        end.with_indifferent_access
+        series.map do |s|
+          {
+            name: s['name'],
+            tags: s['tags'],
+            values: denormalize_series(s)
+          }.with_indifferent_access
+        end
       end
     end
 
@@ -337,10 +338,9 @@ module InfluxDB
     end
 
     def denormalize_series(series)
-      {
-        tags: series['tags'],
-        values: Hash[series["columns"].zip(series["values"].flatten)]
-      }.compact
+      series["values"].map do |values|
+        Hash[series["columns"].zip(values)]
+      end
     end
 
     def response_with_errors(response)
