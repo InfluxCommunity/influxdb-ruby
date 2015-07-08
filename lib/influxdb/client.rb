@@ -206,19 +206,18 @@ module InfluxDB
     def query(query, time_precision=@time_precision)
       url = full_url("/query", q: query, db: database, precision: time_precision)
       resp = get(url, parse: true)
-
       series = resp["results"][0]["series"]
-      return nil unless series.present?
+      return nil unless series && !series.empty?
 
       if block_given?
         series.each { |s| yield s['name'], s['tags'], denormalize_series(s) }
       else
         series.map do |s|
           {
-            name: s['name'],
-            tags: s['tags'],
-            values: denormalize_series(s)
-          }.with_indifferent_access
+            'name' => s['name'],
+            'tags' => s['tags'],
+            'values' => denormalize_series(s)
+          }
         end
       end
     end

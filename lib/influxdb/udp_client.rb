@@ -1,5 +1,3 @@
-require "json"
-
 module InfluxDB
   class UDPClient
     attr_accessor :socket
@@ -9,7 +7,7 @@ module InfluxDB
     end
 
     def send(payload)
-      socket.send(JSON.generate(payload), 0)
+      socket.send(payload, 0)
     rescue
     end
   end
