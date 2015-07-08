@@ -1,3 +1,3 @@
-module InfluxDB
-  VERSION = "0.1.8"
+module InfluxDB # :nodoc:
+  VERSION = "0.1.9"
 end

@@ -1,11 +1,12 @@
 require "thread"
 
 module InfluxDB
+  # Queue with max length limit
   class MaxQueue < Queue
     attr_reader :max
 
     def initialize(max = 10_000)
-      raise ArgumentError, "queue size must be positive" unless max > 0
+      fail ArgumentError, "queue size must be positive" unless max > 0
       @max = max
       super()
     end

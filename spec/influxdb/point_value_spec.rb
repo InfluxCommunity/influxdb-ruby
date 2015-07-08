@@ -22,8 +22,6 @@ describe InfluxDB::PointValue do
     end
   end
 
-
-
   describe 'dump' do
 
     context "with all possible data passed" do

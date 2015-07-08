@@ -1,7 +1,7 @@
 require "net/http"
 require "zlib"
 
-module InfluxDB
+module InfluxDB # :nodoc:
   class Error < StandardError
   end
 
@@ -9,6 +9,9 @@ module InfluxDB
   end
 
   class ConnectionError < Error
+  end
+
+  class SeriesNotFound < Error
   end
 
   class JSONParserError < Error
@@ -30,7 +33,7 @@ module InfluxDB
     Net::HTTPHeaderSyntaxError,
     Net::ProtocolError,
     SocketError,
-    Zlib::GzipFile::Error,
+    Zlib::GzipFile::Error
   ]
 
   NET_HTTP_EXCEPTIONS << OpenSSL::SSL::SSLError if defined?(OpenSSL)

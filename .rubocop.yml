@@ -1,0 +1,41 @@
+AllCops:
+  # Include gemspec and Rakefile
+  Include:
+    - 'lib/**/*.rb'
+    - 'lib/**/*.rake'
+    - 'spec/**/*.rb'
+  Exclude:
+    - 'bin/**/*'
+  RunRailsCops: false
+  DisplayCopNames: true
+  StyleGuideCopsOnly: false
+
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Style/StringLiterals: 
+  Enabled: false
+
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Style/RescueModifier:
+  Enabled: false
+
+Lint/HandleExceptions:
+  Enabled: false
+
+Lint/Void:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/LineLength:
+  Max: 100
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/MethodLength:
+  Exclude:
+    - 'spec/**/*.rb'

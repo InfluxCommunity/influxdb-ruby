@@ -1,5 +1,4 @@
 module InfluxDB
-
   class PointValue
     attr_reader :series, :values, :tags, :timestamp
 
