@@ -1,6 +1,5 @@
 require "spec_helper"
 require "json"
-require 'pry'
 
 describe InfluxDB::Client do
   let(:subject) do
