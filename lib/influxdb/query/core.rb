@@ -10,14 +10,17 @@ module InfluxDB
 
       def query(query, opts = {})
         precision = opts.fetch(:precision, config.time_precision)
+        denormalize = opts.fetch(:denormalize, config.denormalize)
         url = full_url("/query", q: query, db: config.database, precision: precision)
         resp = get(url, parse: true)
         series = resp["results"][0]["series"]
         return nil unless series && !series.empty?
 
         if block_given?
-          series.each { |s| yield s['name'], s['tags'], denormalize_series(s) }
+          series.each { |s| yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s) }
         else
+          return series unless denormalize
+
           series.map do |s|
             {
               'name' => s['name'],
@@ -29,11 +32,6 @@ module InfluxDB
       end
 
       # Example:
-      #
-      # Single point:
-      # write_points(series: 'cpu', tags: {region: 'us'}, values: {internal: 66})
-      #
-      # Multiple points:
       # write_points([
       #   {
       #     series: 'cpu',
@@ -46,10 +44,6 @@ module InfluxDB
       #     values: {value: 0.9999},
       #   }
       # ])
-      #
-      # NOTE: +tags+ are optional
-      # NOTE: +timestamp+ is optional, if you decide to provide it, remember to
-      # keep it compatible with requested time_precision
       def write_points(data, precision = nil)
         data = data.is_a?(Array) ? data : [data]
         payload = generate_payload(data)
@@ -86,6 +80,10 @@ module InfluxDB
         series["values"].map do |values|
           Hash[series["columns"].zip(values)]
         end
+      end
+
+      def raw_values(series)
+        series.select { |k,_| %w(columns values).include?(k) }
       end
 
       def full_url(path, params = {})

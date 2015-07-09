@@ -295,6 +295,25 @@ end
 # time_series_1 [ {"region"=>"us"} ] => [{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]
 ```
 
+By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
+
+``` ruby
+influxdb.query 'select * from time_series_1', denormalize: false
+
+# result
+[{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]},
+ {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}]
+
+
+influxdb.query 'select * from time_series_1', denormalize: false do |name, tags, points|
+  puts "#{name} [ #{tags} ] => #{points}"
+end
+
+# result:
+# time_series_1 [ {"region"=>"uk"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]}
+# time_series_1 [ {"region"=>"us"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}
+```
+
 By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied, if you want to retry a finite number of times
 (or disable retries altogether), you should pass the `:retry`
 value. `:retry` can be either `true`, `false` or an `Integer` to retry
