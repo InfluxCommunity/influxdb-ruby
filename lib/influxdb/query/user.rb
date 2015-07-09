@@ -29,8 +29,12 @@ module InfluxDB
       # => [{"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
       def list_users
         resp = execute("SHOW USERS", parse: true)
-        values = resp["results"][0]["series"][0]["values"]
-        values && !values.empty? ? values.map {|v| {'username' => v.first, 'admin' => v.last}} : []
+        resp.fetch('results', [])
+            .fetch(0, {})
+            .fetch('series', [])
+            .fetch(0, {})
+            .fetch('values', [])
+            .map {|v| {'username' => v.first, 'admin' => v.last}}
       end
     end
   end
