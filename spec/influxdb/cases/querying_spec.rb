@@ -151,7 +151,7 @@ describe InfluxDB::Client do
         subject.query(query) do |name, tags, points|
           results << {'name' => name, 'tags' => tags, 'values' => points}
         end
-        results.should eq(expected_result)
+        expect(results).to eq(expected_result)
       end
     end
   end

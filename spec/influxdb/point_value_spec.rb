@@ -3,22 +3,22 @@ require "spec_helper"
 describe InfluxDB::PointValue do
 
   describe "whitespace escaping" do
-    it 'should escapein series name' do
+    it 'should escape series name' do
       point = InfluxDB::PointValue.new(series: "Some Long String", values: {value: 5})
-      point.series.should eq("Some\\ Long\\ String")
+      expect(point.series).to eq("Some\\ Long\\ String")
     end
 
     it 'should escape keys of passed value keys' do
       point = InfluxDB::PointValue.new(series: "responses",
         values: {'some string key' => 5})
-      point.values.split("=").first.should eq("some\\ string\\ key")
+      expect(point.values.split("=").first).to eq("some\\ string\\ key")
     end
 
     it 'should escape passed values' do
       point = InfluxDB::PointValue.new(series: "responses",
         values: {response_time: 0.34343},
         tags: {city: "Twin Peaks"})
-      point.tags.split("=").last.should eq("Twin\\ Peaks")
+      expect(point.tags.split("=").last).to eq("Twin\\ Peaks")
     end
   end
 
@@ -34,7 +34,7 @@ describe InfluxDB::PointValue do
           tags: {region: 'eu', status: 200},
           timestamp: 1436349652)
 
-         point.dump.should eq(expected_value)
+         expect(point.dump).to eq(expected_value)
       end
     end
 
@@ -47,9 +47,10 @@ describe InfluxDB::PointValue do
           values: {value: 5, threshold: 0.54},
           timestamp: 1436349652)
 
-         point.dump.should eq(expected_value)
+         expect(point.dump).to eq(expected_value)
       end
     end
+
     context "with values only" do
       let(:expected_value) do
         "responses value=5,threshold=0.54"
@@ -58,7 +59,7 @@ describe InfluxDB::PointValue do
          point = InfluxDB::PointValue.new(series: "responses",
           values: {value: 5, threshold: 0.54})
 
-         point.dump.should eq(expected_value)
+         expect(point.dump).to eq(expected_value)
       end
     end
   end

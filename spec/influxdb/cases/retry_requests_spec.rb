@@ -43,39 +43,43 @@ describe InfluxDB::Client do
 
     it "raises when stopped" do
       client.stop!
-      client.should_not_receive :sleep
+      expect(client).not_to receive(:sleep)
       expect { subject }.to raise_error(Timeout::Error)
     end
 
     context "when retry is 0" do
-      let(:args) { { :retry => 0 } }
+      let(:args) { { retry: 0 } }
       it "raise error directly" do
-        @influxdb.should_not_receive :sleep
+        expect(client).not_to receive(:sleep)
         expect { subject }.to raise_error(Timeout::Error)
       end
     end
 
     context "when retry is 'n'" do
-      let(:args) { { :retry => 3 } }
+      let(:args) { { retry: 3 } }
 
       it "raise error after 'n' attemps" do
-        client.should_receive(:sleep).exactly(3).times
+        expect(client).to receive(:sleep).exactly(3).times
         expect { subject }.to raise_error(Timeout::Error)
       end
     end
 
     context "when retry is -1" do
-      let(:args) { { :retry => -1 } }
+      let(:args) { { retry: -1 } }
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           :query => {:u => "username", :p => "password", :precision => 's', :db => database},
           :headers => {"Content-Type" => "application/octet-stream"},
           :body => body
-        ).to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_raise(Timeout::Error).then.to_return(:status => 200)
+        ).to_raise(Timeout::Error).then
+          .to_raise(Timeout::Error).then
+          .to_raise(Timeout::Error).then
+          .to_raise(Timeout::Error).then
+          .to_return(:status => 200)
       end
 
       it "keep trying until get the connection" do
-        client.should_receive(:sleep).at_least(4).times
+        expect(client).to receive(:sleep).exactly(4).times
         expect { subject }.to_not raise_error
       end
     end
