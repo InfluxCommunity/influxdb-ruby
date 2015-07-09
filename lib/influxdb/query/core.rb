@@ -9,25 +9,17 @@ module InfluxDB
       end
 
       def query(query, opts = {})
-        precision = opts.fetch(:precision, config.time_precision)
+        precision   = opts.fetch(:precision, config.time_precision)
         denormalize = opts.fetch(:denormalize, config.denormalize)
+
         url = full_url("/query", q: query, db: config.database, precision: precision)
         resp = get(url, parse: true)
-        series = resp["results"][0]["series"]
-        return nil unless series && !series.empty?
+        series = fetch_series(resp)
 
         if block_given?
           series.each { |s| yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s) }
         else
-          return series unless denormalize
-
-          series.map do |s|
-            {
-              'name' => s['name'],
-              'tags' => s['tags'],
-              'values' => denormalize_series(s)
-            }
-          end
+          denormalize ? list_series(series) : series
         end
       end
 
@@ -64,6 +56,22 @@ module InfluxDB
       end
 
       private
+
+      def list_series(series)
+        series.map do |s|
+          {
+            'name' => s['name'],
+            'tags' => s['tags'],
+            'values' => denormalize_series(s)
+          }
+        end
+      end
+
+      def fetch_series(response)
+        response.fetch('results', [])
+                .fetch(0, {})
+                .fetch('series', [])
+      end
 
       def generate_payload(data)
         data.map do |point|

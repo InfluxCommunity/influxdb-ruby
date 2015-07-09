@@ -11,13 +11,10 @@ module InfluxDB
 
       def list_databases
         resp = execute("SHOW DATABASES", parse: true)
-        resp.fetch('results', [])
-            .fetch(0, {})
-            .fetch('series', [])
-            .fetch(0, {})
-            .fetch('values', [])
-            .flatten
-            .map {|v| { 'name' => v }}
+        fetch_series(resp).fetch(0, {})
+                          .fetch('values', [])
+                          .flatten
+                          .map {|v| { 'name' => v }}
       end
     end
   end

@@ -3,13 +3,10 @@ module InfluxDB
     module ContinuousQuery # :nodoc:
       def continuous_queries(database)
         resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
-        resp.fetch('results', [])
-            .fetch(0, {})
-            .fetch('series', [])
-            .select {|v| v['name'] == database}
-            .fetch(0, {})
-            .fetch('values', [])
-            .map {|v| {'name' => v.first, 'query' => v.last}}
+        fetch_series(resp).select {|v| v['name'] == database}
+                          .fetch(0, {})
+                          .fetch('values', [])
+                          .map {|v| {'name' => v.first, 'query' => v.last}}
       end
       # # @example
       # #

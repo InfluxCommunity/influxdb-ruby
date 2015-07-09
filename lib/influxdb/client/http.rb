@@ -11,14 +11,7 @@ module InfluxDB
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Get.new(url)
         if response.is_a? Net::HTTPSuccess
-          parsed_response = JSON.parse(response.body) if response.body
-          if response_with_errors(parsed_response)
-            raise InfluxDB::QueryError.new parsed_response
-          elsif options.fetch(:parse, false)
-            parsed_response
-          else
-            response
-          end
+          handle_successful_response(response, options)
         elsif response.is_a? Net::HTTPUnauthorized
           fail InfluxDB::AuthenticationError, response.body
         else
@@ -30,7 +23,7 @@ module InfluxDB
     def post(url, data)
       headers = {"Content-Type" => "application/octet-stream"}
       connect_with_retry do |http|
-        response = do_request http, Net::HTTP::Post.new(url, headers), nil, data
+        response = do_request http, Net::HTTP::Post.new(url, headers), data
         if response.is_a? Net::HTTPSuccess
           return response
         elsif response.is_a? Net::HTTPUnauthorized
@@ -71,10 +64,10 @@ module InfluxDB
       end
     end
 
-    def do_request(http, req, data = nil, body = nil)
+    def do_request(http, req, data = nil)
       req.basic_auth config.username, config.password if basic_auth?
-      req.body = body if body
-      http.request(req, data)
+      req.body = data if data
+      http.request(req)
     end
 
     def basic_auth?
@@ -89,8 +82,17 @@ module InfluxDB
       end
     end
 
-    def response_with_errors(response)
-      response && response.is_a?(Hash) && response["results"][0]["error"]
+    def handle_successful_response(response, options)
+      parsed_response = JSON.parse(response.body)    if response.body
+      errors = errors_from_response(parsed_response) if parsed_response
+      raise InfluxDB::QueryError.new errors          if errors
+      options.fetch(:parse, false) ? parsed_response : response
+    end
+
+    def errors_from_response(parsed_resp)
+      parsed_resp.is_a?(Hash) && parsed_resp.fetch('results', [])
+                                            .fetch(0, {})
+                                            .fetch('error', nil)
     end
   end
 end
