@@ -172,9 +172,7 @@ loop do
 end
 ```
 
-Write data with time precision:
-
-Time precision can be set in 2 ways:
+Write data with time precision (precision can be set in 2 ways):
 
 ``` ruby
 require 'influxdb'
@@ -186,7 +184,6 @@ name     = 'foobar'
 time_precision = 's'
 
 # either in the client initialization:
-
 influxdb = InfluxDB::Client.new database, username: username,
                                           password: password,
                                           time_precision: time_precision
@@ -199,7 +196,6 @@ data = {
 influxdb.write_point(name, data)
 
 # or in a method call:
-
 influxdb.write_point(name, data, time_precision)
 
 ```
@@ -209,18 +205,24 @@ Write multiple points in a batch (performance boost):
 ``` ruby
 
 data = [
-        {
-          series: 'cpu',
-          tags: { host: 'server_1', regios: 'us' },
-          values: {internal: 5, external: 0.453345}
-        },
-        {
-          series: 'gpu',
-          values: {value: 0.9999},
-        }
-      ]
+  {
+    series: 'cpu',
+    tags: { host: 'server_1', regios: 'us' },
+    values: {internal: 5, external: 0.453345}
+  },
+  {
+    series: 'gpu',
+    values: {value: 0.9999},
+  }
+]
 
 influxdb.write_points(data)
+
+# you can also specify precision in method call
+
+precision = 'm'
+influxdb.write_points(data, precision)
+
 ```
 
 Write asynchronously:
