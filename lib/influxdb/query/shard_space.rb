@@ -32,7 +32,7 @@ module InfluxDB
 
       ## Get the shard space first, so the user doesn't have to specify the existing options
       def update_shard_space(database_name, shard_space_name, options)
-        shard_space_options = get_shard_space(database_name, shard_space_name)
+        shard_space_options = shard_space_info(database_name, shard_space_name)
         shard_space_options.delete("database")
 
         url  = full_url("/cluster/shard_spaces/#{database_name}/#{shard_space_name}")

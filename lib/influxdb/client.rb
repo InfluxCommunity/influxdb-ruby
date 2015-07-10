@@ -45,10 +45,13 @@ module InfluxDB
     #
     # +:host+:: the hostname to connect to
     # +:port+:: the port to connect to
-    # +:path+:: the specified path prefix when building the url e.g.: /prefix/db/dbname...
+    # +:prefix+:: the specified path prefix when building the url e.g.: /prefix/db/dbname...
     # +:username+:: the username to use when executing commands
     # +:password+:: the password associated with the username
     # +:use_ssl+:: use ssl to connect
+    # +:verify_ssl+:: verify ssl server certificate?
+    # +:ssl_ca_cert+:: ssl CA certificate, chainfile or CA path.
+    #                  The system CA path is automatically included
     def initialize(*args)
       opts = args.last.is_a?(Hash) ? args.last : {}
       opts[:database] = args.first if args.first.is_a? String
