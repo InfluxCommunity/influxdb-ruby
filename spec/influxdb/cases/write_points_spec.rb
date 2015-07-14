@@ -31,8 +31,8 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: {u: "username", p: "password", precision: 's', db: database},
-        headers: {"Content-Type" => "application/octet-stream"},
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
         body: body
       )
     end
@@ -43,7 +43,6 @@ describe InfluxDB::Client do
   end
 
   describe "#write_points" do
-
     context "with multiple series" do
       let(:data) do
         [{
@@ -51,11 +50,11 @@ describe InfluxDB::Client do
           tags: {  region: 'us', host: 'server_1' },
           values: { temp: 88, value: 54 }
         },
-        {
-          series: 'gpu',
-          tags: { region: 'uk',  host: 'server_5'},
-          values: { value: 0.5435345}
-        }]
+         {
+           series: 'gpu',
+           tags: { region: 'uk',  host: 'server_5' },
+           values: { value: 0.5435345 }
+         }]
       end
       let(:body) do
         data.map do |point|
@@ -65,10 +64,10 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: {u: "username", p: "password", precision: 's', db: database},
-          headers: {"Content-Type" => "application/octet-stream"},
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
-      )
+        )
       end
 
       it "should POST multiple points" do
@@ -82,10 +81,10 @@ describe InfluxDB::Client do
           series: 'cpu',
           values: { temp: 88,  value: 54 }
         },
-        {
-          series: 'gpu',
-          values: { value: 0.5435345 }
-        }]
+         {
+           series: 'gpu',
+           values: { value: 0.5435345 }
+         }]
       end
       let(:body) do
         data.map do |point|
@@ -95,8 +94,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: {u: "username", p: "password", precision: 's', db: database},
-          headers: {"Content-Type" => "application/octet-stream"},
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         )
       end
@@ -113,11 +112,11 @@ describe InfluxDB::Client do
           values: { temp: 88,  value: 54 },
           timestamp: (Time.now.to_f * 1000).to_i
         },
-        {
-          series: 'gpu',
-          values: { value: 0.5435345 },
-          timestamp: (Time.now.to_f * 1000).to_i
-        }]
+         {
+           series: 'gpu',
+           values: { value: 0.5435345 },
+           timestamp: (Time.now.to_f * 1000).to_i
+         }]
       end
 
       let(:body) do
@@ -128,8 +127,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: {u: "username", p: "password", precision: 'm', db: database},
-          headers: {"Content-Type" => "application/octet-stream"},
+          query: { u: "username", p: "password", precision: 'm', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         )
       end

@@ -1,11 +1,14 @@
 module InfluxDB
   module Query
     module User # :nodoc:
-      # create_database_user('testdb', 'user', 'pass') => grants all privileges by default
-      # create_database_user('testdb', 'user', 'pass', :permissions => :read) => use [:read|:write|:all]
-      def create_database_user(database, username, password, options={})
+      # create_database_user('testdb', 'user', 'pass') - grants all privileges by default
+      # create_database_user('testdb', 'user', 'pass', permissions: :read) - use [:read|:write|:all]
+      def create_database_user(database, username, password, options = {})
         permissions = options.fetch(:permissions, :all)
-        execute("CREATE user #{username} WITH PASSWORD '#{password}'; GRANT #{permissions.to_s.upcase} ON #{database} TO #{username}")
+        execute(
+          "CREATE user #{username} WITH PASSWORD '#{password}'; "\
+          "GRANT #{permissions.to_s.upcase} ON #{database} TO #{username}"
+        )
       end
 
       def update_user_password(username, password)
@@ -30,8 +33,8 @@ module InfluxDB
       def list_users
         resp = execute("SHOW USERS", parse: true)
         fetch_series(resp).fetch(0, {})
-                          .fetch('values', [])
-                          .map {|v| {'username' => v.first, 'admin' => v.last}}
+          .fetch('values', [])
+          .map { |v| { 'username' => v.first, 'admin' => v.last } }
       end
     end
   end

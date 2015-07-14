@@ -21,7 +21,7 @@ module InfluxDB
     end
 
     def post(url, data)
-      headers = {"Content-Type" => "application/octet-stream"}
+      headers = { "Content-Type" => "application/octet-stream" }
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Post.new(url, headers), data
         if response.is_a? Net::HTTPSuccess
@@ -87,14 +87,14 @@ module InfluxDB
     def handle_successful_response(response, options)
       parsed_response = JSON.parse(response.body)    if response.body
       errors = errors_from_response(parsed_response) if parsed_response
-      raise InfluxDB::QueryError.new errors          if errors
+      fail InfluxDB::QueryError errors               if errors
       options.fetch(:parse, false) ? parsed_response : response
     end
 
     def errors_from_response(parsed_resp)
       parsed_resp.is_a?(Hash) && parsed_resp.fetch('results', [])
-                                            .fetch(0, {})
-                                            .fetch('error', nil)
+        .fetch(0, {})
+        .fetch('error', nil)
     end
 
     def setup_ssl(http)

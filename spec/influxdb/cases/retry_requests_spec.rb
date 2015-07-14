@@ -20,7 +20,6 @@ describe InfluxDB::Client do
   let(:database) { client.config.database }
 
   describe "retrying requests" do
-
     let(:series) { "cpu" }
     let(:data) do
       { tags: { region: 'us', host: 'server_1' },
@@ -35,8 +34,8 @@ describe InfluxDB::Client do
     before do
       allow(client).to receive(:log)
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: {u: "username", p: "password", precision: 's', db: database},
-        headers: {"Content-Type" => "application/octet-stream"},
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
         body: body
       ).to_raise(Timeout::Error)
     end
@@ -74,8 +73,8 @@ describe InfluxDB::Client do
       let(:args) { { retry: -1 } }
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: {u: "username", p: "password", precision: 's', db: database},
-          headers: {"Content-Type" => "application/octet-stream"},
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         ).to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
@@ -92,8 +91,8 @@ describe InfluxDB::Client do
 
     it "raise an exception if the server didn't return 200" do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: {u: "username", p: "password", precision: 's', db: database},
-        headers: {"Content-Type" => "application/octet-stream"},
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
         body: body
       ).to_return(status: 401)
 

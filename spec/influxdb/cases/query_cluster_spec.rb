@@ -24,7 +24,7 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: query}
+        query: { u: "username", p: "password", q: query }
       )
     end
 
@@ -34,12 +34,12 @@ describe InfluxDB::Client do
   end
 
   describe "#list_cluster_admins" do
-    let(:response) { {"results"=>[{"series"=>[{"columns"=>["user", "admin"], "values"=>[["dbadmin", true], ["foobar", false]]}]}]} }
-    let(:expected_result) { [{"username"=>"dbadmin"}] }
+    let(:response) { { "results" => [{ "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
+    let(:expected_result) { [{ "username" => "dbadmin" }] }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: "SHOW USERS"}
+        query: { u: "username", p: "password", q: "SHOW USERS" }
       ).to_return(body: JSON.generate(response, status: 200))
     end
 
@@ -54,7 +54,7 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: query}
+        query: { u: "username", p: "password", q: query }
       )
     end
 

@@ -12,7 +12,7 @@ describe InfluxDB::Client do
       s = UDPSocket.new
       s.bind("localhost", 44_444)
 
-      client.write_point("responses", values: {value: 5}, tags: {region: 'eu'})
+      client.write_point("responses", values: { value: 5 }, tags: { region: 'eu' })
 
       rec_message = s.recvfrom(30).first
       expect(rec_message).to eq message

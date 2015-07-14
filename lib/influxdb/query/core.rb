@@ -1,27 +1,28 @@
 module InfluxDB
   module Query # :nodoc: all
-    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     module Core
-
       def ping
         get "/ping"
       end
 
+      # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
         precision   = opts.fetch(:precision, config.time_precision)
         denormalize = opts.fetch(:denormalize, config.denormalize)
 
         url = full_url("/query", q: query, db: config.database, precision: precision)
-        resp = get(url, parse: true)
-        series = fetch_series(resp)
+        series = fetch_series(get(url, parse: true))
 
         if block_given?
-          series.each { |s| yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s) }
+          series.each do |s|
+            yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s)
+          end
         else
           denormalize ? list_series(series) : series
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Example:
       # write_points([
@@ -69,8 +70,8 @@ module InfluxDB
 
       def fetch_series(response)
         response.fetch('results', [])
-                .fetch(0, {})
-                .fetch('series', [])
+          .fetch(0, {})
+          .fetch('series', [])
       end
 
       def generate_payload(data)
@@ -79,7 +80,7 @@ module InfluxDB
         end.join("\n")
       end
 
-      def execute(query, options={})
+      def execute(query, options = {})
         url = full_url("/query", q: query)
         get(url, options)
       end
@@ -91,7 +92,7 @@ module InfluxDB
       end
 
       def raw_values(series)
-        series.select { |k,_| %w(columns values).include?(k) }
+        series.select { |k, _| %w(columns values).include?(k) }
       end
 
       def full_url(path, params = {})

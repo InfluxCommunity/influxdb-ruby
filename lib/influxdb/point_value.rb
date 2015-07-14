@@ -1,4 +1,5 @@
 module InfluxDB
+  # Convert data point to string using Line protocol
   class PointValue
     attr_reader :series, :values, :tags, :timestamp
 
@@ -21,7 +22,7 @@ module InfluxDB
 
     def stringify(hash)
       return nil unless hash && !hash.empty?
-      hash.map do |k,v|
+      hash.map do |k, v|
         key = k.to_s.gsub(/\s/, '\ ')
         val = v.is_a?(String) ? v.gsub(/\s/, '\ ') : v
         "#{key}=#{val}"
