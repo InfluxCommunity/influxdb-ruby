@@ -145,6 +145,14 @@ database = 'foo'
 influxdb.continuous_queries(database)
 ```
 
+List retention policies of a database:
+
+``` ruby
+database = 'foo'
+
+influxdb.list_retention_policies(database)
+```
+
 Write some data:
 
 ``` ruby
