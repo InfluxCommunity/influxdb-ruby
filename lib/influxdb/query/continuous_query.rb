@@ -1,7 +1,7 @@
 module InfluxDB
   module Query
     module ContinuousQuery # :nodoc:
-      def continuous_queries(database)
+      def list_continuous_queries(database)
         resp = execute("SHOW CONTINUOUS QUERIES", parse: true)
         fetch_series(resp).select { |v| v['name'] == database }
           .fetch(0, {})
@@ -18,13 +18,6 @@ module InfluxDB
       # # NOTE: Only cluster admin can call this
       # def create_continuous_query(query, name)
       #   query("#{query} into #{name}")
-      # end
-
-      # # NOTE: Only cluster admin can call this
-      # def list_continuous_queries
-      #   query("list continuous queries")
-      #     .fetch("continuous queries", [])
-      #     .map { |l| l["query"] }
       # end
 
       # # NOTE: Only cluster admin can call this

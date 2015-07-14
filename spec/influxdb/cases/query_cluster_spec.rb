@@ -35,7 +35,7 @@ describe InfluxDB::Client do
 
   describe "#list_cluster_admins" do
     let(:response) { { "results" => [{ "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
-    let(:expected_result) { [{ "username" => "dbadmin" }] }
+    let(:expected_result) { ["dbadmin"] }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(

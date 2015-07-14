@@ -19,7 +19,7 @@ module InfluxDB
             yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s)
           end
         else
-          denormalize ? list_series(series) : series
+          denormalize ? denormalized_series_list(series) : series
         end
       end
       # rubocop:enable Metrics/MethodLength
@@ -58,7 +58,7 @@ module InfluxDB
 
       private
 
-      def list_series(series)
+      def denormalized_series_list(series)
         series.map do |s|
           {
             'name' => s['name'],
