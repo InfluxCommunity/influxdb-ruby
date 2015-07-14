@@ -35,9 +35,9 @@ describe InfluxDB::Client do
     before do
       allow(client).to receive(:log)
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-        :headers => {"Content-Type" => "application/octet-stream"},
-        :body => body
+        query: {u: "username", p: "password", precision: 's', db: database},
+        headers: {"Content-Type" => "application/octet-stream"},
+        body: body
       ).to_raise(Timeout::Error)
     end
 
@@ -74,14 +74,14 @@ describe InfluxDB::Client do
       let(:args) { { retry: -1 } }
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-          :headers => {"Content-Type" => "application/octet-stream"},
-          :body => body
+          query: {u: "username", p: "password", precision: 's', db: database},
+          headers: {"Content-Type" => "application/octet-stream"},
+          body: body
         ).to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
-          .to_return(:status => 200)
+          .to_return(status: 200)
       end
 
       it "keep trying until get the connection" do
@@ -92,10 +92,10 @@ describe InfluxDB::Client do
 
     it "raise an exception if the server didn't return 200" do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-        :headers => {"Content-Type" => "application/octet-stream"},
-        :body => body
-      ).to_return(:status => 401)
+        query: {u: "username", p: "password", precision: 's', db: database},
+        headers: {"Content-Type" => "application/octet-stream"},
+        body: body
+      ).to_return(status: 401)
 
       expect { client.write_point(series, data) }.to raise_error(InfluxDB::AuthenticationError)
     end

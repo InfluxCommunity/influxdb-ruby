@@ -35,8 +35,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:get, "http://influxdb.test:9999/query").with(
-          :query => {:q => query, :u => "username", :p => "password", :precision => 's', :db => database},
-        ).to_return(:body => JSON.generate(response))
+          query: {q: query, u: "username", p: "password", precision: 's', db: database},
+        ).to_return(body: JSON.generate(response))
       end
 
       it "should return array with single hash containing multiple values" do
@@ -62,8 +62,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:get, "http://influxdb.test:9999/query").with(
-          :query => {:q => query, :u => "username", :p => "password", :precision => 's', :db => database},
-        ).to_return(:body => JSON.generate(response))
+          query: {q: query, u: "username", p: "password", precision: 's', db: database},
+        ).to_return(body: JSON.generate(response))
       end
 
       it "should return array with 2 elements grouped by tags" do
@@ -90,8 +90,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:get, "http://influxdb.test:9999/query").with(
-          :query => {:q => query, :u => "username", :p => "password", :precision => 's', :db => database},
-        ).to_return(:body => JSON.generate(response))
+          query: {q: query, u: "username", p: "password", precision: 's', db: database},
+        ).to_return(body: JSON.generate(response))
       end
 
       it "should return array with 4 elements grouped by name and tags" do
@@ -114,8 +114,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:get, "http://influxdb.test:9999/query").with(
-          :query => {:q => query, :u => "username", :p => "password", :precision => 's', :db => database},
-        ).to_return(:body => JSON.generate(response))
+          query: {q: query, u: "username", p: "password", precision: 's', db: database},
+        ).to_return(body: JSON.generate(response))
       end
 
       it "should return array with 2 elements grouped by name only and no tags" do
@@ -142,8 +142,8 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:get, "http://influxdb.test:9999/query").with(
-          :query => {:q => query, :u => "username", :p => "password", :precision => 's', :db => database},
-        ).to_return(:body => JSON.generate(response))
+          query: {q: query, u: "username", p: "password", precision: 's', db: database},
+        ).to_return(body: JSON.generate(response))
       end
 
       it "should accept a block and yield name, tags and points" do

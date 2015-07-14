@@ -31,9 +31,9 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-        :headers => {"Content-Type" => "application/octet-stream"},
-        :body => body
+        query: {u: "username", p: "password", precision: 's', db: database},
+        headers: {"Content-Type" => "application/octet-stream"},
+        body: body
       )
     end
 
@@ -65,9 +65,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-          :headers => {"Content-Type" => "application/octet-stream"},
-          :body => body
+          query: {u: "username", p: "password", precision: 's', db: database},
+          headers: {"Content-Type" => "application/octet-stream"},
+          body: body
       )
       end
 
@@ -95,9 +95,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          :query => {:u => "username", :p => "password", :precision => 's', :db => database},
-          :headers => {"Content-Type" => "application/octet-stream"},
-          :body => body
+          query: {u: "username", p: "password", precision: 's', db: database},
+          headers: {"Content-Type" => "application/octet-stream"},
+          body: body
         )
       end
 
@@ -128,9 +128,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          :query => {:u => "username", :p => "password", :precision => 'm', :db => database},
-          :headers => {"Content-Type" => "application/octet-stream"},
-          :body => body
+          query: {u: "username", p: "password", precision: 'm', db: database},
+          headers: {"Content-Type" => "application/octet-stream"},
+          body: body
         )
       end
       it "should POST multiple points" do
