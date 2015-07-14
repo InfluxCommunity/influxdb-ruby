@@ -87,7 +87,7 @@ module InfluxDB
     def handle_successful_response(response, options)
       parsed_response = JSON.parse(response.body)    if response.body
       errors = errors_from_response(parsed_response) if parsed_response
-      fail InfluxDB::QueryError errors               if errors
+      fail InfluxDB::QueryError,  errors             if errors
       options.fetch(:parse, false) ? parsed_response : response
     end
 

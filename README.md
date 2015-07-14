@@ -142,7 +142,26 @@ List continuous queries of a database:
 ``` ruby
 database = 'foo'
 
-influxdb.continuous_queries(database)
+influxdb.list_continuous_queries(database)
+```
+
+Create a continuous query for a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
+
+influxdb.create_continuous_query(name, database, query)
+```
+
+Delete a continuous query from a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+
+influxdb.delete_continuous_query(name, database)
 ```
 
 List retention policies of a database:

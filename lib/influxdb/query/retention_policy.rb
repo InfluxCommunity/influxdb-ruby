@@ -6,12 +6,11 @@ module InfluxDB
         data = fetch_series(resp).fetch(0)
 
         data['values'].map do |policy|
-          entry = policy.each.with_index.inject({}) do |hash, (value, index)|
+          policy.each.with_index.inject({}) do |hash, (value, index)|
             hash.tap { |h| h[data['columns'][index]] = value }
           end
         end
       end
-
     end
   end
 end

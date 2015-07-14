@@ -18,13 +18,13 @@ describe InfluxDB::Client do
   let(:args) { {} }
 
   describe "#list_retention_policies" do
-    let(:response) { {"results"=>[{"series"=>[{"columns"=>["name","duration","replicaN","default"],"values"=>[["default","0",1,true],["another","1",2,false]]}]}]} }
-    let(:expected_result) { [{"name"=>"default","duration"=>"0","replicaN"=>1,"default"=>true},{"name"=>"another","duration"=>"1","replicaN"=>2,"default"=>false}] }
+    let(:response) { { "results" => [{ "series" => [{ "columns" => %w(name duration replicaN default), "values" => [["default", "0", 1, true], ["another", "1", 2, false]] }] }] } }
+    let(:expected_result) { [{ "name" => "default", "duration" => "0", "replicaN" => 1, "default" => true }, { "name" => "another", "duration" => "1", "replicaN" => 2, "default" => false }] }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: "SHOW RETENTION POLICIES \"database\""}
-      ).to_return(:body => JSON.generate(response), :status => 200)
+        query: { u: "username", p: "password", q: "SHOW RETENTION POLICIES \"database\"" }
+      ).to_return(body: JSON.generate(response), status: 200)
     end
 
     it "should GET a list of retention policies" do
