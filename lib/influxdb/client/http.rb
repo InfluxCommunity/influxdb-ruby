@@ -46,7 +46,9 @@ module InfluxDB
         http = Net::HTTP.new(host, config.port)
         http.open_timeout = config.open_timeout
         http.read_timeout = config.read_timeout
-        http.use_ssl = config.use_ssl
+
+        http = setup_ssl(http)
+
         block.call(http)
 
       rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
@@ -57,7 +59,7 @@ module InfluxDB
           delay = [config.max_delay, delay * 2].min
           retry
         else
-          raise e, "Tried #{retry_count - 1} times to reconnect but failed."
+          raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
         end
       ensure
         http.finish if http.started?
@@ -93,6 +95,29 @@ module InfluxDB
       parsed_resp.is_a?(Hash) && parsed_resp.fetch('results', [])
                                             .fetch(0, {})
                                             .fetch('error', nil)
+    end
+
+    def setup_ssl(http)
+      http.use_ssl = config.use_ssl
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless config.verify_ssl
+
+      return http unless config.use_ssl
+
+      http.cert_store = generate_cert_store
+      http
+    end
+
+    def generate_cert_store
+      store = OpenSSL::X509::Store.new
+      store.set_default_paths
+      if config.ssl_ca_cert
+        if File.directory?(config.ssl_ca_cert)
+          store.add_path(config.ssl_ca_cert)
+        else
+          store.add_file(config.ssl_ca_cert)
+        end
+      end
+      store
     end
   end
 end

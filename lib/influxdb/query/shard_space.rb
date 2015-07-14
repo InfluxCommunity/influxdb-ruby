@@ -1,6 +1,8 @@
 module InfluxDB
   module Query
     module ShardSpace # :nodoc:
+      # TODO: support 0.9.x
+      #
       # def configure_database(database_name, options = {})
       #   url  = full_url("/cluster/database_configs/#{database_name}")
       #   data = JSON.generate(default_database_configuration.merge(options))
@@ -32,7 +34,7 @@ module InfluxDB
 
       # ## Get the shard space first, so the user doesn't have to specify the existing options
       # def update_shard_space(database_name, shard_space_name, options)
-      #   shard_space_options = get_shard_space(database_name, shard_space_name)
+      #   shard_space_options = shard_space_info(database_name, shard_space_name)
       #   shard_space_options.delete("database")
 
       #   url  = full_url("/cluster/shard_spaces/#{database_name}/#{shard_space_name}")
