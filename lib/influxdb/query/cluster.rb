@@ -6,7 +6,7 @@ module InfluxDB
       end
 
       def list_cluster_admins
-        list_users.select{|u| u['admin']}.map {|u| u.delete_if {|k,_| k == 'admin'}}
+        list_users.select { |u| u['admin'] }.map { |u| u.delete_if { |k, _| k == 'admin' } }
       end
 
       def revoke_cluster_admin_privileges(username)

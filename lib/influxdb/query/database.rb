@@ -12,9 +12,9 @@ module InfluxDB
       def list_databases
         resp = execute("SHOW DATABASES", parse: true)
         fetch_series(resp).fetch(0, {})
-                          .fetch('values', [])
-                          .flatten
-                          .map {|v| { 'name' => v }}
+          .fetch('values', [])
+          .flatten
+          .map { |v| { 'name' => v } }
       end
     end
   end

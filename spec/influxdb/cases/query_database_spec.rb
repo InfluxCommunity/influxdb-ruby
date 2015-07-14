@@ -20,7 +20,7 @@ describe InfluxDB::Client do
   describe "#create_database" do
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: "CREATE DATABASE foo"}
+        query: { u: "username", p: "password", q: "CREATE DATABASE foo" }
       )
     end
 
@@ -32,7 +32,7 @@ describe InfluxDB::Client do
   describe "#delete_database" do
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: "DROP DATABASE foo"}
+        query: { u: "username", p: "password", q: "DROP DATABASE foo" }
       )
     end
 
@@ -42,12 +42,12 @@ describe InfluxDB::Client do
   end
 
   describe "#list_databases" do
-    let(:response) { {"results"=>[{"series"=>[{"name"=>"databases", "columns"=>["name"], "values"=>[["foobar"]]}]}]} }
-    let(:expected_result) { [{"name"=>"foobar"}] }
+    let(:response) { { "results" => [{ "series" => [{ "name" => "databases", "columns" => ["name"], "values" => [["foobar"]] }] }] } }
+    let(:expected_result) { [{ "name" => "foobar" }] }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: {u: "username", p: "password", q: "SHOW DATABASES"}
+        query: { u: "username", p: "password", q: "SHOW DATABASES" }
       ).to_return(body: JSON.generate(response), status: 200)
     end
 

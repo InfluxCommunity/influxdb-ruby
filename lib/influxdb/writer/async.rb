@@ -12,7 +12,7 @@ module InfluxDB
         @config = config
       end
 
-      def write(data, precision = nil)
+      def write(data, _precision = nil)
         data = data.is_a?(Array) ? data : [data]
         data.map { |p| worker.push(p) }
       end
