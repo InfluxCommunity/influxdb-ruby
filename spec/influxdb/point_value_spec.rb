@@ -17,14 +17,44 @@ describe InfluxDB::PointValue do
       point = InfluxDB::PointValue.new(series: "responses",
                                        values: { response_time: 0.34343 },
                                        tags: { city: "Twin Peaks" })
-      expect(point.tags.split("=").last).to eq("Twin\\ Peaks")
+      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks"')
     end
   end
+
+  describe "comma escaping" do
+    it 'should escape series name' do
+      point = InfluxDB::PointValue.new(series: "Some Long String,", values: { value: 5 })
+      expect(point.series).to eq("Some\\ Long\\ String\\,")
+    end
+
+    it 'should escape keys of passed value keys' do
+      point = InfluxDB::PointValue.new(series: "responses",
+                                       values: { 'some string key,' => 5 })
+      expect(point.values.split("=").first).to eq("some\\ string\\ key\\,")
+    end
+
+    it 'should escape passed values' do
+      point = InfluxDB::PointValue.new(series: "responses",
+                                       values: { response_time: 0.34343 },
+                                       tags: { city: "Twin Peaks," })
+      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks\\,"')
+    end
+  end
+
+  describe "double quote escaping" do
+    it 'should escape passed values' do
+      point = InfluxDB::PointValue.new(series: "responses",
+                                       values: { response_time: 0.34343 },
+                                       tags: { city: "Twin Peaks\"" })
+      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks\\""')
+    end
+  end
+
 
   describe 'dump' do
     context "with all possible data passed" do
       let(:expected_value) do
-        "responses,region=eu,status=200 value=5,threshold=0.54 1436349652"
+        'responses,region="eu",status=200 value=5,threshold=0.54 1436349652'
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new(series: "responses",
