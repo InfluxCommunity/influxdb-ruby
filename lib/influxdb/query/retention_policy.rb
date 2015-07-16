@@ -1,6 +1,12 @@
 module InfluxDB
   module Query
     module RetentionPolicy # :nodoc:
+      def create_retention_policy(name, database, duration, replication, default = false)
+        execute(
+          "CREATE RETENTION POLICY \"#{name}\" ON #{database} "\
+          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}")
+      end
+
       def list_retention_policies(database)
         resp = execute("SHOW RETENTION POLICIES \"#{database}\"", parse: true)
         data = fetch_series(resp).fetch(0)
@@ -10,6 +16,10 @@ module InfluxDB
             hash.tap { |h| h[data['columns'][index]] = value }
           end
         end
+      end
+
+      def delete_retention_policy(name, database)
+        execute("DROP RETENTION POLICY \"#{name}\" ON #{database}")
       end
     end
   end

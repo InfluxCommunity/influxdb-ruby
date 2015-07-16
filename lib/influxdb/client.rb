@@ -14,11 +14,8 @@ module InfluxDB
     include InfluxDB::Query::Core
     include InfluxDB::Query::Cluster
     include InfluxDB::Query::Database
-    include InfluxDB::Query::Shard
-    include InfluxDB::Query::Series
     include InfluxDB::Query::User
     include InfluxDB::Query::ContinuousQuery
-    include InfluxDB::Query::ShardSpace
     include InfluxDB::Query::RetentionPolicy
 
     # Initializes a new InfluxDB client
