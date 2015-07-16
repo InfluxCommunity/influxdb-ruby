@@ -6,16 +6,16 @@ describe InfluxDB::Client do
   specify { expect(client.writer).to be_a(InfluxDB::Writer::UDP) }
 
   describe "#write" do
-    let(:message) { [{ "name" => "foo", "points" => [[1]], "columns" => ['a'] }] }
+    let(:message) { "responses,region=eu value=5" }
 
     it "sends a UPD packet" do
       s = UDPSocket.new
       s.bind("localhost", 44_444)
 
-      client.write_point("foo", a: 1)
+      client.write_point("responses", values: { value: 5 }, tags: { region: 'eu' })
 
-      rec_mesage = JSON.parse(s.recvfrom(47).first)
-      expect(rec_mesage).to eq message
+      rec_message = s.recvfrom(30).first
+      expect(rec_message).to eq message
     end
   end
 end

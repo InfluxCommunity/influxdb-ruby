@@ -1,5 +1,3 @@
-require "json"
-
 module InfluxDB
   module Writer
     # Writes data to InfluxDB through UDP
@@ -15,8 +13,8 @@ module InfluxDB
         socket.connect(host, port)
       end
 
-      def write(payload)
-        socket.send(JSON.generate(payload), 0)
+      def write(payload, _precision = nil)
+        socket.send(payload, 0)
       end
     end
   end

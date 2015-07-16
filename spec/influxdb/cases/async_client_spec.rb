@@ -9,7 +9,7 @@ describe InfluxDB::Client do
   specify { expect(subject.writer).to be_a(InfluxDB::Writer::Async) }
 
   describe "#write_point" do
-    let(:payload) { { name: 'a', points: [], columns: [] } }
+    let(:payload) { "responses,region=eu value=5" }
 
     it "sends writes to client" do
       # exact times can be 2 or 3 (because we have 3 worker threads),

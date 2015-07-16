@@ -17,57 +17,49 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
-  describe "POST #create_cluster_admin" do
-    it "creates a new cluster admin" do
-      stub_request(:post, "http://influxdb.test:9999/cluster_admins").with(
-        query: { u: "username", p: "password" },
-        body: { name: "adminadmin", password: "passpass" }
+  describe "#create_cluster_admin" do
+    let(:user) { 'adminadmin' }
+    let(:pass) { 'passpass' }
+    let(:query) { "CREATE USER #{user} WITH PASSWORD '#{pass}' WITH ALL PRIVILEGES" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
+    end
 
-      expect(subject.create_cluster_admin("adminadmin", "passpass")).to be_a(Net::HTTPOK)
+    it "should GET to create a new cluster admin" do
+      expect(subject.create_cluster_admin(user, pass)).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "POST #update_cluster_admin" do
-    it "updates a cluster admin" do
-      stub_request(:post, "http://influxdb.test:9999/cluster_admins/adminadmin").with(
-        query: { u: "username", p: "password" },
-        body: { password: "passpass" }
+  describe "#list_cluster_admins" do
+    let(:response) { { "results" => [{ "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
+    let(:expected_result) { ["dbadmin"] }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "SHOW USERS" }
+      ).to_return(body: JSON.generate(response, status: 200))
+    end
+
+    it "should GET a list of cluster admins" do
+      expect(subject.list_cluster_admins).to eq(expected_result)
+    end
+  end
+
+  describe "#revoke_cluster_admin_privileges" do
+    let(:user) { 'useruser' }
+    let(:query) { "REVOKE ALL PRIVILEGES FROM #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
-
-      expect(subject.update_cluster_admin("adminadmin", "passpass")).to be_a(Net::HTTPOK)
     end
-  end
 
-  describe "DELETE #delete_cluster_admin" do
-    it "deletes cluster admin" do
-      stub_request(:delete, "http://influxdb.test:9999/cluster_admins/adminadmin").with(
-        query: { u: "username", p: "password" }
-      )
-
-      expect(subject.delete_cluster_admin("adminadmin")).to be_a(Net::HTTPOK)
-    end
-  end
-
-  describe "GET #list_cluster_admins" do
-    it "return a list of cluster admins" do
-      admin_list = [{ "username" => "root" }, { "username" => "admin" }]
-      stub_request(:get, "http://influxdb.test:9999/cluster_admins").with(
-        query: { u: "username", p: "password" }
-      ).to_return(body: JSON.generate(admin_list), status: 200)
-
-      expect(subject.list_cluster_admins).to eq admin_list
-    end
-  end
-
-  describe "GET #authenticate_cluster_admin" do
-    it "returns OK" do
-      stub_request(:get, "http://influxdb.test:9999/cluster_admins/authenticate")
-        .with(
-          query:  { u: "username", p: "password" }
-        )
-
-      expect(subject.authenticate_cluster_admin).to be_a(Net::HTTPOK)
+    it "should GET to revoke cluster admin privileges from a user" do
+      expect(subject.revoke_cluster_admin_privileges(user)).to be_a(Net::HTTPOK)
     end
   end
 end

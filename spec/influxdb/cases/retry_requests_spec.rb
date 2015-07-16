@@ -17,23 +17,25 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
+  let(:database) { client.config.database }
+
   describe "retrying requests" do
+    let(:series) { "cpu" }
+    let(:data) do
+      { tags: { region: 'us', host: 'server_1' },
+        values: { temp: 88,  value: 54 } }
+    end
     let(:body) do
-      [{
-        "name" => "seriez",
-        "points" => [[87, "juan"]],
-        "columns" => %w(age name)
-      }]
+      InfluxDB::PointValue.new(data.merge(series: series)).dump
     end
 
-    let(:data) { { name: "juan", age: 87 } }
-
-    subject { client.write_point("seriez", data) }
+    subject { client.write_point(series, data) }
 
     before do
       allow(client).to receive(:log)
-      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        query: { u: "username", p: "password", time_precision: "s" },
+      stub_request(:post, "http://influxdb.test:9999/write").with(
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
         body: body
       ).to_raise(Timeout::Error)
     end
@@ -70,8 +72,9 @@ describe InfluxDB::Client do
     context "when retry is -1" do
       let(:args) { { retry: -1 } }
       before do
-        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-          query: { u: "username", p: "password", time_precision: "s" },
+        stub_request(:post, "http://influxdb.test:9999/write").with(
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         ).to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
@@ -84,6 +87,16 @@ describe InfluxDB::Client do
         expect(client).to receive(:sleep).exactly(4).times
         expect { subject }.to_not raise_error
       end
+    end
+
+    it "raise an exception if the server didn't return 200" do
+      stub_request(:post, "http://influxdb.test:9999/write").with(
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
+        body: body
+      ).to_return(status: 401)
+
+      expect { client.write_point(series, data) }.to raise_error(InfluxDB::AuthenticationError)
     end
   end
 end

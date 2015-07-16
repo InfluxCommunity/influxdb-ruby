@@ -17,95 +17,111 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
-  describe "POST #create_database_user" do
-    it "creates a new database user" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
-        query: { u: "username", p: "password" },
-        body: { name: "useruser", password: "passpass" }
+  describe "#update user password" do
+    let(:user) { 'useruser' }
+    let(:pass) { 'passpass' }
+    let(:query) { "SET PASSWORD FOR #{user} = '#{pass}'" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
-
-      expect(subject.create_database_user("foo", "useruser", "passpass")).to be_a(Net::HTTPOK)
     end
 
-    it "creates a new database user with permissions" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users").with(
-        query: { u: "username", p: "password" },
-        body: { name: "useruser", password: "passpass", readFrom: "/read*/", writeTo: "/write*/" }
+    it "should GET to update user password" do
+      expect(subject.update_user_password(user, pass)).to be_a(Net::HTTPOK)
+    end
+  end
+
+  describe "#grant_user_privileges" do
+    let(:user) { 'useruser' }
+    let(:perm) { :write }
+    let(:db) { 'foo' }
+    let(:query) { "GRANT #{perm.to_s.upcase} ON #{db} TO #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
+    end
 
-      expect(
-        subject.create_database_user(
-          "foo",
-          "useruser",
-          "passpass",
-          readFrom: "/read*/", writeTo: "/write*/"
-        )).to be_a(Net::HTTPOK)
+    it "should GET to grant privileges for a user on a database" do
+      expect(subject.grant_user_privileges(user, db, perm)).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "POST #update_database_user" do
-    it "updates a database user" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
-        query: { u: "username", p: "password" },
-        body: { password: "passpass" }
+  describe "#revoke_user_privileges" do
+    let(:user) { 'useruser' }
+    let(:perm) { :write }
+    let(:db) { 'foo' }
+    let(:query) { "REVOKE #{perm.to_s.upcase} ON #{db} FROM #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
+    end
 
-      expect(subject.update_database_user("foo", "useruser", password: "passpass"))
-        .to be_a(Net::HTTPOK)
+    it "should GET to revoke privileges from a user on a database" do
+      expect(subject.revoke_user_privileges(user, db, perm)).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "POST #alter_database_privilege" do
-    it "alters privileges for a user on a database" do
-      stub_request(:post, "http://influxdb.test:9999/db/foo/users/useruser").with(
-        query: { u: "username", p: "password" }
+  describe "#create_database_user" do
+    let(:user) { 'useruser' }
+    let(:pass) { 'passpass' }
+    let(:db) { 'foo' }
+    let(:query) { "CREATE user #{user} WITH PASSWORD '#{pass}'; GRANT ALL ON #{db} TO #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
+    end
 
-      expect(subject.alter_database_privilege("foo", "useruser", true)).to be_a(Net::HTTPOK)
-      expect(subject.alter_database_privilege("foo", "useruser", false)).to be_a(Net::HTTPOK)
+    context "without specifying permissions" do
+      it "should GET to create a new database user with all permissions" do
+        expect(subject.create_database_user(db, user, pass)).to be_a(Net::HTTPOK)
+      end
+    end
+
+    context "with passing permission as argument" do
+      let(:permission) { :read }
+      let(:query) { "CREATE user #{user} WITH PASSWORD '#{pass}'; GRANT #{permission.to_s.upcase} ON #{db} TO #{user}" }
+
+      it "should GET to create a new database user with permission set" do
+        expect(subject.create_database_user(db, user, pass, permissions: permission)).to be_a(Net::HTTPOK)
+      end
     end
   end
 
-  describe "DELETE #delete_database_user" do
-    it "removes a database user" do
-      stub_request(:delete, "http://influxdb.test:9999/db/foo/users/bar").with(
-        query: { u: "username", p: "password" }
+  describe "#delete_user" do
+    let(:user) { 'useruser' }
+    let(:query) { "DROP USER #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
       )
+    end
 
-      expect(subject.delete_database_user("foo", "bar")).to be_a(Net::HTTPOK)
+    it "should GET to delete a user" do
+      expect(subject.delete_user(user)).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "GET #list_database_users" do
-    it "returns a list of database users" do
-      user_list = [{ "username" => "user1" }, { "username" => "user2" }]
-      stub_request(:get, "http://influxdb.test:9999/db/foo/users").with(
-        query: { u: "username", p: "password" }
-      ).to_return(body: JSON.generate(user_list, status: 200))
+  describe "#list_users" do
+    let(:response) { { "results" => [{ "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
+    let(:expected_result) { [{ "username" => "dbadmin", "admin" => true }, { "username" => "foobar", "admin" => false }] }
 
-      expect(subject.list_database_users("foo")).to eq user_list
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "SHOW USERS" }
+      ).to_return(body: JSON.generate(response, status: 200))
     end
-  end
 
-  describe "GET #database_user_info" do
-    it "should GET information about a database user" do
-      user_info = { "name" => "bar", "isAdmin" => true }
-      stub_request(:get, "http://influxdb.test:9999/db/foo/users/bar").with(
-        query: { u: "username", p: "password" }
-      ).to_return(body: JSON.generate(user_info, status: 200))
-
-      expect(subject.database_user_info("foo", "bar")).to eq user_info
-    end
-  end
-
-  describe "GET #authenticate_database_user" do
-    it "return OK" do
-      stub_request(:get, "http://influxdb.test:9999/db/foo/authenticate")
-        .with(
-          query: { u: "username", p: "password" }
-        ).to_return(body: '', status: 200)
-
-      expect(subject.authenticate_database_user("foo")).to be_a(Net::HTTPOK)
+    it "should GET a list of database users" do
+      expect(subject.list_users).to eq(expected_result)
     end
   end
 end

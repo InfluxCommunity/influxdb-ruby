@@ -17,32 +17,34 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
-  describe "DELETE #delete_series" do
-    it "removes a series" do
-      stub_request(:delete, "http://influxdb.test:9999/db/database/series/foo").with(
-        query: { u: "username", p: "password" }
-      )
+  ### TODO ###
 
-      expect(subject.delete_series("foo")).to be_a(Net::HTTPOK)
-    end
-  end
+  # describe "DELETE #delete_series" do
+  #   it "removes a series" do
+  #     stub_request(:delete, "http://influxdb.test:9999/db/database/series/foo").with(
+  #       query: { u: "username", p: "password" }
+  #     )
 
-  describe "GET #list_series" do
-    it "returns a list of all series names" do
-      data = [
-        { "name" => "list_series_result",
-          "columns" => %w(time name),
-          "points" => [[0, 'a'], [0, 'b']]
-        }
-      ]
+  #     expect(subject.delete_series("foo")).to be_a(Net::HTTPOK)
+  #   end
+  # end
 
-      stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
-        query: { u: "username", p: "password", q: "list series", time_precision: "s" }
-      ).to_return(
-        body: JSON.generate(data)
-      )
+  # describe "GET #list_series" do
+  #   it "returns a list of all series names" do
+  #     data = [
+  #       { "name" => "list_series_result",
+  #         "columns" => %w(time name),
+  #         "points" => [[0, 'a'], [0, 'b']]
+  #       }
+  #     ]
 
-      expect(subject.list_series).to eq %w(a b)
-    end
-  end
+  #     stub_request(:get, "http://influxdb.test:9999/db/database/series").with(
+  #       query: { u: "username", p: "password", q: "list series", time_precision: "s" }
+  #     ).to_return(
+  #       body: JSON.generate(data)
+  #     )
+
+  #     expect(subject.list_series).to eq %w(a b)
+  #   end
+  # end
 end

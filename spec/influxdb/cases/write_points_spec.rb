@@ -17,173 +17,123 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
-  describe "#write_point" do
-    let(:body) do
-      [{
-        "name" => "seriez",
-        "points" => [[87, "juan"]],
-        "columns" => %w(age name)
-      }]
-    end
+  let(:database) { subject.config.database }
 
-    let(:data) { { name: "juan", age: 87 } }
+  describe "#write_point" do
+    let(:series) { "cpu" }
+    let(:data) do
+      { tags: { region: 'us', host: 'server_1' },
+        values: { temp: 88,  value: 54 } }
+    end
+    let(:body) do
+      InfluxDB::PointValue.new(data.merge(series: series)).dump
+    end
 
     before do
-      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        query: { u: "username", p: "password", time_precision: "s" },
+      stub_request(:post, "http://influxdb.test:9999/write").with(
+        query: { u: "username", p: "password", precision: 's', db: database },
+        headers: { "Content-Type" => "application/octet-stream" },
         body: body
-      ).to_return(status: 200)
+      )
     end
 
-    it "add points" do
-      expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK)
+    it "should POST to add single point" do
+      expect(subject.write_point(series, data)).to be_a(Net::HTTPOK)
     end
+  end
 
-    it "raise an exception if the server didn't return 200" do
-      stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-        query: { u: "username", p: "password", time_precision: "s" },
-        body: body
-      ).to_return(status: 401)
-
-      expect { subject.write_point("seriez", data) }.to raise_error
-    end
-
-    context "multiple points" do
-      let(:body) do
-        [{
-          "name" => "seriez",
-          "points" => [[87, "juan"], [99, "shahid"]],
-          "columns" => %w(age name)
-        }]
-      end
-
+  describe "#write_points" do
+    context "with multiple series" do
       let(:data) do
-        [
-          { name: "juan", age: 87 },
-          { name: "shahid", age: 99 }
-        ]
-      end
-
-      specify { expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK) }
-    end
-
-    context "multiple points with missing columns" do
-      let(:body) do
         [{
-          "name" => "seriez",
-          "points" => [[87, "juan"], [nil, "shahid"]],
-          "columns" => %w(age name)
-        }]
+          series: 'cpu',
+          tags: {  region: 'us', host: 'server_1' },
+          values: { temp: 88, value: 54 }
+        },
+         {
+           series: 'gpu',
+           tags: { region: 'uk',  host: 'server_5' },
+           values: { value: 0.5435345 }
+         }]
       end
-
-      let(:data) { [{ name: "juan", age: 87 }, { name: "shahid" }] }
-
-      specify { expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK) }
-    end
-
-    context "multiple series" do
       let(:body) do
-        [
-          {
-            "name" => "seriez",
-            "points" => [[87, "juan"]],
-            "columns" => %w(age name)
-          },
-          {
-            "name" => "seriez_2",
-            "points" => [[nil, "jack"], [true, "john"]],
-            "columns" => %w(active name)
-          }
-        ]
+        data.map do |point|
+          InfluxDB::PointValue.new(point).dump
+        end.join("\n")
       end
 
+      before do
+        stub_request(:post, "http://influxdb.test:9999/write").with(
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
+          body: body
+        )
+      end
+
+      it "should POST multiple points" do
+        expect(subject.write_points(data)).to be_a(Net::HTTPOK)
+      end
+    end
+
+    context "with no tags" do
       let(:data) do
-        [
-          { name: "seriez", data: { name: "juan", age: 87 } },
-          { name: "seriez_2", data: [{ name: "jack" }, { name: "john", active: true }] }
-        ]
+        [{
+          series: 'cpu',
+          values: { temp: 88,  value: 54 }
+        },
+         {
+           series: 'gpu',
+           values: { value: 0.5435345 }
+         }]
+      end
+      let(:body) do
+        data.map do |point|
+          InfluxDB::PointValue.new(point).dump
+        end.join("\n")
       end
 
-      specify { expect(subject.write_points(data)).to be_a(Net::HTTPOK) }
-    end
-
-    context "data dump" do
-      it "dumps a hash point value to json" do
-        prefs = [{ 'favorite_food' => 'lasagna' }]
-        body = [{
-          "name" => "users",
-          "points" => [[1, prefs.to_json]],
-          "columns" => %w(id prefs)
-        }]
-
-        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-          query: { u: "username", p: "password", time_precision: "s" },
+      before do
+        stub_request(:post, "http://influxdb.test:9999/write").with(
+          query: { u: "username", p: "password", precision: 's', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         )
-
-        data = { id: 1, prefs: prefs }
-
-        expect(subject.write_point("users", data)).to be_a(Net::HTTPOK)
       end
 
-      it "dumps an array point value to json" do
-        line_items = [{ 'id' => 1, 'product_id' => 2, 'quantity' => 1, 'price' => "100.00" }]
-
-        body = [{
-          "name" => "seriez",
-          "points" => [[1, line_items.to_json]],
-          "columns" => %w(id line_items)
-        }]
-
-        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-          query: { u: "username", p: "password", time_precision: "s" },
-          body: body
-        )
-
-        data = { id: 1, line_items: line_items }
-
-        expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK)
+      it "should POST multiple points" do
+        expect(subject.write_points(data)).to be_a(Net::HTTPOK)
       end
     end
 
-    context "time precision" do
-      it "add points with time field with precision defined in client initialization" do
-        time_in_seconds = Time.now.to_i
-        body = [{
-          "name" => "seriez",
-          "points" => [[87, "juan", time_in_seconds]],
-          "columns" => %w(age name time)
-        }]
-
-        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-          query: { u: "username", p: "password", time_precision: "s" },
-          body: body
-        )
-
-        data = { name: "juan", age: 87, time: time_in_seconds }
-
-        expect(subject.write_point("seriez", data)).to be_a(Net::HTTPOK)
+    context "with time precision set to milisceconds" do
+      let(:data) do
+        [{
+          series: 'cpu',
+          values: { temp: 88,  value: 54 },
+          timestamp: (Time.now.to_f * 1000).to_i
+        },
+         {
+           series: 'gpu',
+           values: { value: 0.5435345 },
+           timestamp: (Time.now.to_f * 1000).to_i
+         }]
       end
 
-      it "add points with time field with precision defined in config" do
-        time_in_milliseconds = (Time.now.to_f * 1000).to_i
-        body = [{
-          "name" => "seriez",
-          "points" => [[87, "juan", time_in_milliseconds]],
-          "columns" => %w(age name time)
-        }]
+      let(:body) do
+        data.map do |point|
+          InfluxDB::PointValue.new(point).dump
+        end.join("\n")
+      end
 
-        stub_request(:post, "http://influxdb.test:9999/db/database/series").with(
-          query: { u: "username", p: "password", time_precision: "m" },
+      before do
+        stub_request(:post, "http://influxdb.test:9999/write").with(
+          query: { u: "username", p: "password", precision: 'm', db: database },
+          headers: { "Content-Type" => "application/octet-stream" },
           body: body
         )
-
-        data = { name: "juan", age: 87, time: time_in_milliseconds }
-
-        subject.config.time_precision = "m"
-
-        expect(subject.write_point("seriez", data))
-          .to be_a(Net::HTTPOK)
+      end
+      it "should POST multiple points" do
+        expect(subject.write_points(data, 'm')).to be_a(Net::HTTPOK)
       end
     end
   end

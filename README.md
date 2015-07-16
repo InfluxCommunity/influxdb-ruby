@@ -5,8 +5,6 @@ influxdb-ruby
 
 The official ruby client library for [InfluxDB](https://influxdb.com/).
 
-> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and tagged on this repository. If you're reading this message, then you should only expect support for InfluxDB v0.9.0 and higher.
-
 Install
 -------
 
@@ -40,43 +38,143 @@ influxdb = InfluxDB::Client.new hosts: ["influxdb1.domain.com", "influxdb2.domai
 Create a database:
 
 ``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
 database = 'site_development'
 
 influxdb.create_database(database)
 ```
 
+Delete a database:
+
+``` ruby
+database = 'site_development'
+
+influxdb.delete_database(database)
+```
+
+List databases:
+
+``` ruby
+influxdb.list_databases
+```
+
 Create a user for a database:
 
 ``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
 database = 'site_development'
 new_username = 'foo'
 new_password = 'bar'
+permission = :write
+
+# with all permissions
 influxdb.create_database_user(database, new_username, new_password)
+
+# with specified permission - options are: :read, :write, :all
+influxdb.create_database_user(database, new_username, new_password, permissions: permission)
 ```
 
-Update a database user:
+Update a user password:
 
 ``` ruby
-require 'influxdb'
+username = 'foo'
+new_password = 'bar'
 
-influxdb = InfluxDB::Client.new
+influxdb.update_user_password(username, new_password)
+```
 
-influxdb.update_database_user(database, username, password: "new_password")
+Grant user privileges on database:
+
+``` ruby
+username = 'foobar'
+database = 'foo'
+permission = :read # options are :read, :write, :all
+
+influxdb.grant_user_privileges(username, database, permission)
+```
+
+Revoke user privileges from database:
+
+``` ruby
+username = 'foobar'
+database = 'foo'
+permission = :write # options are :read, :write, :all
+
+influxdb.revoke_user_privileges(username, database, permission)
+```
+Delete a user:
+
+``` ruby
+username = 'foobar'
+
+influxdb.delete_user(username)
+```
+
+List users:
+
+``` ruby
+influxdb.list_users
+```
+
+Create cluster admin:
+
+``` ruby
+username = 'foobar'
+password = 'pwd'
+
+influxdb.create_cluster_admin(username, password)
+```
+
+List cluster admins:
+
+``` ruby
+influxdb.list_cluster_admins
+```
+
+Revoke cluster admin privileges from user:
+
+``` ruby
+username = 'foobar'
+
+influxdb.revoke_cluster_admin_privileges(username)
+```
+
+List continuous queries of a database:
+
+``` ruby
+database = 'foo'
+
+influxdb.list_continuous_queries(database)
+```
+
+Create a continuous query for a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
+
+influxdb.create_continuous_query(name, database, query)
+```
+
+Delete a continuous query from a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+
+influxdb.delete_continuous_query(name, database)
+```
+
+List retention policies of a database:
+
+``` ruby
+database = 'foo'
+
+influxdb.list_retention_policies(database)
 ```
 
 Write some data:
 
 ``` ruby
-require 'influxdb'
-
 username = 'foo'
 password = 'bar'
 database = 'site_development'
@@ -91,7 +189,8 @@ Value = (0..360).to_a.map {|i| Math.send(:sin, i / 10.0) * 10 }.each
 
 loop do
   data = {
-    value: Value.next
+    values: { value: Value.next },
+    tags: { wave: 'sine' } # tags are optional
   }
 
   influxdb.write_point(name, data)
@@ -100,9 +199,7 @@ loop do
 end
 ```
 
-Write data with time precision:
-
-Time precision can be set in 2 ways, either in the client initialization
+Write data with time precision (precision can be set in 2 ways):
 
 ``` ruby
 require 'influxdb'
@@ -113,16 +210,46 @@ database = 'site_development'
 name     = 'foobar'
 time_precision = 's'
 
+# either in the client initialization:
 influxdb = InfluxDB::Client.new database, username: username,
                                           password: password,
                                           time_precision: time_precision
 
 data = {
-  value: 0,
-  time: Time.now.to_i
+  values: { value: 0 },
+  timestamp: Time.now.to_i # timestamp is optional, if not provided point will be saved with current time
 }
 
 influxdb.write_point(name, data)
+
+# or in a method call:
+influxdb.write_point(name, data, time_precision)
+
+```
+
+Write multiple points in a batch (performance boost):
+
+``` ruby
+
+data = [
+  {
+    series: 'cpu',
+    tags: { host: 'server_1', regios: 'us' },
+    values: {internal: 5, external: 0.453345}
+  },
+  {
+    series: 'gpu',
+    values: {value: 0.9999},
+  }
+]
+
+influxdb.write_points(data)
+
+# you can also specify precision in method call
+
+precision = 'm'
+influxdb.write_points(data, precision)
+
 ```
 
 Write asynchronously:
@@ -136,14 +263,15 @@ database = 'site_development'
 name     = 'foobar'
 time_precision = 's'
 
-influxdb = InfluxDB::Client.new database, 
+influxdb = InfluxDB::Client.new database,
                                 username: username,
                                 password: password,
                                 async: true
 
 data = {
-  value: 0,
-  time: Time.now.to_i
+  values: { value: 0 },
+  tags: { foo: 'bar', bar: 'baz' }
+  timestamp: Time.now.to_i
 }
 
 influxdb.write_point(name, data)
@@ -161,80 +289,16 @@ influxdb = InfluxDB::Client.new udp: { host: host, port: port }
 name = 'hitchhiker'
 
 data = {
-  answer: 42,
-  question: "life the universe and everything?"
+  values: { value: 666 },
+  tags: { foo: 'bar', bar: 'baz' }
 }
 
 influxdb.write_point(name, data)
 ```
 
-
-List cluster admins:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-influxdb.list_cluster_admins
-```
-
-List databases:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-influxdb.list_databases
-```
-
-List database users:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-influxdb.list_database_users(database)
-```
-
-List a database user:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-influxdb.database_user_info(database, username)
-```
-
-Delete a database:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-database = 'site_development'
-influxdb.delete_database(database)
-```
-
-Delete a database user:
-
-``` ruby
-require 'influxdb'
-
-influxdb = InfluxDB::Client.new
-
-influxdb.delete_database_user(database, username)
-```
-
 Querying:
 
 ``` ruby
-require 'influxdb'
-
 username = 'foo'
 password = 'bar'
 database = 'site_development'
@@ -243,15 +307,40 @@ influxdb = InfluxDB::Client.new database,
                                 username: username,
                                 password: password
 
-influxdb.query 'select * from time_series_1' do |name, points|
-  puts "#{name} => #{points}"
+# without a block:
+influxdb.query 'select * from time_series_1' # results are grouped by name, but also their tags
+
+# result:
+[{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]},
+ {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "values"=>[{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]}]
+
+# with a block:
+influxdb.query 'select * from time_series_1' do |name, tags, points|
+  puts "#{name} [ #{tags} ] => #{points}"
 end
+
+# result:
+# time_series_1 [ {"region"=>"uk"} ] => [{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]
+# time_series_1 [ {"region"=>"us"} ] => [{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]
 ```
 
 By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
 
 ``` ruby
-influxdb.query('select * from time_series_1', denormalize: false)
+influxdb.query 'select * from time_series_1', denormalize: false
+
+# result
+[{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]},
+ {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}]
+
+
+influxdb.query 'select * from time_series_1', denormalize: false do |name, tags, points|
+  puts "#{name} [ #{tags} ] => #{points}"
+end
+
+# result:
+# time_series_1 [ {"region"=>"uk"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]}
+# time_series_1 [ {"region"=>"us"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}
 ```
 
 By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied, if you want to retry a finite number of times
@@ -298,4 +387,3 @@ cd influxdb-ruby
 bundle
 bundle exec rake
 ```
-

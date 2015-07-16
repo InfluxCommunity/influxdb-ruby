@@ -17,35 +17,42 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
 
-  describe "POST #create_database" do
-    it "creates a new database" do
-      stub_request(:post, 'http://influxdb.test:9999/cluster/database_configs/foo').with(
-        query: { u: "username", p: "password" },
-        body: { spaces: [] }
+  describe "#create_database" do
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "CREATE DATABASE foo" }
       )
+    end
 
-      expect(subject.create_database("foo", spaces: [])).to be_a(Net::HTTPOK)
+    it "should GET to create a new database" do
+      expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "DELETE #delete_database" do
-    it "removes a database" do
-      stub_request(:delete, "http://influxdb.test:9999/db/foo").with(
-        query: { u: "username", p: "password" }
+  describe "#delete_database" do
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "DROP DATABASE foo" }
       )
+    end
 
+    it "should GET to remove a database" do
       expect(subject.delete_database("foo")).to be_a(Net::HTTPOK)
     end
   end
 
-  describe "GET #list_databases" do
-    it "returns a list of databases" do
-      database_list = [{ "name" => "foobar" }]
-      stub_request(:get, "http://influxdb.test:9999/db").with(
-        query: { u: "username", p: "password" }
-      ).to_return(body: JSON.generate(database_list), status: 200)
+  describe "#list_databases" do
+    let(:response) { { "results" => [{ "series" => [{ "name" => "databases", "columns" => ["name"], "values" => [["foobar"]] }] }] } }
+    let(:expected_result) { [{ "name" => "foobar" }] }
 
-      expect(subject.list_databases).to eq database_list
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "SHOW DATABASES" }
+      ).to_return(body: JSON.generate(response), status: 200)
+    end
+
+    it "should GET a list of databases" do
+      expect(subject.list_databases).to eq(expected_result)
     end
   end
 end

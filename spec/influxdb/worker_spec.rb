@@ -6,7 +6,7 @@ describe InfluxDB::Writer::Async::Worker do
   let(:worker) { described_class.new(fake_client, {}) }
 
   describe "#push" do
-    let(:payload) { { name: "juan", age: 87, time: Time.now.to_i } }
+    let(:payload) { "responses,region=eu value=5" }
 
     it "writes to the client" do
       queue = Queue.new

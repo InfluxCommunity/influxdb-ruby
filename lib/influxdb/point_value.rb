@@ -1,35 +1,32 @@
-require 'json'
-
 module InfluxDB
-  class PointValue # :nodoc:
-    attr_accessor :value
+  # Convert data point to string using Line protocol
+  class PointValue
+    attr_reader :series, :values, :tags, :timestamp
 
-    def initialize(value)
-      @value = value
+    def initialize(data)
+      @series    = data[:series].gsub(/\s/, '\ ')
+      @values    = stringify(data[:values])
+      @tags      = stringify(data[:tags])
+      @timestamp = data[:timestamp]
     end
 
     def dump
-      if value.is_a?(Array) || value.is_a?(Hash)
-        JSON.generate(value)
-      else
-        value
-      end
+      dump = "#{@series}"
+      dump << ",#{@tags}" if @tags
+      dump << " #{@values}"
+      dump << " #{@timestamp}" if @timestamp
+      dump
     end
 
-    def load
-      if maybe_json?
-        begin
-          JSON.parse(value)
-        rescue JSON::ParserError
-          value
-        end
-      else
-        value
-      end
-    end
+    private
 
-    def maybe_json?
-      value.is_a?(String) && value =~ /\A(\{|\[).*(\}|\])$/
+    def stringify(hash)
+      return nil unless hash && !hash.empty?
+      hash.map do |k, v|
+        key = k.to_s.gsub(/\s/, '\ ')
+        val = v.is_a?(String) ? v.gsub(/\s/, '\ ') : v
+        "#{key}=#{val}"
+      end.join(',')
     end
   end
 end

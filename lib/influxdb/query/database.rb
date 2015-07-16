@@ -1,19 +1,20 @@
 module InfluxDB
   module Query
     module Database # :nodoc:
-      # allow options, e.g. influxdb.create_database('foo', replicationFactor: 3)
-      def create_database(name, options = {})
-        url = full_url("/cluster/database_configs/#{name}")
-        data = JSON.generate(options)
-        post(url, data)
+      def create_database(name)
+        execute("CREATE DATABASE #{name}")
       end
 
       def delete_database(name)
-        delete full_url("/db/#{name}")
+        execute("DROP DATABASE #{name}")
       end
 
       def list_databases
-        get full_url("/db")
+        resp = execute("SHOW DATABASES", parse: true)
+        fetch_series(resp).fetch(0, {})
+          .fetch('values', [])
+          .flatten
+          .map { |v| { 'name' => v } }
       end
     end
   end

@@ -1,36 +1,40 @@
 module InfluxDB
   module Query
     module User # :nodoc:
+      # create_database_user('testdb', 'user', 'pass') - grants all privileges by default
+      # create_database_user('testdb', 'user', 'pass', permissions: :read) - use [:read|:write|:all]
       def create_database_user(database, username, password, options = {})
-        url = full_url("/db/#{database}/users")
-        data = JSON.generate({ name: username, password: password }.merge(options))
-        post(url, data)
+        permissions = options.fetch(:permissions, :all)
+        execute(
+          "CREATE user #{username} WITH PASSWORD '#{password}'; "\
+          "GRANT #{permissions.to_s.upcase} ON #{database} TO #{username}"
+        )
       end
 
-      def update_database_user(database, username, options = {})
-        url = full_url("/db/#{database}/users/#{username}")
-        data = JSON.generate(options)
-        post(url, data)
+      def update_user_password(username, password)
+        execute("SET PASSWORD FOR #{username} = '#{password}'")
       end
 
-      def delete_database_user(database, username)
-        delete full_url("/db/#{database}/users/#{username}")
+      # permission => [:read|:write|:all]
+      def grant_user_privileges(username, database, permission)
+        execute("GRANT #{permission.to_s.upcase} ON #{database} TO #{username}")
       end
 
-      def list_database_users(database)
-        get full_url("/db/#{database}/users")
+      # permission => [:read|:write|:all]
+      def revoke_user_privileges(username, database, permission)
+        execute("REVOKE #{permission.to_s.upcase} ON #{database} FROM #{username}")
       end
 
-      def database_user_info(database, username)
-        get full_url("/db/#{database}/users/#{username}")
+      def delete_user(username)
+        execute("DROP USER #{username}")
       end
 
-      def alter_database_privilege(database, username, admin = true)
-        update_database_user(database, username, admin: admin)
-      end
-
-      def authenticate_database_user(database)
-        get full_url("/db/#{database}/authenticate"), json: false
+      # => [{"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
+      def list_users
+        resp = execute("SHOW USERS", parse: true)
+        fetch_series(resp).fetch(0, {})
+          .fetch('values', [])
+          .map { |v| { 'username' => v.first, 'admin' => v.last } }
       end
     end
   end
