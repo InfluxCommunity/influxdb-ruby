@@ -4,7 +4,7 @@ module InfluxDB
     attr_reader :series, :values, :tags, :timestamp
 
     def initialize(data)
-      @series    = data[:series].gsub(/\s/, '\ ')
+      @series    = data[:series].gsub(/\s/, '\ ').gsub(',','\,')
       @values    = stringify(data[:values])
       @tags      = stringify(data[:tags])
       @timestamp = data[:timestamp]
@@ -23,8 +23,14 @@ module InfluxDB
     def stringify(hash)
       return nil unless hash && !hash.empty?
       hash.map do |k, v|
-        key = k.to_s.gsub(/\s/, '\ ')
-        val = v.is_a?(String) ? v.gsub(/\s/, '\ ') : v
+        key = k.to_s.gsub(/\s/, '\ ').gsub(',','\,')
+        val = v
+        if val.is_a?(String)
+          val.gsub!(/\s/, '\ ')
+          val.gsub!(',', '\,')
+          val.gsub!('"', '\"')
+          val = '"' + val + '"'
+        end
         "#{key}=#{val}"
       end.join(',')
     end
