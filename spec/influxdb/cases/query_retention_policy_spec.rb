@@ -31,4 +31,54 @@ describe InfluxDB::Client do
       expect(subject.list_retention_policies('database')).to eq(expected_result)
     end
   end
+
+  describe "#create_retention_policy" do
+    context "default" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(
+            query:
+              {
+                u: "username",
+                p: "password",
+                q: "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 1h REPLICATION 2 DEFAULT"
+              }
+          )
+      end
+
+      it "should GET to create a new database" do
+        expect(subject.create_retention_policy('1h.cpu', 'foo', '1h', 2, true)).to be_a(Net::HTTPOK)
+      end
+    end
+
+    context "non-default" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(
+            query:
+              {
+                u: "username",
+                p: "password",
+                q: "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 1h REPLICATION 2"
+              }
+          )
+      end
+
+      it "should GET to create a new database" do
+        expect(subject.create_retention_policy('1h.cpu', 'foo', '1h', 2)).to be_a(Net::HTTPOK)
+      end
+    end
+  end
+
+  describe "#delete_retention_policy" do
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: "DROP RETENTION POLICY \"1h.cpu\" ON foo" }
+      )
+    end
+
+    it "should GET to remove a database" do
+      expect(subject.delete_retention_policy('1h.cpu', 'foo')).to be_a(Net::HTTPOK)
+    end
+  end
 end

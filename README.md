@@ -172,6 +172,26 @@ database = 'foo'
 influxdb.list_retention_policies(database)
 ```
 
+Create a retention policy for a database:
+
+``` ruby
+database = 'foo'
+name = '1h.cpu'
+duration = '10m'
+replication = 2
+
+influxdb.create_retention_policy(name, database, duration, replication)
+```
+
+Delete a retention policy from a database:
+
+``` ruby
+database = 'foo'
+name = '1h.cpu'
+
+influxdb.delete_retention_policy(name, database)
+```
+
 Write some data:
 
 ``` ruby
