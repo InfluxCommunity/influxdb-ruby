@@ -86,7 +86,7 @@ module InfluxDB
       end
 
       def denormalize_series(series)
-        series["values"].map do |values|
+        Array(series["values"]).map do |values|
           Hash[series["columns"].zip(values)]
         end
       end
