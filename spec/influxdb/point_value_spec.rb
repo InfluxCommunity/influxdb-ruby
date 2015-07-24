@@ -17,7 +17,7 @@ describe InfluxDB::PointValue do
       point = InfluxDB::PointValue.new(series: "responses",
                                        values: { response_time: 0.34343 },
                                        tags: { city: "Twin Peaks" })
-      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks"')
+      expect(point.tags.split("=").last).to eq("Twin\\ Peaks")
     end
   end
 
@@ -37,24 +37,14 @@ describe InfluxDB::PointValue do
       point = InfluxDB::PointValue.new(series: "responses",
                                        values: { response_time: 0.34343 },
                                        tags: { city: "Twin Peaks," })
-      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks\\,"')
+      expect(point.tags.split("=").last).to eq("Twin\\ Peaks\\,")
     end
   end
-
-  describe "double quote escaping" do
-    it 'should escape passed values' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { response_time: 0.34343 },
-                                       tags: { city: "Twin Peaks\"" })
-      expect(point.tags.split("=").last).to eq('"Twin\\ Peaks\\""')
-    end
-  end
-
 
   describe 'dump' do
     context "with all possible data passed" do
       let(:expected_value) do
-        'responses,region="eu",status=200 value=5,threshold=0.54 1436349652'
+        'responses,region=eu,status=200 value=5,threshold=0.54 1436349652'
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new(series: "responses",

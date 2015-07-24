@@ -6,7 +6,7 @@ describe InfluxDB::Client do
   specify { expect(client.writer).to be_a(InfluxDB::Writer::UDP) }
 
   describe "#write" do
-    let(:message) { 'responses,region="eu" value=5' }
+    let(:message) { 'responses,region=eu value=5' }
 
     it "sends a UPD packet" do
       s = UDPSocket.new

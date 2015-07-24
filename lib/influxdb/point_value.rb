@@ -5,7 +5,7 @@ module InfluxDB
 
     def initialize(data)
       @series    = data[:series].gsub(/\s/, '\ ').gsub(',','\,')
-      @values    = stringify(data[:values])
+      @values    = stringify(data[:values], quote_escape: true)
       @tags      = stringify(data[:tags])
       @timestamp = data[:timestamp]
     end
@@ -20,7 +20,7 @@ module InfluxDB
 
     private
 
-    def stringify(hash)
+    def stringify(hash, quote_escape: false)
       return nil unless hash && !hash.empty?
       hash.map do |k, v|
         key = k.to_s.gsub(/\s/, '\ ').gsub(',','\,')
@@ -29,7 +29,7 @@ module InfluxDB
           val.gsub!(/\s/, '\ ')
           val.gsub!(',', '\,')
           val.gsub!('"', '\"')
-          val = '"' + val + '"'
+          val = %{"#{val}"} if quote_escape
         end
         "#{key}=#{val}"
       end.join(',')
