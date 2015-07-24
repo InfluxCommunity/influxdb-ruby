@@ -4,9 +4,9 @@ module InfluxDB
     attr_reader :series, :values, :tags, :timestamp
 
     def initialize(data)
-      @series    = data[:series].gsub(/\s/, '\ ').gsub(',','\,')
-      @values    = stringify(data[:values], true)
-      @tags      = stringify(data[:tags])
+      @series    = data[:series].gsub(/\s/, '\ ').gsub(',', '\,')
+      @values    = data_to_string(data[:values], true)
+      @tags      = data_to_string(data[:tags])
       @timestamp = data[:timestamp]
     end
 
@@ -20,19 +20,30 @@ module InfluxDB
 
     private
 
-    def stringify(hash, quote_escape = false)
-      return nil unless hash && !hash.empty?
-      hash.map do |k, v|
-        key = k.to_s.gsub(/\s/, '\ ').gsub(',','\,')
-        val = v
-        if val.is_a?(String)
-          val.gsub!(/\s/, '\ ')
-          val.gsub!(',', '\,')
-          val.gsub!('"', '\"')
-          val = %{"#{val}"} if quote_escape
-        end
+    def data_to_string(data, quote_escape = false)
+      return nil unless data && !data.empty?
+      mappings = map(data, quote_escape)
+      mappings.join(',')
+    end
+
+    def map(data, quote_escape)
+      data.map do |k, v|
+        key = escape_key(k)
+        val = v.is_a?(String) ? escape_value(v, quote_escape) : v
         "#{key}=#{val}"
-      end.join(',')
+      end
+    end
+
+    def escape_value(value, quote_escape)
+      value.gsub!(/\s/, '\ ')
+      value.gsub!(',', '\,')
+      value.gsub!('"', '\"')
+      value = %("#{value}") if quote_escape
+      value
+    end
+
+    def escape_key(key)
+      key.to_s.gsub(/\s/, '\ ').gsub(',', '\,')
     end
   end
 end
