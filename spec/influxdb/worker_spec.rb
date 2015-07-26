@@ -10,7 +10,7 @@ describe InfluxDB::Writer::Async::Worker do
 
     it "writes to the client" do
       queue = Queue.new
-      expect(fake_client).to receive(:write).once.with([payload]) do |_data|
+      expect(fake_client).to receive(:write).once.with([payload], nil) do |_data, _precision|
         queue.push(:received)
       end
       worker.push(payload)
