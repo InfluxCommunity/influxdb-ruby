@@ -6,17 +6,21 @@ describe InfluxDB::Writer::Async::Worker do
   let(:worker) { described_class.new(fake_client, {}) }
 
   describe "#push" do
-    let(:payload) { "responses,region=eu value=5" }
+    let(:payload1) { "responses,region=eu value=5" }
+    let(:payload2) { "responses,region=eu value=6" }
+    let(:aggregate) { "#{payload1}\n#{payload2}" }
 
-    it "writes to the client" do
+    it "writes aggregate payload to the client" do
       queue = Queue.new
-      expect(fake_client).to receive(:write).once.with([payload], nil) do |_data, _precision|
-        queue.push(:received)
+      allow(fake_client).to receive(:write) do |data, _precision|
+        queue.push(data)
       end
-      worker.push(payload)
+      worker.push(payload1)
+      worker.push(payload2)
 
       Timeout.timeout(described_class::SLEEP_INTERVAL) do
-        queue.pop
+        result = queue.pop
+        expect(result).to eq aggregate
       end
     end
   end

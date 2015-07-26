@@ -101,7 +101,7 @@ module InfluxDB
 
             begin
               log :debug, "Found data in the queue! (#{data.length} points)"
-              client.write(data, nil)
+              client.write(data.join("\n"), nil)
             rescue => e
               puts "Cannot write data: #{e.inspect}"
             end
