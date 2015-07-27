@@ -35,11 +35,12 @@ module InfluxDB
     end
 
     def escape_value(value, quote_escape)
-      value.gsub!(/\s/, '\ ')
-      value.gsub!(',', '\,')
-      value.gsub!('"', '\"')
-      value = %("#{value}") if quote_escape
-      value
+      val = value.
+        gsub(/\s/, '\ ').
+        gsub(',', '\,').
+        gsub('"', '\"')
+      val = %("#{val}") if quote_escape
+      val
     end
 
     def escape_key(key)
