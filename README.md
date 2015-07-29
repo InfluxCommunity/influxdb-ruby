@@ -5,6 +5,8 @@ influxdb-ruby
 
 The official ruby client library for [InfluxDB](https://influxdb.com/).
 
+> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and tagged on this repository. If you're reading this message, then you should only expect support for InfluxDB v0.9.1 and higher.
+
 Install
 -------
 
