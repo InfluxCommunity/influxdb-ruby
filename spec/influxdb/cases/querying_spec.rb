@@ -145,5 +145,38 @@ describe InfluxDB::Client do
         expect(results).to eq(expected_result)
       end
     end
+
+    context "with epoch set to seconds" do
+      let(:args) { {epoch: 's'} }
+
+      let(:response) do
+        { "results" =>
+          [{ "series" =>
+            [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [[1438580576, 34, 0.343443]] },
+             { "name" => "cpu", "tags" => { "region" => "us" }, "columns" => %w(time temp value), "values" => [[1438612976, 92, 0.3445], [1438612989, 68, 0.8787]] }
+            ]
+          }]
+        }
+      end
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "pl" },
+           "values" => [{ "time" => 1438580576, "temp" => 34, "value" => 0.343443 }] },
+         { "name" => "cpu", "tags" => { "region" => "us" },
+           "values" => [{ "time" => 1438612976, "temp" => 92, "value" => 0.3445 },
+                        { "time" => 1438612989, "temp" => 68, "value" => 0.8787 }]
+        }]
+      end
+      let(:query) { 'SELECT * FROM cpu' }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { q: query, u: "username", p: "password", precision: 's', db: database, epoch: 's' }
+        ).to_return(body: JSON.generate(response))
+      end
+
+      it "should return results with integer timestamp" do
+        expect(subject.query(query)).to eq(expected_result)
+      end
+    end
   end
 end

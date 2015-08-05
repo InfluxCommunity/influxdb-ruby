@@ -8,10 +8,9 @@ module InfluxDB
 
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
-        precision   = opts.fetch(:precision, config.time_precision)
         denormalize = opts.fetch(:denormalize, config.denormalize)
-
-        url = full_url("/query", q: query, db: config.database, precision: precision)
+        params = query_params(query, opts)
+        url = full_url("/query", params)
         series = fetch_series(get(url, parse: true))
 
         if block_given?
@@ -57,6 +56,15 @@ module InfluxDB
       end
 
       private
+
+      def query_params(query, opts)
+        precision   = opts.fetch(:precision, config.time_precision)
+        epoch       = opts.fetch(:epoch, config.epoch)
+
+        params = { q: query, db: config.database, precision: precision }
+        params.merge!(epoch: epoch) if epoch
+        params
+      end
 
       def denormalized_series_list(series)
         series.map do |s|
