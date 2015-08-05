@@ -61,6 +61,14 @@ describe InfluxDB::PointValue do
     end
   end
 
+  describe "nil escaping" do
+    it 'should escape passed values' do
+      point = InfluxDB::PointValue.new(series: "responses",
+                                       values: { response_time: nil })
+      expect(point.values.split("=").last).to eq("\"\"")
+    end
+  end
+
   describe 'dump' do
     context "with all possible data passed" do
       let(:expected_value) do

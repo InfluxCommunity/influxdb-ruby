@@ -32,6 +32,7 @@ module InfluxDB
     def map(data, quote_escape)
       data.map do |k, v|
         key = escape_key(k)
+        v = v.nil? ? '' : v
         val = v.is_a?(String) ? escape_value(v, quote_escape) : v
         "#{key}=#{val}"
       end
