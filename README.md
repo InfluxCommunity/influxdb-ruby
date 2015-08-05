@@ -333,8 +333,8 @@ influxdb = InfluxDB::Client.new database,
 influxdb.query 'select * from time_series_1' # results are grouped by name, but also their tags
 
 # result:
-[{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]},
- {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "values"=>[{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]}]
+# [{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]},
+# {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "values"=>[{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]}]
 
 # with a block:
 influxdb.query 'select * from time_series_1' do |name, tags, points|
@@ -353,14 +353,13 @@ If you would rather receive points with integer timestamp, it's possible to set 
 influxdb = InfluxDB::Client.new database, epoch: 's'
 
 influxdb.query 'select * from time_series'
-
-# => [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376, "count"=>32, "value"=>0.9673}]}]
+# result:
+# [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376, "count"=>32, "value"=>0.9673}]}]
 
 # or for a specific query call:
-
 influxdb.query 'select * from time_series', epoch: 'ms'
-
-# => [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376000, "count"=>32, "value"=>0.9673}]}]
+# result:
+# [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376000, "count"=>32, "value"=>0.9673}]}]
 ```
 
 By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
