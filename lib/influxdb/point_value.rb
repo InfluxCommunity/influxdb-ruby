@@ -4,7 +4,10 @@ module InfluxDB
     attr_reader :series, :values, :tags, :timestamp
 
     def initialize(data)
-      @series    = data[:series].gsub(/\s/, '\ ').gsub(',', '\,')
+      @series    = data[:series].
+        gsub('\\', '\\\\\\\\').
+        gsub(/\s/, '\ ').
+        gsub(',', '\,')
       @values    = data_to_string(data[:values], true)
       @tags      = data_to_string(data[:tags])
       @timestamp = data[:timestamp]
@@ -36,6 +39,7 @@ module InfluxDB
 
     def escape_value(value, quote_escape)
       val = value.
+        gsub('\\', '\\\\\\\\').
         gsub(/\s/, '\ ').
         gsub(',', '\,').
         gsub('"', '\"')
@@ -44,7 +48,10 @@ module InfluxDB
     end
 
     def escape_key(key)
-      key.to_s.gsub(/\s/, '\ ').gsub(',', '\,')
+      key.to_s.
+        gsub('\\', '\\\\\\\\').
+        gsub(/\s/, '\ ').
+        gsub(',', '\,')
     end
   end
 end
