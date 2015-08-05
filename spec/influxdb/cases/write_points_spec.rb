@@ -40,6 +40,13 @@ describe InfluxDB::Client do
     it "should POST to add single point" do
       expect(subject.write_point(series, data)).to be_a(Net::HTTPOK)
     end
+
+    it "should not mutate data object" do
+      original_data = data
+      subject.write_point(series, data)
+      expect(data[:series]).to be_nil
+      expect(original_data).to eql(data)
+    end
   end
 
   describe "#write_points" do
