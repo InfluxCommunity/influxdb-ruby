@@ -46,8 +46,7 @@ module InfluxDB
       # Example:
       # write_point('cpu', tags: {region: 'us'}, values: {internal: 60})
       def write_point(series, data, precision = nil)
-        data.merge!(series: series)
-        write_points(data, precision)
+        write_points(data.merge(series: series), precision)
       end
 
       def write(data, precision)
