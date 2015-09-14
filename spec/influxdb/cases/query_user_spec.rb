@@ -124,4 +124,19 @@ describe InfluxDB::Client do
       expect(subject.list_users).to eq(expected_result)
     end
   end
+
+  describe "#list_user_grants" do
+    let(:user) { 'useruser' }
+    let(:list_query) { "SHOW GRANTS FOR #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: list_query},
+      ).to_return(:status => 200, :body => "", :headers => {})
+    end
+
+    it "should GET for a user" do
+      expect(subject.list_user_grants(user)).to be_a(Net::HTTPOK)
+    end
+  end
 end
