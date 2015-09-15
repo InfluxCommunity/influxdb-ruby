@@ -50,6 +50,21 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#grant_user_admin_privileges" do
+    let(:user) { 'useruser' }
+    let(:query) { "GRANT ALL PRIVILEGES TO #{user}" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query }
+      )
+    end
+
+    it "should GET to grant privileges for a user on a database" do
+      expect(subject.grant_user_admin_privileges(user)).to be_a(Net::HTTPOK)
+    end
+  end
+
   describe "#revoke_user_privileges" do
     let(:user) { 'useruser' }
     let(:perm) { :write }
