@@ -8,7 +8,7 @@ module InfluxDB
       end
 
       def list_retention_policies(database)
-        resp = execute("SHOW RETENTION POLICIES \"#{database}\"", parse: true)
+        resp = execute("SHOW RETENTION POLICIES ON \"#{database}\"", parse: true)
         data = fetch_series(resp).fetch(0)
 
         data['values'].map do |policy|
