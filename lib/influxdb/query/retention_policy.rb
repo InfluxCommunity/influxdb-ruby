@@ -21,6 +21,12 @@ module InfluxDB
       def delete_retention_policy(name, database)
         execute("DROP RETENTION POLICY \"#{name}\" ON #{database}")
       end
+
+      def alter_retention_policy(name, database, duration, replication, default = false)
+        execute(
+          "ALTER RETENTION POLICY \"#{name}\" ON #{database} "\
+          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}")
+      end
     end
   end
 end

@@ -194,6 +194,17 @@ name = '1h.cpu'
 influxdb.delete_retention_policy(name, database)
 ```
 
+Alter a retention policy for a database:
+
+``` ruby
+database = 'foo'
+name = '1h.cpu'
+duration = '10m'
+replication = 2
+
+influxdb.alter_retention_policy(name, database, duration, replication)
+```
+
 Write some data:
 
 ``` ruby
