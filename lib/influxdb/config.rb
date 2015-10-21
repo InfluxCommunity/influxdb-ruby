@@ -19,7 +19,8 @@ module InfluxDB
                   :read_timeout,
                   :retry,
                   :prefix,
-                  :denormalize
+                  :denormalize,
+                  :epoch
 
     attr_reader :async, :udp
 
@@ -44,6 +45,7 @@ module InfluxDB
       @udp = opts.fetch(:udp, false)
       @retry = opts.fetch(:retry, nil)
       @denormalize = opts.fetch(:denormalize, true)
+      @epoch = opts.fetch(:epoch, false)
       @retry =
         case @retry
         when Integer

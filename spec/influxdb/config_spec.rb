@@ -19,6 +19,7 @@ describe InfluxDB::Config do
     specify { expect(conf.denormalize).to be_truthy }
     specify { expect(conf).not_to be_udp }
     specify { expect(conf).not_to be_async }
+    specify { expect(conf.epoch).to be_falsey }
   end
 
   context "with no database specified" do
@@ -38,6 +39,7 @@ describe InfluxDB::Config do
     specify { expect(conf.username).to eq "username" }
     specify { expect(conf.password).to eq "password" }
     specify { expect(conf.time_precision).to eq "m" }
+    specify { expect(conf.epoch).to be_falsey }
   end
 
   context "with both a database and options specified" do
@@ -58,6 +60,7 @@ describe InfluxDB::Config do
     specify { expect(conf.username).to eq "username" }
     specify { expect(conf.password).to eq "password" }
     specify { expect(conf.time_precision).to eq "m" }
+    specify { expect(conf.epoch).to be_falsey }
   end
 
   context "with ssl option specified" do
@@ -114,5 +117,11 @@ describe InfluxDB::Config do
     let(:args) { [{ async: true }] }
 
     specify { expect(conf).to be_async }
+  end
+
+  context "with epoch specified as seconds" do
+    let(:args) { [{ epoch: 's' }] }
+
+    specify { expect(conf.epoch).to eq 's' }
   end
 end
