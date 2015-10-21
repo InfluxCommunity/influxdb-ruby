@@ -20,6 +20,10 @@ module InfluxDB
         execute("GRANT #{permission.to_s.upcase} ON #{database} TO #{username}")
       end
 
+      def list_user_grants(username)
+        execute("SHOW GRANTS FOR #{username}")
+      end
+
       # permission => [:read|:write|:all]
       def revoke_user_privileges(username, database, permission)
         execute("REVOKE #{permission.to_s.upcase} ON #{database} FROM #{username}")
