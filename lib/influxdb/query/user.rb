@@ -15,6 +15,11 @@ module InfluxDB
         execute("SET PASSWORD FOR #{username} = '#{password}'")
       end
 
+      # permission => [:all]
+      def grant_user_admin_privileges(username)
+        execute("GRANT ALL PRIVILEGES TO #{username}")
+      end
+
       # permission => [:read|:write|:all]
       def grant_user_privileges(username, database, permission)
         execute("GRANT #{permission.to_s.upcase} ON #{database} TO #{username}")
