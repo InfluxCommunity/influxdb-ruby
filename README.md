@@ -237,10 +237,10 @@ Write data with time precision (precision can be set in 2 ways):
 ``` ruby
 require 'influxdb'
 
-username = 'foo'
-password = 'bar'
-database = 'site_development'
-name     = 'foobar'
+username       = 'foo'
+password       = 'bar'
+database       = 'site_development'
+name           = 'foobar'
 time_precision = 's'
 
 # either in the client initialization:
@@ -258,6 +258,31 @@ influxdb.write_point(name, data)
 # or in a method call:
 influxdb.write_point(name, data, time_precision)
 
+```
+
+Write data with a specific retention policy:
+
+``` ruby
+require 'influxdb'
+
+username  = 'foo'
+password  = 'bar'
+database  = 'site_development'
+name      = 'foobar'
+precision = 's'
+retention = '1h.cpu'
+
+influxdb = InfluxDB::Client.new database,
+                                username: username,
+                                password: password
+
+data = {
+  values: { value: 0 },
+  tags: { foo: 'bar', bar: 'baz' }
+  timestamp: Time.now.to_i
+}
+
+influxdb.write_point(name, data, precision, retention)
 ```
 
 Write multiple points in a batch (performance boost):
@@ -285,7 +310,29 @@ influxdb.write_points(data, precision)
 
 ```
 
-Write asynchronously:
+Write multiple points in a batch with a specific retention policy:
+
+``` ruby
+
+data = [
+  {
+    series: 'cpu',
+    tags: { host: 'server_1', regios: 'us' },
+    values: {internal: 5, external: 0.453345}
+  },
+  {
+    series: 'gpu',
+    values: {value: 0.9999},
+  }
+]
+
+precision = 'm'
+retention = '1h.cpu'
+influxdb.write_points(data, precision, retention)
+
+```
+
+Write asynchronously (note that a retention policy cannot be specified for asynchronous writes):
 
 ``` ruby
 require 'influxdb'
@@ -294,7 +341,6 @@ username = 'foo'
 password = 'bar'
 database = 'site_development'
 name     = 'foobar'
-time_precision = 's'
 
 influxdb = InfluxDB::Client.new database,
                                 username: username,
@@ -310,7 +356,7 @@ data = {
 influxdb.write_point(name, data)
 ```
 
-Write data via UDP:
+Write data via UDP (note that a retention policy cannot be specified for UDP writes):
 
 ``` ruby
 require 'influxdb'
