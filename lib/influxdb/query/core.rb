@@ -6,6 +6,11 @@ module InfluxDB
         get "/ping"
       end
 
+      def version
+        resp = get "/ping"
+        resp.header['x-influxdb-version']
+      end
+
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
         denormalize = opts.fetch(:denormalize, config.denormalize)

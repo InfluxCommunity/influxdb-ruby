@@ -63,4 +63,13 @@ describe InfluxDB::Client do
       expect(subject.ping).to be_a(Net::HTTPNoContent)
     end
   end
+
+  describe "GET #version" do
+    it "returns 1.1.1" do
+      stub_request(:get, "http://influxdb.test:9999/ping").to_return(
+        { :status => 204, :headers => {'x-influxdb-version' => '1.1.1'} })
+
+      expect(subject.version).to eq('1.1.1')
+    end
+  end
 end
