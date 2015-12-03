@@ -4,9 +4,24 @@ module InfluxDB
     attr_reader :series, :values, :tags, :timestamp
 
     def initialize(data)
-      @series    = data[:series].gsub(/\s/, '\ ').gsub(',', '\,')
-      @values    = data_to_string(data[:values], true)
-      @tags      = data_to_string(data[:tags])
+      @series    = escape(data[:series], :measurement)
+
+      @values    = data[:values].map{|k, v|
+        key = escape(k.to_s, :field_key)
+        val = if v.is_a?(String)
+                '"' + escape(v, :field_value) + '"'
+              else
+                v.to_s
+              end
+        "#{key}=#{val}"
+      }.join(',') if data[:values]
+
+      @tags      = data[:tags].map{|k, v|
+        key = escape(k.to_s, :tag_key)
+        val = escape(v.to_s, :tag_value)
+        "#{key}=#{val}"
+      }.join(',') if data[:tags]
+
       @timestamp = data[:timestamp]
     end
 
@@ -20,31 +35,19 @@ module InfluxDB
 
     private
 
-    def data_to_string(data, quote_escape = false)
-      return nil unless data && !data.empty?
-      mappings = map(data, quote_escape)
-      mappings.join(',')
-    end
+    ESCAPES = {
+      measurement: [' ', ','],
+      tag_key:   ['=', ' ', ','],
+      tag_value: ['=', ' ', ','],
+      field_key: ['=', ' ', ',', '"'],
+      field_value: ['"'],
+    }
 
-    def map(data, quote_escape)
-      data.map do |k, v|
-        key = escape_key(k)
-        val = v.is_a?(String) ? escape_value(v, quote_escape) : v
-        "#{key}=#{val}"
+    def escape(s, type)
+      ESCAPES[type].each do |ch|
+        s = s.gsub(ch){ "\\#{ch}" }
       end
-    end
-
-    def escape_value(value, quote_escape)
-      val = value.
-        gsub(/\s/, '\ ').
-        gsub(',', '\,').
-        gsub('"', '\"')
-      val = %("#{val}") if quote_escape
-      val
-    end
-
-    def escape_key(key)
-      key.to_s.gsub(/\s/, '\ ').gsub(',', '\,')
+      s
     end
   end
 end
