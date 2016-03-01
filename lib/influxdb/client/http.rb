@@ -24,7 +24,7 @@ module InfluxDB
       headers = { "Content-Type" => "application/octet-stream" }
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Post.new(url, headers), data
-        if response.is_a? Net::HTTPSuccess
+        if response.is_a? Net::HTTPNoContent
           return response
         elsif response.is_a? Net::HTTPUnauthorized
           fail InfluxDB::AuthenticationError, response.body
