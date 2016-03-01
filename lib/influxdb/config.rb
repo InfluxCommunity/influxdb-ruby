@@ -28,6 +28,7 @@ module InfluxDB
     def initialize(opts = {})
       @database = opts[:database]
       @hosts = Array(opts[:hosts] || opts[:host] || ["localhost"])
+      @hosts_enumerator = @hosts.cycle
       @port = opts.fetch(:port, 8086)
       @prefix = opts.fetch(:prefix, '')
       @username = opts.fetch(:username, "root")
@@ -63,6 +64,10 @@ module InfluxDB
 
     def async?
       !!async
+    end
+
+    def next_host
+      @hosts_enumerator.next
     end
   end
 end

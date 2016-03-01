@@ -63,4 +63,24 @@ describe InfluxDB::Client do
       expect(subject.ping).to be_a(Net::HTTPNoContent)
     end
   end
+
+  describe "Loadbalancing" do
+    let(:args) { { hosts: hosts } }
+    let(:hosts) do
+      [
+        "influxdb.test0",
+        "influxdb.test1",
+        "influxdb.test2"
+      ]
+    end
+    let(:cycle) { 3 }
+    let!(:stubs) do
+      hosts.map { |host| stub_request(:get, "http://#{host}:9999/ping").to_return(status: 204) }
+    end
+
+    it "balance requests" do
+      (hosts.size * cycle).times { subject.ping }
+      stubs.cycle(cycle) { |stub| expect(stub).to have_been_requested.times(cycle) }
+    end
+  end
 end

@@ -37,12 +37,11 @@ module InfluxDB
     private
 
     def connect_with_retry(&block)
-      hosts = config.hosts.dup
+      host = config.next_host
       delay = config.initial_delay
       retry_count = 0
 
       begin
-        hosts.push(host = hosts.shift)
         http = Net::HTTP.new(host, config.port)
         http.open_timeout = config.open_timeout
         http.read_timeout = config.read_timeout
