@@ -179,4 +179,105 @@ describe InfluxDB::Client do
       end
     end
   end
+
+  describe "multiple select queries" do
+    context "with single series with multiple points" do
+      let(:response) do
+        { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "us" },
+                                         "columns" => %w(time temp value),
+                                         "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] },
+                        { "series" => [{ "name" => "memory", "tags" => { "region" => "us" },
+                                         "columns" => %w(time free total),
+                                         "values" => [["2015-07-07T14:58:37Z", 96468992, 134217728], ["2015-07-07T14:59:09Z", 71303168, 134217728]] }] }] }
+      end
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "temp" => 92, "value" => 0.3445 },
+                        { "time" => "2015-07-07T14:59:09Z", "temp" => 68, "value" => 0.8787 }] },
+         { "name" => "memory", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "free" => 92*2**20, "total" => 128*2**20 },
+                        { "time" => "2015-07-07T14:59:09Z", "free" => 68*2**20, "total" => 128*2**20 }] }]
+      end
+      let(:query) { 'SELECT * FROM cpu; SELECT * FROM memory' }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { q: query, u: "username", p: "password", precision: 's', db: database }
+        ).to_return(body: JSON.generate(response))
+      end
+
+      it "should return array with single hash containing multiple values" do
+        expect(subject.query(query)).to eq(expected_result)
+      end
+    end
+
+    context "with series with different tags" do
+      let(:response) do
+        { "results" =>           [{ "series" =>             [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [["2015-07-07T15:13:04Z", 34, 0.343443]] },
+                                                             { "name" => "cpu", "tags" => { "region" => "us" }, "columns" => %w(time temp value), "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] },
+                                  { "series" =>             [{ "name" => "memory", "tags" => { "region" => "pl" }, "columns" => %w(time free total), "values" => [["2015-07-07T15:13:04Z", 35651584, 134217728]] },
+                                                             { "name" => "memory", "tags" => { "region" => "us" }, "columns" => %w(time free total), "values" => [["2015-07-07T14:58:37Z", 96468992, 134217728], ["2015-07-07T14:59:09Z", 71303168, 134217728]] }] }] }
+      end
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "pl" },
+           "values" => [{ "time" => "2015-07-07T15:13:04Z", "temp" => 34, "value" => 0.343443 }] },
+         { "name" => "cpu", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "temp" => 92, "value" => 0.3445 },
+                        { "time" => "2015-07-07T14:59:09Z", "temp" => 68, "value" => 0.8787 }] },
+         { "name" => "memory", "tags" => { "region" => "pl" },
+           "values" => [{ "time" => "2015-07-07T15:13:04Z", "free" => 34*2**20, "total" => 128*2**20 }] },
+         { "name" => "memory", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "free" => 92*2**20, "total" => 128*2**20 },
+                        { "time" => "2015-07-07T14:59:09Z", "free" => 68*2**20, "total" => 128*2**20 }] }]
+      end
+      let(:query) { 'SELECT * FROM cpu; SELECT * FROM memory' }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { q: query, u: "username", p: "password", precision: 's', db: database }
+        ).to_return(body: JSON.generate(response))
+      end
+
+      it "should return array with 2 elements grouped by tags" do
+        expect(subject.query(query)).to eq(expected_result)
+      end
+    end
+
+    context "with a block" do
+      let(:response) do
+        { "results" =>           [{ "series" =>             [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [["2015-07-07T15:13:04Z", 34, 0.343443]] },
+                                                             { "name" => "cpu", "tags" => { "region" => "us" }, "columns" => %w(time temp value), "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] },
+                                  { "series" =>             [{ "name" => "memory", "tags" => { "region" => "pl" }, "columns" => %w(time free total), "values" => [["2015-07-07T15:13:04Z", 35651584, 134217728]] },
+                                                             { "name" => "memory", "tags" => { "region" => "us" }, "columns" => %w(time free total), "values" => [["2015-07-07T14:58:37Z", 96468992, 134217728], ["2015-07-07T14:59:09Z", 71303168, 134217728]] }] }] }
+      end
+
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "pl" },
+           "values" => [{ "time" => "2015-07-07T15:13:04Z", "temp" => 34, "value" => 0.343443 }] },
+         { "name" => "cpu", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "temp" => 92, "value" => 0.3445 },
+                        { "time" => "2015-07-07T14:59:09Z", "temp" => 68, "value" => 0.8787 }] },
+         { "name" => "memory", "tags" => { "region" => "pl" },
+           "values" => [{ "time" => "2015-07-07T15:13:04Z", "free" => 34*2**20, "total" => 128*2**20 }] },
+         { "name" => "memory", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "free" => 92*2**20, "total" => 128*2**20 },
+                        { "time" => "2015-07-07T14:59:09Z", "free" => 68*2**20, "total" => 128*2**20 }] }]
+      end
+      let(:query) { 'SELECT * FROM cpu; SELECT * FROM memory' }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { q: query, u: "username", p: "password", precision: 's', db: database }
+        ).to_return(body: JSON.generate(response))
+      end
+
+      it "should accept a block and yield name, tags and points" do
+        results = []
+        subject.query(query) do |name, tags, points|
+          results << { 'name' => name, 'tags' => tags, 'values' => points }
+        end
+        expect(results).to eq(expected_result)
+      end
+    end
+  end
 end

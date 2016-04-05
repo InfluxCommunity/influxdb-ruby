@@ -78,9 +78,9 @@ module InfluxDB
       end
 
       def fetch_series(response)
-        response.fetch('results', [])
-          .fetch(0, {})
-          .fetch('series', [])
+        response.fetch('results', []).flat_map{|result|
+          result.fetch('series', [])
+        }
       end
 
       def generate_payload(data)
