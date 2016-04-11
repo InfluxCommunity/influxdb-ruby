@@ -1,43 +1,20 @@
 require "spec_helper"
 
 describe InfluxDB::PointValue do
-  describe "whitespace escaping" do
-    it 'should escape series name' do
-      point = InfluxDB::PointValue.new(series: "Some Long String", values: { value: 5 })
-      expect(point.series).to eq("Some\\ Long\\ String")
+  describe "escaping" do
+    let(:data) do
+      {
+        series: '1= ,"\\1',
+        tags: {'2= ,"\\2' => '3= ,"\\3'},
+        values: {'4= ,"\\4' => '5= ,"\\5'},
+      }
     end
 
-    it 'should escape keys of passed value keys' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { 'some string key' => 5 })
-      expect(point.values.split("=").first).to eq("some\\ string\\ key")
-    end
-
-    it 'should escape passed values' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { response_time: 0.34343 },
-                                       tags: { city: "Twin Peaks" })
-      expect(point.tags.split("=").last).to eq("Twin\\ Peaks")
-    end
-  end
-
-  describe "comma escaping" do
-    it 'should escape series name' do
-      point = InfluxDB::PointValue.new(series: "Some Long String,", values: { value: 5 })
-      expect(point.series).to eq("Some\\ Long\\ String\\,")
-    end
-
-    it 'should escape keys of passed value keys' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { 'some string key,' => 5 })
-      expect(point.values.split("=").first).to eq("some\\ string\\ key\\,")
-    end
-
-    it 'should escape passed values' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { response_time: 0.34343 },
-                                       tags: { city: "Twin Peaks," })
-      expect(point.tags.split("=").last).to eq("Twin\\ Peaks\\,")
+    it 'should escape correctly' do
+      point = InfluxDB::PointValue.new(data)
+      expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 )+
+                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5")
+      expect(point.dump).to eq(expected)
     end
   end
 
