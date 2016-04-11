@@ -19,7 +19,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "json"
-  spec.add_runtime_dependency "cause"
+
+  if RUBY_VERSION < '2.1'
+    spec.add_runtime_dependency "cause"
+  end
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
