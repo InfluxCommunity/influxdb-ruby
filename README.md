@@ -292,7 +292,7 @@ Write multiple points in a batch (performance boost):
 data = [
   {
     series: 'cpu',
-    tags: { host: 'server_1', regios: 'us' },
+    tags: { host: 'server_1', region: 'us' },
     values: {internal: 5, external: 0.453345}
   },
   {
@@ -317,7 +317,7 @@ Write multiple points in a batch with a specific retention policy:
 data = [
   {
     series: 'cpu',
-    tags: { host: 'server_1', regios: 'us' },
+    tags: { host: 'server_1', region: 'us' },
     values: {internal: 5, external: 0.453345}
   },
   {
