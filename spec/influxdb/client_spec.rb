@@ -72,4 +72,24 @@ describe InfluxDB::Client do
       expect(subject.version).to eq('1.1.1')
     end
   end
+
+  describe "Load balancing" do
+    let(:args) { { hosts: hosts } }
+    let(:hosts) do
+      [
+        "influxdb.test0",
+        "influxdb.test1",
+        "influxdb.test2"
+      ]
+    end
+    let(:cycle) { 3 }
+    let!(:stubs) do
+      hosts.map { |host| stub_request(:get, "http://#{host}:9999/ping").to_return(status: 204) }
+    end
+
+    it "balance requests" do
+      (hosts.size * cycle).times { subject.ping }
+      stubs.cycle(cycle) { |stub| expect(stub).to have_been_requested.times(cycle) }
+    end
+  end
 end
