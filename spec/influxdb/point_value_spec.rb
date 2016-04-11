@@ -41,21 +41,6 @@ describe InfluxDB::PointValue do
     end
   end
 
-  describe "equal escaping" do
-    it 'should escape equals signs of a field key' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { 'a=b' => 5 })
-      expect(point.values).to eq("a\\=b=5")
-    end
-
-    it 'should escape equals signs of a tag key and a tag value' do
-      point = InfluxDB::PointValue.new(series: "responses",
-                                       values: { value: '442221834240i' },
-                                       tags: { 'a=b' => "x=y"})
-      expect(point.tags).to eq("a\\=b=x\\=y")
-    end
-  end
-
   describe 'dump' do
     context "with all possible data passed" do
       let(:expected_value) do
