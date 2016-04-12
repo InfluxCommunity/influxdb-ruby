@@ -3,7 +3,7 @@ influxdb-ruby
 
 [![Build Status](https://travis-ci.org/influxdata/influxdb-ruby.svg?branch=master)](https://travis-ci.org/influxdata/influxdb-ruby)
 
-The official ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/). Maintained by [@toddboom](https://github.com/toddboom).
+The official ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/). Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://github.com/dmke).
 
 > **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and tagged on this repository. If you're reading this message, then you should only expect support for InfluxDB v0.9.1 and higher.
 
