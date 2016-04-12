@@ -6,10 +6,11 @@ AllCops:
     - 'spec/**/*.rb'
   Exclude:
     - 'bin/**/*'
-  Rails:
-    Enabled: false
   DisplayCopNames: true
   StyleGuideCopsOnly: false
+
+Rails:
+  Enabled: false
 
 Style/Documentation:
   Exclude:

@@ -33,8 +33,7 @@ module InfluxDB # :nodoc:
     Net::HTTPHeaderSyntaxError,
     Net::ProtocolError,
     SocketError,
-    Zlib::GzipFile::Error
-  ]
-
-  NET_HTTP_EXCEPTIONS << OpenSSL::SSL::SSLError if defined?(OpenSSL)
+    Zlib::GzipFile::Error,
+    (OpenSSL::SSL::SSLError if defined?(OpenSSL))
+  ].compact.freeze
 end
