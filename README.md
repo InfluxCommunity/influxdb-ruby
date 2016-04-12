@@ -1,7 +1,7 @@
 influxdb-ruby
 =============
 
-[![Build Status](https://travis-ci.org/influxdata/influxdb-ruby.svg?branch=master)](https://travis-ci.org/influxdb/influxdb-ruby)
+[![Build Status](https://travis-ci.org/influxdata/influxdb-ruby.svg?branch=master)](https://travis-ci.org/influxdata/influxdb-ruby)
 
 The official ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/). Maintained by [@toddboom](https://github.com/toddboom).
 
