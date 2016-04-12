@@ -1,10 +1,11 @@
+require 'thread'
+
 module InfluxDB
   # InfluxDB client configuration
   class Config
     AUTH_METHODS = %w(params basic_auth)
 
-    attr_accessor :hosts,
-                  :port,
+    attr_accessor :port,
                   :username,
                   :password,
                   :database,
@@ -27,8 +28,13 @@ module InfluxDB
     # rubocop:disable all
     def initialize(opts = {})
       @database = opts[:database]
-      @hosts = Array(opts[:hosts] || opts[:host] || ["localhost"])
-      @hosts_enumerator = @hosts.cycle
+      @hosts_queue = Queue.new
+
+      # load the hosts into a Queue for thread safety
+      Array(opts[:hosts] || opts[:host] || ["localhost"]).each do |host|
+        @hosts_queue.push(host)
+      end
+
       @port = opts.fetch(:port, 8086)
       @prefix = opts.fetch(:prefix, '')
       @username = opts.fetch(:username, "root")
@@ -67,7 +73,17 @@ module InfluxDB
     end
 
     def next_host
-      @hosts_enumerator.next
+      host = @hosts_queue.pop
+      @hosts_queue.push(host)
+      host
+    end
+
+    def hosts
+      Array.new(@hosts_queue.length) do
+        host = @hosts_queue.pop
+        @hosts_queue.push(host)
+        host
+      end
     end
   end
 end
