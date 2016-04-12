@@ -6,7 +6,8 @@ AllCops:
     - 'spec/**/*.rb'
   Exclude:
     - 'bin/**/*'
-  RunRailsCops: false
+  Rails:
+    Enabled: false
   DisplayCopNames: true
   StyleGuideCopsOnly: false
 
@@ -14,7 +15,7 @@ Style/Documentation:
   Exclude:
     - 'spec/**/*.rb'
 
-Style/StringLiterals: 
+Style/StringLiterals:
   Enabled: false
 
 Style/BlockDelimiters:
