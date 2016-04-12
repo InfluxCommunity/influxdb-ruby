@@ -1,5 +1,6 @@
 require 'json'
-require 'cause'
+require 'cause' if RUBY_VERSION < '2.1'
+require 'thread'
 
 module InfluxDB
   # rubocop:disable Metrics/MethodLength
