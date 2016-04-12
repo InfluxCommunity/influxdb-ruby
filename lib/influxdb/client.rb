@@ -1,5 +1,5 @@
 require 'json'
-require 'cause' if RUBY_VERSION < '2.1'
+require 'cause' unless Exception.instance_methods.include?(:cause)
 require 'thread'
 
 module InfluxDB
