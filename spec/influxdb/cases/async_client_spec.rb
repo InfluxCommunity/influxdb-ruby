@@ -23,11 +23,10 @@ describe InfluxDB::Client do
 
       Timeout.timeout(timeout_stretch * worker_klass::SLEEP_INTERVAL) do
         subject.stop!
-        # ensure threads exit
-        subject.writer.worker.threads.each(&:join)
+      end
 
-        # flush queue (we cannot test `at_exit`)
-        subject.writer.worker.check_background_queue
+      subject.writer.worker.threads.each do |t|
+        expect(t.stop?).to be true
       end
 
       # exact times can be 2 or 3 (because we have 3 worker threads),

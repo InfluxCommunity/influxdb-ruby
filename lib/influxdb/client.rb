@@ -59,6 +59,7 @@ module InfluxDB
     end
 
     def stop!
+      writer.worker.stop! if config.async?
       @stopped = true
     end
 

@@ -44,11 +44,6 @@ module InfluxDB
           @queue = InfluxDB::MaxQueue.new config.fetch(:max_queue, MAX_QUEUE_SIZE)
 
           spawn_threads!
-
-          at_exit do
-            log :debug, "Thread exiting, flushing queue."
-            check_background_queue until queue.empty?
-          end
         end
 
         def push(payload)
@@ -108,6 +103,11 @@ module InfluxDB
 
             break if queue.length > MAX_POST_POINTS
           end
+        end
+
+        def stop!
+          log :debug, "Thread exiting, flushing queue."
+          check_background_queue until queue.empty?
         end
       end
     end
