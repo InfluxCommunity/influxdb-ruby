@@ -9,8 +9,6 @@ describe InfluxDB::Client do
   specify { expect(subject.writer).to be_a(InfluxDB::Writer::Async) }
 
   describe "#write_point" do
-    let(:payload) { "responses,region=eu value=5" }
-
     it "sends writes to client" do
       post_request = stub_request(:post, stub_url)
 
@@ -18,7 +16,12 @@ describe InfluxDB::Client do
         subject.write_point('a', {})
       end
 
-      Timeout.timeout(2 * worker_klass::SLEEP_INTERVAL) do
+      # The timout code is fragile, and heavily dependent on system load
+      # (and scheduler decisions). On the CI, the system is less
+      # responsive and needs a bit more time.
+      timeout_stretch = ENV["TRAVIS"] == "true" ? 10 : 3
+
+      Timeout.timeout(timeout_stretch * worker_klass::SLEEP_INTERVAL) do
         subject.stop!
         # ensure threads exit
         subject.writer.worker.threads.each(&:join)

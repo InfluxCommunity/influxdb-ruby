@@ -9,3 +9,8 @@ rvm:
   - ruby-head
   - jruby-20mode
   - jruby-21mode
+  - jruby-head
+matrix:
+  allow_failures:
+    - rvm: jruby-head
+    - rvm: ruby-head

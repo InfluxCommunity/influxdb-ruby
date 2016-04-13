@@ -10,10 +10,11 @@ module InfluxDB
     def get(url, options = {})
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Get.new(url)
-        if response.is_a? Net::HTTPSuccess
+        case response
+        when Net::HTTPSuccess
           handle_successful_response(response, options)
-        elsif response.is_a? Net::HTTPUnauthorized
-          fail InfluxDB::AuthenticationError, response.body
+        when Net::HTTPUnauthorized
+          raise InfluxDB::AuthenticationError, response.body
         else
           resolve_error(response.body)
         end
@@ -24,10 +25,12 @@ module InfluxDB
       headers = { "Content-Type" => "application/octet-stream" }
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Post.new(url, headers), data
-        if response.is_a? Net::HTTPSuccess
+
+        case response
+        when Net::HTTPSuccess
           return response
-        elsif response.is_a? Net::HTTPUnauthorized
-          fail InfluxDB::AuthenticationError, response.body
+        when Net::HTTPUnauthorized
+          raise InfluxDB::AuthenticationError, response.body
         else
           resolve_error(response.body)
         end
@@ -36,7 +39,7 @@ module InfluxDB
 
     private
 
-    def connect_with_retry(&block)
+    def connect_with_retry
       host = config.next_host
       delay = config.initial_delay
       retry_count = 0
@@ -47,8 +50,7 @@ module InfluxDB
         http.read_timeout = config.read_timeout
 
         http = setup_ssl(http)
-
-        block.call(http)
+        yield http
 
       rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
         retry_count += 1
@@ -77,21 +79,23 @@ module InfluxDB
 
     def resolve_error(response)
       if response =~ /Couldn\'t find series/
-        fail InfluxDB::SeriesNotFound, response
-      else
-        fail InfluxDB::Error, response
+        raise InfluxDB::SeriesNotFound, response
       end
+      raise InfluxDB::Error, response
     end
 
     def handle_successful_response(response, options)
-      parsed_response = JSON.parse(response.body)    if response.body
-      errors = errors_from_response(parsed_response) if parsed_response
-      fail InfluxDB::QueryError,  errors             if errors
+      parsed_response = JSON.parse(response.body) if response.body
+      errors = errors_from_response(parsed_response)
+
+      raise InfluxDB::QueryError, errors if errors
       options.fetch(:parse, false) ? parsed_response : response
     end
 
     def errors_from_response(parsed_resp)
-      parsed_resp.is_a?(Hash) && parsed_resp.fetch('results', [])
+      return unless parsed_resp.is_a?(Hash)
+      parsed_resp
+        .fetch('results', [])
         .fetch(0, {})
         .fetch('error', nil)
     end

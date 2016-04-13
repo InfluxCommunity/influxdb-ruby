@@ -6,7 +6,7 @@ module InfluxDB
     attr_reader :max
 
     def initialize(max = 10_000)
-      fail ArgumentError, "queue size must be positive" unless max > 0
+      raise ArgumentError, "queue size must be positive" if max <= 0
       @max = max
       super()
     end

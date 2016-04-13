@@ -68,7 +68,7 @@ module InfluxDB
         epoch       = opts.fetch(:epoch, config.epoch)
 
         params = { q: query, db: config.database, precision: precision }
-        params.merge!(epoch: epoch) if epoch
+        params[:epoch] = epoch if epoch
         params
       end
 
@@ -83,9 +83,9 @@ module InfluxDB
       end
 
       def fetch_series(response)
-        response.fetch('results', []).flat_map{|result|
+        response.fetch('results', []).flat_map do |result|
           result.fetch('series', [])
-        }
+        end
       end
 
       def generate_payload(data)

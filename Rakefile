@@ -10,11 +10,6 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = FileList[file_pattern]
 end
 
-RSpec.configure do |config|
-  config.color = true
-  config.formatter = :documentation
-end
-
 task default: :spec
 
 task :console do
