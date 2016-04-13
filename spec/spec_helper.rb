@@ -13,6 +13,24 @@ RSpec.configure do |config|
   else
     config.formatter = :progress
   end
-end
 
-InfluxDB::Logging.logger = Logger.new(STDOUT) if ENV['LOG']
+  if ENV["LOG"]
+    Dir.mkdir("tmp") unless Dir.exist?("tmp")
+    logfile = File.open("tmp/spec.log", File::WRONLY | File::TRUNC | File::CREAT)
+
+    InfluxDB::Logging.logger = Logger.new(logfile).tap do |logger|
+      logger.formatter = ->(severity, _datetime, progname, message) {
+        "%-5s - %s: %s\n" % [ severity, progname, message ]
+      }
+    end
+
+    config.before(:each) do
+      InfluxDB::Logging.logger.info("RSpec") { self.class }
+      InfluxDB::Logging.logger.info("RSpec") { @__inspect_output }
+    end
+
+    config.after(:each) do
+      logfile.write "\n"
+    end
+  end
+end

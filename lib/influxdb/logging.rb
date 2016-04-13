@@ -2,7 +2,7 @@ require 'logger'
 
 module InfluxDB
   module Logging # :nodoc:
-    PREFIX = "[InfluxDB] ".freeze
+    PREFIX = "InfluxDB".freeze
 
     class << self
       attr_writer :logger
@@ -17,7 +17,7 @@ module InfluxDB
 
     def log(level, message)
       return unless InfluxDB::Logging.logger
-      InfluxDB::Logging.logger.send(level.to_sym, PREFIX + message)
+      InfluxDB::Logging.logger.send(level.to_sym, PREFIX) { message }
     end
   end
 end
