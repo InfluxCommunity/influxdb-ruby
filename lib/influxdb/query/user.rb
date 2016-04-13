@@ -43,8 +43,8 @@ module InfluxDB
         resp = execute("SHOW USERS".freeze, parse: true)
         fetch_series(resp)
           .fetch(0, {})
-          .map { |v| { 'username' => v.first, 'admin' => v.last } }
           .fetch('values'.freeze, [])
+          .map { |v| { 'username' => v.first, 'admin' => v.last } }
       end
     end
   end
