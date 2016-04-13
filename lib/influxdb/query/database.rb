@@ -10,7 +10,7 @@ module InfluxDB
       end
 
       def list_databases
-        resp = execute("SHOW DATABASES", parse: true)
+        resp = execute("SHOW DATABASES".freeze, parse: true)
         fetch_series(resp)
           .fetch(0, {})
           .fetch('values', [])

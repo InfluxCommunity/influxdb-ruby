@@ -7,7 +7,7 @@ module InfluxDB
       def initialize(client, config)
         @client = client
         config = config.is_a?(Hash) ? config : {}
-        @host = config.fetch(:host, 'localhost')
+        @host = config.fetch(:host, "localhost".freeze)
         @port = config.fetch(:port, 4444)
         self.socket = UDPSocket.new
         socket.connect(host, port)

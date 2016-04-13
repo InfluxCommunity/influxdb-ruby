@@ -40,11 +40,11 @@ module InfluxDB
 
       # => [{"username"=>"usr", "admin"=>true}, {"username"=>"justauser", "admin"=>false}]
       def list_users
-        resp = execute("SHOW USERS", parse: true)
+        resp = execute("SHOW USERS".freeze, parse: true)
         fetch_series(resp)
           .fetch(0, {})
-          .fetch('values', [])
           .map { |v| { 'username' => v.first, 'admin' => v.last } }
+          .fetch('values'.freeze, [])
       end
     end
   end

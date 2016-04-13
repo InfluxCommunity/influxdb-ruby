@@ -3,11 +3,11 @@ module InfluxDB
     # rubocop:disable Metrics/AbcSize
     module Core
       def ping
-        get "/ping"
+        get "/ping".freeze
       end
 
       def version
-        resp = get "/ping"
+        resp = get "/ping".freeze
         resp.header['x-influxdb-version']
       end
 
@@ -15,12 +15,13 @@ module InfluxDB
       def query(query, opts = {})
         denormalize = opts.fetch(:denormalize, config.denormalize)
         params = query_params(query, opts)
-        url = full_url("/query", params)
+        url = full_url("/query".freeze, params)
         series = fetch_series(get(url, parse: true))
 
         if block_given?
           series.each do |s|
-            yield s['name'], s['tags'], denormalize ? denormalize_series(s) : raw_values(s)
+            values = denormalize ? denormalize_series(s) : raw_values(s)
+            yield s['name'.freeze], s['tags'.freeze], values
           end
         else
           denormalize ? denormalized_series_list(series) : series
@@ -75,23 +76,23 @@ module InfluxDB
       def denormalized_series_list(series)
         series.map do |s|
           {
-            'name' => s['name'],
-            'tags' => s['tags'],
-            'values' => denormalize_series(s)
+            "name"   => s["name".freeze],
+            "tags"   => s["tags".freeze],
+            "values" => denormalize_series(s)
           }
         end
       end
 
       def fetch_series(response)
-        response.fetch('results', []).flat_map do |result|
-          result.fetch('series', [])
+        response.fetch('results'.freeze, []).flat_map do |result|
+          result.fetch('series'.freeze, [])
         end
       end
 
       def generate_payload(data)
         data.map do |point|
           InfluxDB::PointValue.new(point).dump
-        end.join("\n")
+        end.join("\n".freeze)
       end
 
       def execute(query, options = {})
@@ -100,8 +101,8 @@ module InfluxDB
       end
 
       def denormalize_series(series)
-        Array(series["values"]).map do |values|
-          Hash[series["columns"].zip(values)]
+        Array(series["values".freeze]).map do |values|
+          Hash[series["columns".freeze].zip(values)]
         end
       end
 
@@ -115,7 +116,9 @@ module InfluxDB
           params[:p] = config.password
         end
 
-        query = params.map { |k, v| [CGI.escape(k.to_s), "=", CGI.escape(v.to_s)].join }.join("&")
+        query = params.map do |k, v|
+          [CGI.escape(k.to_s), "=".freeze, CGI.escape(v.to_s)].join
+        end.join("&".freeze)
 
         URI::Generic.build(path: File.join(config.prefix, path), query: query).to_s
       end

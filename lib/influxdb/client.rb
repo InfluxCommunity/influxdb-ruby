@@ -3,9 +3,6 @@ require 'cause' unless Exception.instance_methods.include?(:cause)
 require 'thread'
 
 module InfluxDB
-  # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Metrics/AbcSize
-
   # InfluxDB client class
   class Client
     attr_reader :config, :writer
@@ -56,14 +53,7 @@ module InfluxDB
       opts[:database] = args.first if args.first.is_a? String
       @config = InfluxDB::Config.new(opts)
       @stopped = false
-
-      @writer = self
-
-      if config.async?
-        @writer = InfluxDB::Writer::Async.new(self, config.async)
-      elsif config.udp?
-        @writer = InfluxDB::Writer::UDP.new(self, config.udp)
-      end
+      @writer = find_writer
 
       at_exit { stop! } if config.retry > 0
     end
@@ -74,6 +64,18 @@ module InfluxDB
 
     def stopped?
       @stopped
+    end
+
+    private
+
+    def find_writer
+      if config.async?
+        InfluxDB::Writer::Async.new(self, config.async)
+      elsif config.udp?
+        InfluxDB::Writer::UDP.new(self, config.udp)
+      else
+        self
+      end
     end
   end
 end
