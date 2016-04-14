@@ -57,5 +57,18 @@ describe InfluxDB::PointValue do
         expect(point.dump).to eq(expected_value)
       end
     end
+
+    context "empty tag values" do
+      let(:expected_value) do
+        "responses,region=eu value=5"
+      end
+
+      it "should be omitted" do
+        point = InfluxDB::PointValue.new(series: "responses",
+                                         values: { value: 5 },
+                                         tags: { region: "eu", status: nil, other: "", nil => "ignored", "" => "ignored" })
+        expect(point.dump).to eq(expected_value)
+      end
+    end
   end
 end

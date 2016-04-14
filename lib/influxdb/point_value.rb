@@ -60,11 +60,15 @@ module InfluxDB
 
     def escape_tags(tags)
       return if tags.nil?
-      tags.map do |k, v|
+
+      tags = tags.map do |k, v|
         key = escape(k.to_s, :tag_key)
         val = escape(v.to_s, :tag_value)
-        "#{key}=#{val}"
-      end.join(",")
+
+        "#{key}=#{val}" unless key == "" || val == ""
+      end.compact
+
+      tags.join(",") unless tags.empty?
     end
   end
 end
