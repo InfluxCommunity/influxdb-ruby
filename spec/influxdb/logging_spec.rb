@@ -10,8 +10,11 @@ describe InfluxDB::Logging do
     end
   end
 
-  before { @old_logger = InfluxDB::Logging.logger }
-  after { InfluxDB::Logging.logger = @old_logger }
+  around do |example|
+    old_logger = InfluxDB::Logging.logger
+    example.call
+    InfluxDB::Logging.logger = old_logger
+  end
 
   it "has a default logger" do
     expect(InfluxDB::Logging.logger).to be_a(Logger)

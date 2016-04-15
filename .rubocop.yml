@@ -1,8 +1,8 @@
 AllCops:
-  # Include gemspec and Rakefile
   Include:
+    - 'Rakefile'
+    - '*.gemspec'
     - 'lib/**/*.rb'
-    - 'lib/**/*.rake'
     - 'spec/**/*.rb'
   Exclude:
     - 'bin/**/*'

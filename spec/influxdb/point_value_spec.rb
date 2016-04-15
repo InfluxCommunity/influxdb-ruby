@@ -5,14 +5,14 @@ describe InfluxDB::PointValue do
     let(:data) do
       {
         series: '1= ,"\\1',
-        tags: {'2= ,"\\2' => '3= ,"\\3'},
-        values: {'4= ,"\\4' => '5= ,"\\5'},
+        tags: { '2= ,"\\2' => '3= ,"\\3' },
+        values: { '4= ,"\\4' => '5= ,"\\5' }
       }
     end
 
     it 'should escape correctly' do
       point = InfluxDB::PointValue.new(data)
-      expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 )+
+      expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
                  %(4\\=\\ \\,\\"\\4="5= ,\\"\\5")
       expect(point.dump).to eq(expected)
     end

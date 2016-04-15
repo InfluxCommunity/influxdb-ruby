@@ -10,11 +10,17 @@ rvm:
   - jruby-20mode
   - jruby-21mode
   - jruby-head
+env:
+  - TEST_TASK=spec
 matrix:
   allow_failures:
     - rvm: jruby-head
     - rvm: ruby-head
+  include:
+    - rvm: 2.3.0
+      env: TEST_TASK=rubocop
 addons:
   apt:
     packages:
       - libgmp-dev
+script: bundle exec rake $TEST_TASK

@@ -145,9 +145,9 @@ describe InfluxDB::Client do
     let(:list_query) { "SHOW GRANTS FOR #{user}" }
 
     before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: list_query},
-      ).to_return(:status => 200, :body => "", :headers => {})
+      stub_request(:get, "http://influxdb.test:9999/query")
+        .with(query: { u: "username", p: "password", q: list_query })
+        .to_return(status: 200, body: "", headers: {})
     end
 
     it "should GET for a user" do

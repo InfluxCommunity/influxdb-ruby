@@ -8,6 +8,7 @@ end
 RSpec.configure do |config|
   config.color = ENV["TRAVIS"] != "true"
 
+  # rubocop:disable Style/ConditionalAssignment
   if config.files_to_run.one? || ENV["TRAVIS"] == "true"
     config.formatter = :documentation
   else
@@ -19,8 +20,8 @@ RSpec.configure do |config|
     logfile = File.open("tmp/spec.log", File::WRONLY | File::TRUNC | File::CREAT)
 
     InfluxDB::Logging.logger = Logger.new(logfile).tap do |logger|
-      logger.formatter = ->(severity, _datetime, progname, message) {
-        "%-5s - %s: %s\n" % [ severity, progname, message ]
+      logger.formatter = proc {|severity, _datetime, progname, message|
+        "%-5s - %s: %s\n".format severity, progname, message
       }
     end
 

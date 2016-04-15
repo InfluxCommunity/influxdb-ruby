@@ -23,7 +23,7 @@ describe InfluxDB::Client do
     let(:series) { "cpu" }
     let(:data) do
       { tags: { region: 'us', host: 'server_1' },
-        values: { temp: 88,  value: 54 } }
+        values: { temp: 88, value: 54 } }
     end
     let(:body) do
       InfluxDB::PointValue.new(data.merge(series: series)).dump
@@ -72,11 +72,13 @@ describe InfluxDB::Client do
     context "when retry is -1" do
       let(:args) { { retry: -1 } }
       before do
-        stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 's', db: database },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body: body
-        ).to_raise(Timeout::Error).then
+        stub_request(:post, "http://influxdb.test:9999/write")
+          .with(
+            query: { u: "username", p: "password", precision: 's', db: database },
+            headers: { "Content-Type" => "application/octet-stream" },
+            body: body
+          )
+          .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then

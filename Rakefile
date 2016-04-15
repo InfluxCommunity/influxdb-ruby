@@ -1,4 +1,7 @@
 require "bundler/gem_tasks"
+require 'rubocop/rake_task'
+
+RuboCop::RakeTask.new
 
 targeted_files = ARGV.drop(1)
 file_pattern = targeted_files.empty? ? 'spec/**/*_spec.rb' : targeted_files

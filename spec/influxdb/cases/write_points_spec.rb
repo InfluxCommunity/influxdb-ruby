@@ -3,16 +3,13 @@ require "json"
 
 describe InfluxDB::Client do
   let(:subject) do
-    described_class.new(
-      "database",
-      {
-        host: "influxdb.test",
-        port: 9999,
-        username: "username",
-        password: "password",
-        time_precision: "s"
-      }.merge(args)
-    )
+    described_class.new "database", {
+      host: "influxdb.test",
+      port: 9999,
+      username: "username",
+      password: "password",
+      time_precision: "s"
+    }.merge(args)
   end
 
   let(:args) { {} }
@@ -23,7 +20,7 @@ describe InfluxDB::Client do
     let(:series) { "cpu" }
     let(:data) do
       { tags: { region: 'us', host: 'server_1' },
-        values: { temp: 88,  value: 54 } }
+        values: { temp: 88, value: 54 } }
     end
     let(:body) do
       InfluxDB::PointValue.new(data.merge(series: series)).dump
@@ -52,16 +49,12 @@ describe InfluxDB::Client do
   describe "#write_points" do
     context "with multiple series" do
       let(:data) do
-        [{
-          series: 'cpu',
-          tags: {  region: 'us', host: 'server_1' },
-          values: { temp: 88, value: 54 }
-        },
-         {
-           series: 'gpu',
-           tags: { region: 'uk',  host: 'server_5' },
-           values: { value: 0.5435345 }
-         }]
+        [{ series: 'cpu',
+           tags: { region: 'us', host: 'server_1' },
+           values: { temp: 88, value: 54 } },
+         { series: 'gpu',
+           tags: { region: 'uk', host: 'server_5' },
+           values: { value: 0.5435345 } }]
       end
       let(:body) do
         data.map do |point|
@@ -84,14 +77,10 @@ describe InfluxDB::Client do
 
     context "with no tags" do
       let(:data) do
-        [{
-          series: 'cpu',
-          values: { temp: 88,  value: 54 }
-        },
-         {
-           series: 'gpu',
-           values: { value: 0.5435345 }
-         }]
+        [{ series: 'cpu',
+           values: { temp: 88, value: 54 } },
+         { series: 'gpu',
+           values: { value: 0.5435345 } }]
       end
       let(:body) do
         data.map do |point|
@@ -114,16 +103,12 @@ describe InfluxDB::Client do
 
     context "with time precision set to milisceconds" do
       let(:data) do
-        [{
-          series: 'cpu',
-          values: { temp: 88,  value: 54 },
-          timestamp: (Time.now.to_f * 1000).to_i
-        },
-         {
-           series: 'gpu',
+        [{ series: 'cpu',
+           values: { temp: 88, value: 54 },
+           timestamp: (Time.now.to_f * 1000).to_i },
+         { series: 'gpu',
            values: { value: 0.5435345 },
-           timestamp: (Time.now.to_f * 1000).to_i
-         }]
+           timestamp: (Time.now.to_f * 1000).to_i }]
       end
 
       let(:body) do
@@ -146,14 +131,10 @@ describe InfluxDB::Client do
 
     context "with retention policy" do
       let(:data) do
-        [{
-          series: 'cpu',
-          values: { temp: 88,  value: 54 }
-        },
-         {
-           series: 'gpu',
-           values: { value: 0.5435345 }
-         }]
+        [{ series: 'cpu',
+           values: { temp: 88, value: 54 } },
+         { series: 'gpu',
+           values: { value: 0.5435345 } }]
       end
 
       let(:body) do
