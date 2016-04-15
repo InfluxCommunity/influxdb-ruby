@@ -29,19 +29,31 @@ module InfluxDB
       end
 
       class Worker
-        attr_reader :client, :queue, :threads
+        attr_reader :client,
+                    :queue,
+                    :threads,
+                    :max_post_points,
+                    :max_queue_size,
+                    :num_worker_threads,
+                    :sleep_interval
 
         include InfluxDB::Logging
 
-        MAX_POST_POINTS = 1000
-        MAX_QUEUE_SIZE = 10_000
-        NUM_WORKER_THREADS = 3
-        SLEEP_INTERVAL = 5
+        MAX_POST_POINTS     = 1000
+        MAX_QUEUE_SIZE      = 10_000
+        NUM_WORKER_THREADS  = 3
+        SLEEP_INTERVAL      = 5
 
         def initialize(client, config)
           @client = client
           config = config.is_a?(Hash) ? config : {}
-          @queue = InfluxDB::MaxQueue.new config.fetch(:max_queue, MAX_QUEUE_SIZE)
+
+          @max_post_points    = config.fetch(:max_post_points,    MAX_POST_POINTS)
+          @max_queue_size     = config.fetch(:max_queue_size,     MAX_QUEUE_SIZE)
+          @num_worker_threads = config.fetch(:num_worker_threads, NUM_WORKER_THREADS)
+          @sleep_interval     = config.fetch(:sleep_interval,     SLEEP_INTERVAL)
+
+          @queue = InfluxDB::MaxQueue.new max_queue_size
 
           spawn_threads!
         end
@@ -64,7 +76,7 @@ module InfluxDB
 
         def spawn_threads!
           @threads = []
-          NUM_WORKER_THREADS.times do |thread_num|
+          num_worker_threads.times do |thread_num|
             log :debug, "Spawning background worker thread #{thread_num}."
 
             @threads << Thread.new do
@@ -72,7 +84,7 @@ module InfluxDB
 
               until client.stopped?
                 check_background_queue(thread_num)
-                sleep rand(SLEEP_INTERVAL)
+                sleep rand(sleep_interval)
               end
 
               log :debug, "Exit background worker thread #{thread_num}."
@@ -87,7 +99,7 @@ module InfluxDB
           loop do
             data = []
 
-            while data.size < MAX_POST_POINTS && !queue.empty?
+            while data.size < max_post_points && !queue.empty?
               p = queue.pop(true) rescue next
               data.push p
             end
@@ -101,7 +113,7 @@ module InfluxDB
               puts "Cannot write data: #{e.inspect}"
             end
 
-            break if queue.length > MAX_POST_POINTS
+            break if queue.length > max_post_points
           end
         end
 

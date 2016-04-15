@@ -345,7 +345,7 @@ name     = 'foobar'
 influxdb = InfluxDB::Client.new database,
                                 username: username,
                                 password: password,
-                                async: true
+                                async:    true
 
 data = {
   values: { value: 0 },
@@ -355,6 +355,28 @@ data = {
 
 influxdb.write_point(name, data)
 ```
+
+Using `async: true` is a shortcut for the following:
+
+``` ruby
+async_options = {
+  # number of points to write to the server at once
+  max_post_points:    1000,
+  # queue capacity
+  max_queue_size:     10_000,
+  # number of threads
+  num_worker_threads: 3,
+  # max. time (in seconds) a thread sleeps before
+  # checking if there are new jobs in the queue
+  sleep_interval:     5
+}
+
+influxdb = InfluxDB::Client.new database,
+                                username: username,
+                                password: password,
+                                async:    async_options
+```
+
 
 Write data via UDP (note that a retention policy cannot be specified for UDP writes):
 
