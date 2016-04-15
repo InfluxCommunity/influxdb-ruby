@@ -53,6 +53,6 @@ describe InfluxDB::Client do
     specify { expect(subject.max_post_points).to be 10 }
     specify { expect(subject.max_queue_size).to be 100 }
     specify { expect(subject.num_worker_threads).to be 1 }
-    specify { expect(subject.sleep_interval).to be 0.5 }
+    specify { expect(subject.sleep_interval).to be_within(0.0001).of(0.5) }
   end
 end
