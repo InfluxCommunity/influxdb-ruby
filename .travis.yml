@@ -14,3 +14,7 @@ matrix:
   allow_failures:
     - rvm: jruby-head
     - rvm: ruby-head
+addons:
+  apt:
+    packages:
+      - libgmp-dev
