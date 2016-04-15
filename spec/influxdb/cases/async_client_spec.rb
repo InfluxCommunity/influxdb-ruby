@@ -40,10 +40,10 @@ describe InfluxDB::Client do
   describe "async options" do
     let(:async_options) do
       {
-          max_post_points:    10,
-          max_queue_size:     100,
-          num_worker_threads: 1,
-          sleep_interval:     0.5
+        max_post_points:    10,
+        max_queue_size:     100,
+        num_worker_threads: 1,
+        sleep_interval:     0.5
       }
     end
 
