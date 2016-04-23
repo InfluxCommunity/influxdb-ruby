@@ -82,7 +82,7 @@ describe InfluxDB::Client do
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
-          .to_return(status: 200)
+          .to_return(status: 204)
       end
 
       it "keep trying until get the connection" do

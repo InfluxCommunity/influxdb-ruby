@@ -31,8 +31,8 @@ describe InfluxDB::Client do
     end
 
     it "POST" do
-      stub_request(:post, stub_url)
-      expect(subject.post(url, {})).to be_a(Net::HTTPOK)
+      stub_request(:post, stub_url).to_return(status: 204)
+      expect(subject.post(url, {})).to be_a(Net::HTTPNoContent)
     end
   end
 

@@ -31,11 +31,11 @@ describe InfluxDB::Client do
         query: { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
         body: body
-      )
+      ).to_return(status: 204)
     end
 
     it "should POST to add single point" do
-      expect(subject.write_point(series, data)).to be_a(Net::HTTPOK)
+      expect(subject.write_point(series, data)).to be_a(Net::HTTPNoContent)
     end
 
     it "should not mutate data object" do
@@ -67,11 +67,11 @@ describe InfluxDB::Client do
           query: { u: "username", p: "password", precision: 's', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
           body: body
-        )
+        ).to_return(status: 204)
       end
 
       it "should POST multiple points" do
-        expect(subject.write_points(data)).to be_a(Net::HTTPOK)
+        expect(subject.write_points(data)).to be_a(Net::HTTPNoContent)
       end
     end
 
@@ -93,11 +93,11 @@ describe InfluxDB::Client do
           query: { u: "username", p: "password", precision: 's', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
           body: body
-        )
+        ).to_return(status: 204)
       end
 
       it "should POST multiple points" do
-        expect(subject.write_points(data)).to be_a(Net::HTTPOK)
+        expect(subject.write_points(data)).to be_a(Net::HTTPNoContent)
       end
     end
 
@@ -122,10 +122,10 @@ describe InfluxDB::Client do
           query: { u: "username", p: "password", precision: 'm', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
           body: body
-        )
+        ).to_return(status: 204)
       end
       it "should POST multiple points" do
-        expect(subject.write_points(data, 'm')).to be_a(Net::HTTPOK)
+        expect(subject.write_points(data, 'm')).to be_a(Net::HTTPNoContent)
       end
     end
 
@@ -148,10 +148,10 @@ describe InfluxDB::Client do
           query: { u: "username", p: "password", precision: 's', db: database, rp: 'rp_1_hour' },
           headers: { "Content-Type" => "application/octet-stream" },
           body: body
-        )
+        ).to_return(status: 204)
       end
       it "should POST multiple points" do
-        expect(subject.write_points(data, nil, 'rp_1_hour')).to be_a(Net::HTTPOK)
+        expect(subject.write_points(data, nil, 'rp_1_hour')).to be_a(Net::HTTPNoContent)
       end
     end
   end

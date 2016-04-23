@@ -27,7 +27,7 @@ module InfluxDB
         response = do_request http, Net::HTTP::Post.new(url, headers), data
 
         case response
-        when Net::HTTPSuccess
+        when Net::HTTPNoContent
           return response
         when Net::HTTPUnauthorized
           raise InfluxDB::AuthenticationError, response.body

@@ -12,7 +12,7 @@ describe InfluxDB::Client do
 
   describe "#write_point" do
     it "sends writes to client" do
-      post_request = stub_request(:post, stub_url)
+      post_request = stub_request(:post, stub_url).to_return(status: 204)
 
       (worker.max_post_points + 100).times do
         subject.write_point('a', {})
