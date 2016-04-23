@@ -9,18 +9,21 @@ rvm:
   - 2.2.4
   - 2.3.0
   - ruby-head
-  - jruby-20mode
-  - jruby-21mode
-  - jruby-head
 env:
   - TEST_TASK=spec
 matrix:
   allow_failures:
     - rvm: jruby-head
     - rvm: ruby-head
+    - rvm: jruby-9.0.5.0
   include:
     - rvm: 2.3.0
       env: TEST_TASK=rubocop
+    - rvm: jruby-9.0.5.0
+      env: JRUBY_OPTS='-J-Xmx256M'
+    - rvm: jruby-head
+      env: JRUBY_OPTS='-J-Xmx256M'
+  fail_fast: true
 addons:
   apt:
     packages:
