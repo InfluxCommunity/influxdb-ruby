@@ -7,7 +7,7 @@ rvm:
   - 2.0.0
   - 2.1.10
   - 2.2.4
-  - 2.3.0
+  - 2.3.1
   - ruby-head
 env:
   - TEST_TASK=spec
@@ -17,7 +17,7 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-9.0.5.0
   include:
-    - rvm: 2.3.0
+    - rvm: 2.3.1
       env: TEST_TASK=rubocop
     - rvm: jruby-9.0.5.0
       env: JRUBY_OPTS='-J-Xmx256M'
