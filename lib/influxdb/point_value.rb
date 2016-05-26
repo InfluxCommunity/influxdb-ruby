@@ -36,21 +36,14 @@ module InfluxDB
       s
     end
 
-    def map(data, quote_escape)
-      data.map do |k, v|
-        key = escape_key(k)
-        val = v.is_a?(String) ? escape_value(v, quote_escape) : v
-        val = val.is_a?(Integer) ? "#{val}i" : v
-        "#{key}=#{val}"
-      end
-    end
-
     def escape_values(values)
       return if values.nil?
       values.map do |k, v|
         key = escape(k.to_s, :field_key)
         val = if v.is_a?(String)
                 '"' + escape(v, :field_value) + '"'
+              elsif v.is_a?(Integer)
+                "#{v}i"
               else
                 v.to_s
               end

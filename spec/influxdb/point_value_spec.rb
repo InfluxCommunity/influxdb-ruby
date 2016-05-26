@@ -6,14 +6,14 @@ describe InfluxDB::PointValue do
       {
         series: '1= ,"\\1',
         tags: { '2= ,"\\2' => '3= ,"\\3' },
-        values: { '4= ,"\\4' => '5= ,"\\5' }
+        values: { '4= ,"\\4' => '5= ,"\\5', intval: 5, floatval: 7.0 }
       }
     end
 
     it 'should escape correctly' do
       point = InfluxDB::PointValue.new(data)
       expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
-                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5")
+                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0)
       expect(point.dump).to eq(expected)
     end
   end
@@ -21,7 +21,7 @@ describe InfluxDB::PointValue do
   describe 'dump' do
     context "with all possible data passed" do
       let(:expected_value) do
-        'responses,region=eu,status=200 value=5,threshold=0.54 1436349652'
+        'responses,region=eu,status=200 value=5i,threshold=0.54 1436349652'
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new(series: "responses",
@@ -35,7 +35,7 @@ describe InfluxDB::PointValue do
 
     context "with no tags" do
       let(:expected_value) do
-        "responses value=5,threshold=0.54 1436349652"
+        "responses value=5i,threshold=0.54 1436349652"
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new(series: "responses",
@@ -48,7 +48,7 @@ describe InfluxDB::PointValue do
 
     context "with values only" do
       let(:expected_value) do
-        "responses value=5,threshold=0.54"
+        "responses value=5i,threshold=0.54"
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new(series: "responses",
@@ -60,7 +60,7 @@ describe InfluxDB::PointValue do
 
     context "empty tag values" do
       let(:expected_value) do
-        "responses,region=eu value=5"
+        "responses,region=eu value=5i"
       end
 
       it "should be omitted" do
