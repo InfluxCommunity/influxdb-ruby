@@ -40,15 +40,19 @@ module InfluxDB
       return if values.nil?
       values.map do |k, v|
         key = escape(k.to_s, :field_key)
-        val = if v.is_a?(String)
-                '"' + escape(v, :field_value) + '"'
-              elsif v.is_a?(Integer)
-                "#{v}i"
-              else
-                v.to_s
-              end
+        val = escape_value(v)
         "#{key}=#{val}"
       end.join(",")
+    end
+
+    def escape_value(value)
+      if value.is_a?(String)
+        '"' + escape(value, :field_value) + '"'
+      elsif value.is_a?(Integer)
+        "#{value}i"
+      else
+        value.to_s
+      end
     end
 
     def escape_tags(tags)
