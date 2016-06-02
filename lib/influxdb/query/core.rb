@@ -111,7 +111,7 @@ module InfluxDB
       end
 
       def full_url(path, params = {})
-        if config.auth_method == 'params'
+        if config.auth_method == "params".freeze
           params[:u] = config.username
           params[:p] = config.password
         end

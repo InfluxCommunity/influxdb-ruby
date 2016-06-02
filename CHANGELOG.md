@@ -2,6 +2,10 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## v0.3.2, released 2016-06-02
+
+- Added config option to authenticate without credentials (#146, @pmenglund).
+
 ## v0.3.1, released 2016-05-26
 
 - Fixed #130 (again). Integer values are now really written as Integers to InfluxDB.
