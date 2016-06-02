@@ -22,14 +22,30 @@ describe InfluxDB::Client do
     let(:pass) { 'passpass' }
     let(:query) { "CREATE USER #{user} WITH PASSWORD '#{pass}' WITH ALL PRIVILEGES" }
 
-    before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: query }
-      )
+    context 'with existing admin user' do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { u: "username", p: "password", q: query }
+        )
+      end
+
+      it "should GET to create a new cluster admin" do
+        expect(subject.create_cluster_admin(user, pass)).to be_a(Net::HTTPOK)
+      end
     end
 
-    it "should GET to create a new cluster admin" do
-      expect(subject.create_cluster_admin(user, pass)).to be_a(Net::HTTPOK)
+    context 'with no admin user' do
+      let(:args) { { auth_method: 'none' } }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { q: query }
+        )
+      end
+
+      it "should GET to create a new cluster admin" do
+        expect(subject.create_cluster_admin(user, pass)).to be_a(Net::HTTPOK)
+      end
     end
   end
 

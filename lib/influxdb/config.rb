@@ -3,7 +3,7 @@ require 'thread'
 module InfluxDB
   # InfluxDB client configuration
   class Config
-    AUTH_METHODS = ["params".freeze, "basic_auth".freeze].freeze
+    AUTH_METHODS = ["params".freeze, "basic_auth".freeze, "none".freeze].freeze
 
     attr_accessor :port,
                   :username,
