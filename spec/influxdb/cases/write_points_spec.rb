@@ -119,13 +119,13 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 'm', db: database },
+          query: { u: "username", p: "password", precision: 'ms', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
           body: body
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
-        expect(subject.write_points(data, 'm')).to be_a(Net::HTTPNoContent)
+        expect(subject.write_points(data, 'ms')).to be_a(Net::HTTPNoContent)
       end
     end
 
