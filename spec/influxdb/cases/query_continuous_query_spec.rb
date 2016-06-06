@@ -45,13 +45,24 @@ describe InfluxDB::Client do
   end
 
   describe "#create_continuous_query" do
-    let(:name) { "event_counts_per_10m_by_type" }
-    let(:database) { "testdb" }
-    let(:query) do
-      "SELECT COUNT(type) INTO typeCount_10m_byType FROM events GROUP BY time(10m), type"
-    end
+    let(:name)            { "event_counts_per_10m_by_type" }
+    let(:database)        { "testdb" }
+    let(:query)           { "SELECT COUNT(type) INTO typeCount_10m_byType FROM events GROUP BY time(10m), type" }
+    let(:every_interval)  { nil }
+    let(:for_interval)    { nil }
+
     let(:clause) do
-      ["CREATE CONTINUOUS QUERY #{name} ON #{database} BEGIN", query, "END"].join("\n")
+      c = "CREATE CONTINUOUS QUERY #{name} ON #{database}"
+
+      if every_interval && for_interval
+        c << " RESAMPLE EVERY #{every_interval} FOR #{for_interval}"
+      elsif every_interval
+        c << " RESAMPLE EVERY #{every_interval}"
+      elsif for_interval
+        c << " RESAMPLE FOR #{for_interval}"
+      end
+
+      c << " BEGIN\n#{query}\nEND"
     end
 
     before do
@@ -60,8 +71,37 @@ describe InfluxDB::Client do
       )
     end
 
-    it "should GET to create a new continuous query" do
-      expect(subject.create_continuous_query(name, database, query)).to be_a(Net::HTTPOK)
+    context "without resampling" do
+      it "should GET to create a new continuous query" do
+        expect(subject.create_continuous_query(name, database, query)).to be_a(Net::HTTPOK)
+      end
+    end
+
+    context "with resampling" do
+      context "EVERY <interval>" do
+        let(:every_interval) { "10m" }
+
+        it "should GET to create a new continuous query" do
+          expect(subject.create_continuous_query(name, database, query, resample_every: every_interval)).to be_a(Net::HTTPOK)
+        end
+      end
+
+      context "FOR <interval>" do
+        let(:for_interval) { "7d" }
+
+        it "should GET to create a new continuous query" do
+          expect(subject.create_continuous_query(name, database, query, resample_for: for_interval)).to be_a(Net::HTTPOK)
+        end
+      end
+
+      context "EVERY <interval> FOR <interval>" do
+        let(:every_interval)  { "5m" }
+        let(:for_interval)    { "3w" }
+
+        it "should GET to create a new continuous query" do
+          expect(subject.create_continuous_query(name, database, query, resample_for: for_interval, resample_every: every_interval)).to be_a(Net::HTTPOK)
+        end
+      end
     end
   end
 

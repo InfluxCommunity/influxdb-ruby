@@ -2,6 +2,10 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## Unreleased changes
+
+- Added resample options to `Client#create_continuous_query` (#149).
+
 ## v0.3.2, released 2016-06-02
 
 - Added config option to authenticate without credentials (#146, @pmenglund).

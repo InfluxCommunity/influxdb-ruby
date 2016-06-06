@@ -157,6 +157,12 @@ query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
 influxdb.create_continuous_query(name, database, query)
 ```
 
+Additionally, you can specify the resample interval and the time range over which the CQ runs:
+
+``` ruby
+influxdb.create_continuous_query(name, database, query, resample_every: "10m", resample_for: "65m")
+```
+
 Delete a continuous query from a database:
 
 ``` ruby
