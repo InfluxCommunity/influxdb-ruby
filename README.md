@@ -1,23 +1,30 @@
-influxdb-ruby
-=============
+# influxdb-ruby
 
 [![Build Status](https://travis-ci.org/influxdata/influxdb-ruby.svg?branch=master)](https://travis-ci.org/influxdata/influxdb-ruby)
 
-The official ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/). Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://github.com/dmke).
+The official Ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/).
+Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://github.com/dmke).
 
-> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and tagged on this repository. If you're reading this message, then you should only expect support for InfluxDB v0.9.1 and higher.
+## Platform support
 
-Install
--------
+> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that
+> will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and
+> tagged on this repository.
+>
+> If you're reading this message, then you should only expect support for InfluxDB v0.9.1
+> and higher.
+
+## Install
 
 ```
 $ [sudo] gem install influxdb
 ```
 
-Or add it to your `Gemfile`, etc.
+Or add it to your `Gemfile`, and run `bundle install`.
 
-Usage
------
+## Usage
+
+### Creating a client
 
 Connecting to a single host:
 
@@ -36,6 +43,8 @@ require 'influxdb'
 
 influxdb = InfluxDB::Client.new hosts: ["influxdb1.domain.com", "influxdb2.domain.com"]
 ```
+
+### Administrative tasks
 
 Create a database:
 
@@ -139,6 +148,8 @@ username = 'foobar'
 influxdb.revoke_cluster_admin_privileges(username)
 ```
 
+### Continuous Queries
+
 List continuous queries of a database:
 
 ``` ruby
@@ -171,6 +182,8 @@ name = 'clicks_count'
 
 influxdb.delete_continuous_query(name, database)
 ```
+
+### Retention Policies
 
 List retention policies of a database:
 
@@ -210,6 +223,8 @@ replication = 2
 
 influxdb.alter_retention_policy(name, database, duration, replication)
 ```
+
+### Writing data
 
 Write some data:
 
@@ -403,6 +418,8 @@ data = {
 influxdb.write_point(name, data)
 ```
 
+### Reading data
+
 Querying:
 
 ``` ruby
@@ -466,16 +483,15 @@ end
 # time_series_1 [ {"region"=>"us"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}
 ```
 
-By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied, if you want to retry a finite number of times
-(or disable retries altogether), you should pass the `:retry`
-value. `:retry` can be either `true`, `false` or an `Integer` to retry
-infinite times, disable retries or retry a finite number of times,
-respectively. `0` is equivalent to `false`
+By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied,
+if you want to retry a finite number of times (or disable retries altogether), you should pass the `:retry`
+value.
+
+`:retry` can be either `true`, `false` or an `Integer` to retry infinite times, disable retries or retry
+a finite number of times, respectively. `0` is equivalent to `false`
 
 ```
-> require 'influxdb'
-=> true
-
+$ irb -r influxdb
 > influxdb = InfluxDB::Client.new 'database', :retry => 4
 => #<InfluxDB::Client:0x00000002bb5ce0 @database="database", @hosts=["localhost"],
 @port=8086, @username="root", @password="root", @use_ssl=false,
@@ -496,17 +512,28 @@ E, [2014-06-02T11:04:13.510853 #22825] ERROR -- : [InfluxDB] Failed to
 contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
 retrying in 0.08s.
 SocketError: Tried 4 times to reconnect but failed.
-
 ```
-If you pass `:retry => -1` it will keep trying forever
-until it gets the connection.
 
-Testing
--------
+If you pass `:retry => -1` it will keep trying forever until it gets the connection.
+
+## Testing
 
 ```
 git clone git@github.com:influxdata/influxdb-ruby.git
 cd influxdb-ruby
 bundle
-bundle exec rake
+bundle exec rake spec
+bundle exec rake rubocop
 ```
+
+## Contributing
+
+- Fork this repository on GitHub.
+- Make your changes.
+  - Add tests.
+  - Add an entry in the `CHANGELOG.md` in the "unreleased" section on top.
+- Run the tests: `bundle exec rake`.
+- Run Rubocop: `bundle exec rubocop`.
+- Send a pull request.
+  - Please rebase against the master branch.
+- If your changes look good, we'll merge them.
