@@ -4,6 +4,10 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
+- None.
+
+## v0.3.3, released 2016-06-06
+
 - Added resample options to `Client#create_continuous_query` (#149).
 
 ## v0.3.2, released 2016-06-02
