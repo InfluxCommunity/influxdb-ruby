@@ -14,6 +14,10 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 > If you're reading this message, then you should only expect support for InfluxDB v0.9.1
 > and higher.
 
+## Ruby support
+
+This gem should work with Ruby 1.9+, but starting with v0.4, we'll likely drop Ruby 1.9 support.
+
 ## Install
 
 ```
