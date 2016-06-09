@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.5, released 2016-06-09
+
+- Reintroduced full dependency on "cause" (for Ruby 1.9 compat).
+- Extended `Client#create_database` and `#delete_database` to fallback on `config.database` (#153, #154, @anthonator).
+
 ## v0.3.4, released 2016-06-07
 
 - Added resample options to `Client#create_continuous_query` (#149).
