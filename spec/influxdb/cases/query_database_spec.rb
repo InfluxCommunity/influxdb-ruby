@@ -18,26 +18,54 @@ describe InfluxDB::Client do
   let(:args) { {} }
 
   describe "#create_database" do
-    before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: "CREATE DATABASE foo" }
-      )
+    describe "from param" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { u: "username", p: "password", q: "CREATE DATABASE foo" }
+        )
+      end
+
+      it "should GET to create a new database" do
+        expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
+      end
     end
 
-    it "should GET to create a new database" do
-      expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
+    describe "from config" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { u: "username", p: "password", q: "CREATE DATABASE database" }
+        )
+      end
+
+      it "should GET to create a new database using database name from config" do
+        expect(subject.create_database).to be_a(Net::HTTPOK)
+      end
     end
   end
 
   describe "#delete_database" do
-    before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: "DROP DATABASE foo" }
-      )
+    describe "from param" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { u: "username", p: "password", q: "DROP DATABASE foo" }
+        )
+      end
+
+      it "should GET to remove a database" do
+        expect(subject.delete_database("foo")).to be_a(Net::HTTPOK)
+      end
     end
 
-    it "should GET to remove a database" do
-      expect(subject.delete_database("foo")).to be_a(Net::HTTPOK)
+    describe "from config" do
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query").with(
+          query: { u: "username", p: "password", q: "DROP DATABASE database" }
+        )
+      end
+
+      it "should GET to remove a database using database name from config" do
+        expect(subject.delete_database).to be_a(Net::HTTPOK)
+      end
     end
   end
 

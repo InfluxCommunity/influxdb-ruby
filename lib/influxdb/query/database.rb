@@ -1,12 +1,12 @@
 module InfluxDB
   module Query
     module Database # :nodoc:
-      def create_database(name)
-        execute("CREATE DATABASE #{name}")
+      def create_database(name = nil)
+        execute("CREATE DATABASE #{name || config.database}")
       end
 
-      def delete_database(name)
-        execute("DROP DATABASE #{name}")
+      def delete_database(name = nil)
+        execute("DROP DATABASE #{name || config.database}")
       end
 
       def list_databases
