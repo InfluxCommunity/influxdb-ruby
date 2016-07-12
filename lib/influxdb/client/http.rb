@@ -85,7 +85,14 @@ module InfluxDB
     end
 
     def handle_successful_response(response, options)
-      parsed_response = JSON.parse(response.body) if response.body
+      # Support line-delimited streaming JSON [https://github.com/influxdata/influxdb/issues/7000].
+      if response.body
+        parsed_response = {}
+        response.body.each_line do |line|
+          parsed_response.merge!(JSON.parse(line)) { |_key, old, new| old + new }
+        end
+      end
+
       errors = errors_from_response(parsed_response)
 
       raise InfluxDB::QueryError, errors if errors

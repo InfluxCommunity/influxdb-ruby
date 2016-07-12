@@ -67,9 +67,16 @@ module InfluxDB
       def query_params(query, opts)
         precision   = opts.fetch(:precision, config.time_precision)
         epoch       = opts.fetch(:epoch, config.epoch)
+        chunk_size  = opts.fetch(:chunk_size, config.chunk_size)
 
         params = { q: query, db: config.database, precision: precision }
         params[:epoch] = epoch if epoch
+
+        if chunk_size
+          params[:chunked] = 'true'
+          params[:chunk_size] = chunk_size
+        end
+
         params
       end
 
