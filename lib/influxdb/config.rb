@@ -20,6 +20,7 @@ module InfluxDB
                   :read_timeout,
                   :retry,
                   :prefix,
+                  :chunk_size,
                   :denormalize,
                   :epoch
 
@@ -30,6 +31,7 @@ module InfluxDB
       extract_ssl_options!(opts)
       extract_database_options!(opts)
       extract_writer_options!(opts)
+      extract_query_options!(opts)
 
       configure_retry! opts.fetch(:retry, nil)
       configure_hosts! opts[:hosts] || opts[:host] || "localhost".freeze
@@ -109,6 +111,10 @@ module InfluxDB
     def extract_writer_options!(opts)
       @async = opts.fetch :async, false
       @udp   = opts.fetch :udp, false
+    end
+
+    def extract_query_options!(opts)
+      @chunk_size = opts.fetch :chunk_size, nil
     end
   end
 end
