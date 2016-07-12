@@ -134,12 +134,28 @@ describe InfluxDB::Client do
            "values" => [{ "time" => 1_438_580_576, "temp" => 34, "value" => 0.343443 }] },
          { "name" => "cpu", "tags" => { "region" => "us" },
            "values" => [{ "time" => 1_438_612_976, "temp" => 92, "value" => 0.3445 },
-                        { "time" => 1_438_612_989, "temp" => 68, "value" => 0.8787 }]
-        }]
+                        { "time" => 1_438_612_989, "temp" => 68, "value" => 0.8787 }] }]
       end
       let(:query) { 'SELECT * FROM cpu' }
 
       it "should return results with integer timestamp" do
+        expect(subject.query(query)).to eq(expected_result)
+      end
+    end
+
+    context "with chunk_size set to 100" do
+      let(:args) { { chunk_size: 100 } }
+      let(:extra_params) { { chunked: "true", chunk_size: "100" } }
+
+      let(:response) do
+        { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [[1_438_580_576, 34, 0.343443]] }] }] }
+      end
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "pl" }, "values" => [{ "time" => 1_438_580_576, "temp" => 34, "value" => 0.343443 }] }]
+      end
+      let(:query) { 'SELECT * FROM cpu' }
+
+      it "should set 'chunked' and 'chunk_size' parameters" do
         expect(subject.query(query)).to eq(expected_result)
       end
     end
