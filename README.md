@@ -18,6 +18,9 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 
 This gem should work with Ruby 1.9+, but starting with v0.4, we'll likely drop Ruby 1.9 support.
 
+Please note that for Ruby 1.9, you'll need to install the JSON gem in version 1.8.x yourself,
+for example by pinning the version in your `Gemfile` (i.e. `gem "json", "~> 1.8.3"`).
+
 ## Install
 
 ```
