@@ -14,9 +14,11 @@ module InfluxDB
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
         denormalize = opts.fetch(:denormalize, config.denormalize)
+        json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
+
         params = query_params(query, opts)
         url = full_url("/query".freeze, params)
-        series = fetch_series(get(url, parse: true))
+        series = fetch_series(get(url, parse: true, json_streaming: json_streaming))
 
         if block_given?
           series.each do |s|

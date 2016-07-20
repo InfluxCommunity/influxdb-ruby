@@ -28,6 +28,9 @@ describe InfluxDB::Client do
 
   describe "#query" do
     context "with series with different tags (multi-line)" do
+      let(:args) { { chunk_size: 100 } }
+      let(:extra_params) { { chunked: "true", chunk_size: "100" } }
+
       let(:response_line_1) do
         { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [["2015-07-07T15:13:04Z", 34, 0.343443]] }] }] }
       end
@@ -52,6 +55,9 @@ describe InfluxDB::Client do
     end
 
     context "with multiple series with different tags" do
+      let(:args) { { chunk_size: 100 } }
+      let(:extra_params) { { chunked: "true", chunk_size: "100" } }
+
       let(:response_line_1) do
         { "results" => [{ "series" => [{ "name" => "access_times.service_1", "tags" => { "code" => "200", "result" => "failure", "status" => "OK" }, "columns" => %w(time value), "values" => [["2015-07-08T07:15:22Z", 327]] }] }] }
       end
