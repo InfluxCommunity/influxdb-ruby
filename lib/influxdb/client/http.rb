@@ -86,11 +86,8 @@ module InfluxDB
 
     def handle_successful_response(response, options)
       if options.fetch(:json_streaming, false)
-        if response.body
-          parsed_response = {}
-          response.body.each_line do |line|
-            parsed_response.merge!(JSON.parse(line)) { |_key, old, new| old + new }
-          end
+        parsed_response = response.body.each_line.with_object({}) do |line, parsed|
+          parsed.merge!(JSON.parse(line)) { |_key, oldval, newval| oldval + newval }
         end
       elsif response.body
         parsed_response = JSON.parse(response.body)
