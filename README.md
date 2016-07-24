@@ -427,7 +427,7 @@ influxdb.write_point(name, data)
 
 ### Reading data
 
-Querying:
+### Querying
 
 ``` ruby
 username = 'foo'
@@ -471,6 +471,8 @@ influxdb.query 'select * from time_series', epoch: 'ms'
 # [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376000, "count"=>32, "value"=>0.9673}]}]
 ```
 
+#### (De-) Normalization
+
 By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
 
 ``` ruby
@@ -489,6 +491,22 @@ end
 # time_series_1 [ {"region"=>"uk"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]}
 # time_series_1 [ {"region"=>"us"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}
 ```
+
+#### Streaming response
+
+If you expect large quantities of data in a response, you may want to enable JSON streaming by setting a `chunk_size`:
+
+``` ruby
+influxdb = InfluxDB::Client.new database,
+  username:   username,
+  password:   password,
+  chunk_size: 10000
+```
+
+See the [official documentation](http://docs.influxdata.com/influxdb/v0.13/guides/querying_data/#chunking) for more details.
+
+
+#### Retry
 
 By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied,
 if you want to retry a finite number of times (or disable retries altogether), you should pass the `:retry`

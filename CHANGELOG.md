@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.6, released 2016-07-24
+
+- Added feature for JSON streaming response, via `"chunk_size"` parameter
+  (#155, @mhodson-qxbranch)
+
 ## v0.3.5, released 2016-06-09
 
 - Reintroduced full dependency on "cause" (for Ruby 1.9 compat).
