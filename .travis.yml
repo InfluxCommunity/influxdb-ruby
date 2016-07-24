@@ -2,6 +2,7 @@ sudo: required
 dist: trusty
 language: ruby
 before_install:
+  - gem install bundler
   - gem update bundler
 rvm:
   - 1.9.3
@@ -21,12 +22,13 @@ matrix:
     - rvm: 2.3.1
       env: TEST_TASK=rubocop
     - rvm: jruby-9.0.5.0
-      env: JRUBY_OPTS='-J-Xmx256M'
+      env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
     - rvm: jruby-head
-      env: JRUBY_OPTS='-J-Xmx256M'
+      env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
   fail_fast: true
 addons:
   apt:
     packages:
+      - haveged
       - libgmp-dev
 script: bundle exec rake $TEST_TASK
