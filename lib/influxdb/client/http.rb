@@ -4,6 +4,7 @@ require 'net/http'
 require 'net/https'
 
 module InfluxDB
+  # rubocop:disable Metrics/ModuleLength
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/AbcSize
   module HTTP # :nodoc:
@@ -85,7 +86,14 @@ module InfluxDB
     end
 
     def handle_successful_response(response, options)
-      parsed_response = JSON.parse(response.body) if response.body
+      if options.fetch(:json_streaming, false)
+        parsed_response = response.body.each_line.with_object({}) do |line, parsed|
+          parsed.merge!(JSON.parse(line)) { |_key, oldval, newval| oldval + newval }
+        end
+      elsif response.body
+        parsed_response = JSON.parse(response.body)
+      end
+
       errors = errors_from_response(parsed_response)
 
       raise InfluxDB::QueryError, errors if errors

@@ -14,9 +14,11 @@ module InfluxDB
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
         denormalize = opts.fetch(:denormalize, config.denormalize)
+        json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
+
         params = query_params(query, opts)
         url = full_url("/query".freeze, params)
-        series = fetch_series(get(url, parse: true))
+        series = fetch_series(get(url, parse: true, json_streaming: json_streaming))
 
         if block_given?
           series.each do |s|
@@ -67,9 +69,16 @@ module InfluxDB
       def query_params(query, opts)
         precision   = opts.fetch(:precision, config.time_precision)
         epoch       = opts.fetch(:epoch, config.epoch)
+        chunk_size  = opts.fetch(:chunk_size, config.chunk_size)
 
         params = { q: query, db: config.database, precision: precision }
         params[:epoch] = epoch if epoch
+
+        if chunk_size
+          params[:chunked] = 'true'
+          params[:chunk_size] = chunk_size
+        end
+
         params
       end
 
