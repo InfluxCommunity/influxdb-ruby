@@ -4,6 +4,7 @@ language: ruby
 before_install:
   - gem install bundler
   - gem update bundler
+  - smoke/provision.sh
 rvm:
   - 1.9.3
   - 2.0.0
@@ -13,11 +14,16 @@ rvm:
   - ruby-head
 env:
   - TEST_TASK=spec
+
 matrix:
   allow_failures:
     - rvm: jruby-head
     - rvm: ruby-head
     - rvm: jruby-9.0.5.0
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=1.0.0-beta3 pkghash=e06269774dca6e3e13071a7c8b980a92
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   include:
     - rvm: 2.3.1
       env: TEST_TASK=rubocop
@@ -25,6 +31,18 @@ matrix:
       env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
     - rvm: jruby-head
       env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=0.10.3-1 pkghash=96244557d9bb7485ddc9d084ff7ce783
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=0.11.1-1 pkghash=f4cf8363125038dff038ced6b16bcafd
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=0.12.2-1 pkghash=f28bb1c57d52dc1593dca45b86be5913
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=0.13.0 pkghash=4f0aa76fee22cf4c18e2a0779ba4f462
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=1.0.0-beta3 pkghash=e06269774dca6e3e13071a7c8b980a92
+    - rvm: 2.3.1
+      env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   fail_fast: true
 addons:
   apt:
