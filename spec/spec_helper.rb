@@ -1,6 +1,8 @@
 require "influxdb"
 require "webmock/rspec"
+
 begin
+  # rubocop:disable Lint/HandleExceptions
   require "pry-byebug"
 rescue LoadError
 end
