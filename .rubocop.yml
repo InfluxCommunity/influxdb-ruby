@@ -6,6 +6,7 @@ AllCops:
     - 'spec/**/*.rb'
   Exclude:
     - 'bin/**/*'
+    - 'smoke/**/*'
   DisplayCopNames: true
   StyleGuideCopsOnly: false
 
