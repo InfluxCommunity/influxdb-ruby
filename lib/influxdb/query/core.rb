@@ -3,12 +3,12 @@ module InfluxDB
     # rubocop:disable Metrics/AbcSize
     module Core
       def ping
-        get "/ping".freeze
+        url = URI::Generic.build(path: File.join(config.prefix, '/ping')).to_s
+        get url
       end
 
       def version
-        resp = get "/ping".freeze
-        resp.header['x-influxdb-version']
+        ping.header['x-influxdb-version']
       end
 
       # rubocop:disable Metrics/MethodLength
