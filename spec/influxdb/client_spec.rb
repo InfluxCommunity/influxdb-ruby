@@ -62,6 +62,17 @@ describe InfluxDB::Client do
 
       expect(subject.ping).to be_a(Net::HTTPNoContent)
     end
+
+    context "with prefix" do
+      let(:args) { { prefix: '/dev' } }
+
+      it "returns OK with prefix" do
+        stub_request(:get, "http://influxdb.test:9999/dev/ping")
+          .to_return(status: 204)
+
+        expect(subject.ping).to be_a(Net::HTTPNoContent)
+      end
+    end
   end
 
   describe "GET #version" do
@@ -70,6 +81,17 @@ describe InfluxDB::Client do
         .to_return(status: 204, headers: { 'x-influxdb-version' => '1.1.1' })
 
       expect(subject.version).to eq('1.1.1')
+    end
+
+    context "with prefix" do
+      let(:args) { { prefix: '/dev' } }
+
+      it "returns 1.1.1 with prefix" do
+        stub_request(:get, "http://influxdb.test:9999/dev/ping")
+          .to_return(status: 204, headers: { 'x-influxdb-version' => '1.1.1' })
+
+        expect(subject.version).to eq('1.1.1')
+      end
     end
   end
 
