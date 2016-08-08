@@ -88,7 +88,7 @@ describe InfluxDB::Client do
 
       it "returns 1.1.1 with prefix" do
         stub_request(:get, "http://influxdb.test:9999/dev/ping")
-            .to_return(status: 204, headers: { 'x-influxdb-version' => '1.1.1' })
+          .to_return(status: 204, headers: { 'x-influxdb-version' => '1.1.1' })
 
         expect(subject.version).to eq('1.1.1')
       end
