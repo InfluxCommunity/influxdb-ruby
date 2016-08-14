@@ -547,8 +547,7 @@ If you pass `:retry => -1` it will keep trying forever until it gets the connect
 git clone git@github.com:influxdata/influxdb-ruby.git
 cd influxdb-ruby
 bundle
-bundle exec rake spec
-bundle exec rake rubocop
+bundle exec rake
 ```
 
 ## Contributing
@@ -558,7 +557,6 @@ bundle exec rake rubocop
   - Add tests.
   - Add an entry in the `CHANGELOG.md` in the "unreleased" section on top.
 - Run the tests: `bundle exec rake`.
-- Run Rubocop: `bundle exec rubocop`.
 - Send a pull request.
   - Please rebase against the master branch.
 - If your changes look good, we'll merge them.

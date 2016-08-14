@@ -13,7 +13,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = FileList[file_pattern]
 end
 
-task default: :spec
+task default: [:spec, :rubocop]
 
 task :console do
   lib = File.expand_path('../lib', __FILE__)
