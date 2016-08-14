@@ -427,7 +427,7 @@ influxdb.write_point(name, data)
 
 ### Reading data
 
-### Querying
+#### Querying
 
 ``` ruby
 username = 'foo'
