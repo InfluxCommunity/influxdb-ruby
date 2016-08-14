@@ -6,6 +6,10 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.7, released 2016-08-14
+
+- Fixed `prefix` handling for `#ping` and `#version` (#157, @dimiii)
+
 ## v0.3.6, released 2016-07-24
 
 - Added feature for JSON streaming response, via `"chunk_size"` parameter
