@@ -22,20 +22,16 @@ module InfluxDB
       end
 
       def query_builder(query, params)
-        if params.is_a?(Array)
-          # convert array to hash
-          params = params.each_with_object({}).with_index do |(param, hash), i|
-            hash[(i + 1).to_s.to_sym] = quote(param)
-          end
-        elsif params.is_a?(Hash)
-          params = params.each_with_object({}) do |(k, v), hash|
-            hash[k.to_sym] = quote(v)
-          end
-        elsif params.nil?
-          params = {}
-        else
-          raise ArgumentError, "Unsupported #{params.class} params"
-        end
+        params =  case params
+                  when Array then params.each_with_object({}).with_index do |(param, hash), i|
+                                    hash[(i + 1).to_s.to_sym] = quote(param)
+                                  end
+                  when Hash then  params.each_with_object({}) do |(k, v), hash|
+                                    hash[k.to_sym] = quote(v)
+                                  end
+                  when NilClass then {}
+                  else raise ArgumentError, "Unsupported #{params.class} params"
+                  end
         query % params
       rescue KeyError => e
         raise ArgumentError, e.message
