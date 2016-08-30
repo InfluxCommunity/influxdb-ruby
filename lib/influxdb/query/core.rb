@@ -21,23 +21,23 @@ module InfluxDB
         end
       end
 
-      def query_builder(query, params)
-        if params.is_a?(Array)
+      def query_builder(query_with_params)
+        if query_with_params.values[0].is_a?(Array)
           # convert array to hash
-          params = params.each_with_object({}).with_index do |(param, hash), i|
-            hash[(i + 11).to_s] = param
+          params = query_with_params.values[0].each_with_object({}).with_index do |(param, hash), i|
+            hash[(i + 1).to_s] = param
           end
         else
-          params = params.each_with_object({}) do |(k, v), hash|
+          params = query_with_params.values[0].each_with_object({}) do |(k, v), hash|
             hash[k.to_s] = v # to_s because we may be passed symbols
           end
         end
-        query.gsub(/:([a-z0-9]+):/i) { |p| quote(params[p[1..-2]]) }
+        query_with_params.keys[0].gsub(/:([a-z0-9]+):/i) { |p| quote(params[p[1..-2]]) }
       end
 
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
-        query = query_builder(query.keys[0], query.values[0]) if query.is_a?(Hash)
+        query = query_builder(query) if query.is_a?(Hash)
 
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
