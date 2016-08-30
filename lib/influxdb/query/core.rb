@@ -25,14 +25,14 @@ module InfluxDB
         if params.is_a?(Array)
           # convert array to hash
           params = params.each_with_object({}).with_index do |(param, hash), i|
-            hash[(i+1).to_s.to_sym] = quote(param) # symbolize because the gsub below expects symbols
+            hash[(i+1).to_s] = quote(param)
           end
         else
           params = params.each_with_object({}) do |(k, v), hash|
-            hash[k.to_sym] = quote(v)
+            hash[k.to_s] = quote(v) # to_s because we may be passed symbols
           end
         end
-        query.gsub(/:([a-z0-9]+):/i) { |p| params[p[1..-2].to_sym] }
+        query.gsub(/:([a-z0-9]+):/i) { |p| params[p[1..-2]] }
       end
 
       # rubocop:disable Metrics/MethodLength
