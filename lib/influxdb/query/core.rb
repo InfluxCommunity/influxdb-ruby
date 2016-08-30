@@ -22,12 +22,13 @@ module InfluxDB
       end
 
       def query_builder(query, params)
-        # convert array to hash
         if params.is_a?(Array)
-          params = Hash[* params.collect.with_index { |p, i| [(i + 1).to_s.to_sym, p] }.flatten]
+          # convert array to hash
+          params = Hash[* params.collect.with_index { |v, i| [(i + 1).to_s.to_sym, quote(v)] }.flatten]
+        else
+          # convert keys to syms and quote values
+          params = Hash[* params.collect { |k, v| [k.to_sym, quote(v)] }.flatten]
         end
-        # convert keys to syms and quote values
-        params = Hash[* params.collect { |k, v| [k.to_sym, quote(v)] }.flatten]
         query.gsub(/:([a-z0-9]+):i/) { |p| params[p[1..-2].to_sym] }
       end
 
