@@ -15,7 +15,6 @@ describe InfluxDB::Client do
 
   describe "#query with parameters" do
     let(:query) { { "SELECT value FROM requests_per_minute WHERE time > :start:" => { start: 1_437_019_900 } } }
-    let(:query) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
     let(:response) do
       { "results" => [{ "series" => [{ "name" => "requests_per_minute",
                                        "columns" => %w( time value ) }] }] }
