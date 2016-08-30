@@ -56,14 +56,14 @@ describe InfluxDB::Client do
     let(:query_with_positional_params) { "SELECT value FROM requests_per_minute WHERE time > %{1}" }
     let(:positional_params) { [1_437_019_900] }
     it "should build a query with parameters" do
-      expect(subject.query_builder(query_with_named_params, params: named_params)).to eq(query_compiled)
-      expect(subject.query_builder(query_with_positional_params, params: positional_params)).to eq(query_compiled)
+      expect(subject.query_builder(query_with_named_params, named_params)).to eq(query_compiled)
+      expect(subject.query_builder(query_with_positional_params, positional_params)).to eq(query_compiled)
     end
   end
 
   describe "#query_with_params" do
     let(:query)           { "select * from foo where bar > %{param}" }
-    let(:compiled_query)  { subject.query_builder(query, params: query_params) }
+    let(:compiled_query)  { subject.query_builder(query, query_params) }
 
     context "with empty params hash" do
       let(:query_params) { {} }

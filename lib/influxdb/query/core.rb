@@ -17,24 +17,24 @@ module InfluxDB
         elsif param.is_a?(Integer) || param.is_a?(Float) || param == true || param == false
           param.to_s
         else
-          throw "Unexpected parameter type #{p.class} (#{p.inspect})"
+          raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
         end
       end
 
-      def query_builder(query, opts = {})
-        if opts[:params].is_a?(Array)
+      def query_builder(query, params)
+        if params.is_a?(Array)
           # convert array to hash
-          params = opts[:params].each_with_object({}).with_index do |(param, hash), i|
+          params = params.each_with_object({}).with_index do |(param, hash), i|
             hash[(i + 1).to_s.to_sym] = quote(param)
           end
-        elsif opts[:params].is_a?(Hash)
-          params = opts[:params].each_with_object({}) do |(k, v), hash|
+        elsif params.is_a?(Hash)
+          params = params.each_with_object({}) do |(k, v), hash|
             hash[k.to_sym] = quote(v)
           end
-        elsif opts[:params].nil?
+        elsif params.nil?
           params = {}
         else
-          raise ArgumentError, "Unsupported #{opts[:params].class} params"
+          raise ArgumentError, "Unsupported #{params.class} params"
         end
         begin
           query % params
@@ -45,7 +45,7 @@ module InfluxDB
 
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
-        query = query_builder(query, opts)
+        query = query_builder(query, opts[:params])
 
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
