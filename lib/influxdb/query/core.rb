@@ -12,7 +12,29 @@ module InfluxDB
       end
 
       # rubocop:disable Metrics/MethodLength
-      def query(query, opts = {})
+      def query(query, parameters = nil, opts = nil)
+        if parameters.is_a?(Hash)
+          opts = parameters
+          parameters = nil
+        end
+
+        parameters ||= []
+        opts ||= {}
+
+        if parameters.length > 0
+          parameters = parameters.collect{|p|
+            if p.is_a?(String)
+              "'" + p.gsub(/['"\\\x0]/,'\\\\\0') + "'"
+            elsif p.is_a?(Integer) || p.is_a?(Float) || p == true || p == false
+              p.to_s
+            else
+              throw "Unexpected parameter type #{p.class} (#{p.inspect})"
+            end
+          }
+          query = query.gsub(/:[0-9]+:/){|p| parameters[p[1..-1].to_i - 1]}
+          puts query
+        end
+
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
 
