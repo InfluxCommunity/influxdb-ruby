@@ -1,7 +1,13 @@
+require_relative 'builder'
+
 module InfluxDB
   module Query # :nodoc: all
     # rubocop:disable Metrics/AbcSize
     module Core
+      def builder
+        @builder ||= Builder.new
+      end
+
       def ping
         url = URI::Generic.build(path: File.join(config.prefix, '/ping')).to_s
         get url
@@ -13,6 +19,7 @@ module InfluxDB
 
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
+        query = builder.build(query, opts[:params])
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
 

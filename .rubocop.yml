@@ -22,3 +22,7 @@ Metrics/LineLength:
   Max: 100
   Exclude:
     - 'spec/**/*.rb'
+
+Metrics/ModuleLength:
+  CountComments: false  # count full line comments?
+  Max: 120
