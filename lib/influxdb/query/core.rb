@@ -32,7 +32,7 @@ module InfluxDB
             hash[k.to_s] = v # to_s because we may be passed symbols
           end
         end
-        query_with_params.keys[0].gsub(/:([a-z0-9]+):/i) { |p| quote(params[p[1..-2]]) }
+        query_with_params.keys[0].gsub(/:[_\w]+:/) { |p| quote(params[p[1..-2]]) }
       end
 
       # rubocop:disable Metrics/MethodLength
