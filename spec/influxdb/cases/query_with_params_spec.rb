@@ -22,7 +22,7 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query")
-        .with(query: { db: "database", precision: "s", u: "username", p: "password", q: query })
+        .with(query: { db: "database", precision: "s", u: "username", p: "password", q: "SELECT value FROM requests_per_minute WHERE time > 1437019900" })
         .to_return(body: JSON.generate(response), status: 200)
     end
 
