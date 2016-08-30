@@ -14,7 +14,10 @@ describe InfluxDB::Client do
   let(:args) { {} }
 
   describe "#query with parameters" do
-    let(:query) { { "SELECT value FROM requests_per_minute WHERE time > :start:" => { start: 1_437_019_900 } } }
+    let(:query) { "SELECT value FROM requests_per_minute WHERE time > :start:" }
+    let(:query_params) { { start: 1_437_019_900 } }
+    let(:query_compiled) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
+
     let(:response) do
       { "results" => [{ "series" => [{ "name" => "requests_per_minute",
                                        "columns" => %w( time value ) }] }] }
@@ -22,7 +25,7 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query")
-        .with(query: { db: "database", precision: "s", u: "username", p: "password", q: "SELECT value FROM requests_per_minute WHERE time > 1437019900" })
+        .with(query: { db: "database", precision: "s", u: "username", p: "password", q: query_compiled })
         .to_return(body: JSON.generate(response), status: 200)
     end
 
@@ -30,7 +33,7 @@ describe InfluxDB::Client do
       # Some requests (such as trying to retrieve values from the future)
       # return a result with no "values" key set.
       expected_result = [{ "name" => "requests_per_minute", "tags" => nil, "values" => [] }]
-      expect(subject.query(query)).to eq(expected_result)
+      expect(subject.query(query => query_params)).to eq(expected_result)
     end
   end
 end
