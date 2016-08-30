@@ -21,28 +21,31 @@ module InfluxDB
         end
       end
 
-      def query_builder(query_with_params)
-        unless query_with_params.is_a?(Hash)
-          raise ArgumentError, "Query parameters must be Array or Hash, found #{query_with_params.values[0].class}"
-        end
-        if query_with_params.values[0].is_a?(Array)
+      def query_builder(query, opts = {})
+        if opts[:params].is_a?(Array)
           # convert array to hash
-          params = query_with_params.values[0].each_with_object({}).with_index do |(param, hash), i|
-            hash[(i + 1).to_s] = param
+          params = opts[:params].each_with_object({}).with_index do |(param, hash), i|
+            hash[(i + 1).to_s.to_sym] = quote(param)
           end
-        elsif query_with_params.values[0].is_a?(Hash)
-          params = query_with_params.values[0].each_with_object({}) do |(k, v), hash|
-            hash[k.to_s] = v # to_s because we may be passed symbols
+        elsif opts[:params].is_a?(Hash)
+          params = opts[:params].each_with_object({}) do |(k, v), hash|
+            hash[k.to_sym] = quote(v)
           end
+        elsif opts[:params].nil?
+          params = {}
         else
-          raise ArgumentError, "Query parameters must be Array or Hash, found #{query_with_params.values[0].class}"
+          raise ArgumentError, "Unsupported #{opts[:params].class} params"
         end
-        query_with_params.keys[0].gsub(/:[_\w]+:/) { |p| quote(params[p[1..-2]]) }
+        begin
+          query % params
+        rescue KeyError => e
+          raise ArgumentError, e.to_s
+        end
       end
 
       # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
-        query = query_builder(query) if query.is_a?(Hash)
+        query = query_builder(query, opts)
 
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?

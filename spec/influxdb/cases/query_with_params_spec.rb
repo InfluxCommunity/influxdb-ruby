@@ -14,7 +14,7 @@ describe InfluxDB::Client do
   let(:args) { {} }
 
   describe "#query with parameters" do
-    let(:query) { "SELECT value FROM requests_per_minute WHERE time > :start:" }
+    let(:query) { "SELECT value FROM requests_per_minute WHERE time > %{start}" }
     let(:query_params) { { start: 1_437_019_900 } }
     let(:query_compiled) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
 
@@ -33,7 +33,7 @@ describe InfluxDB::Client do
       # Some requests (such as trying to retrieve values from the future)
       # return a result with no "values" key set.
       expected_result = [{ "name" => "requests_per_minute", "tags" => nil, "values" => [] }]
-      expect(subject.query(query => query_params)).to eq(expected_result)
+      expect(subject.query(query, params: query_params)).to eq(expected_result)
     end
   end
 
@@ -51,19 +51,19 @@ describe InfluxDB::Client do
 
   describe "#query_builder" do
     let(:query_compiled) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
-    let(:query_with_named_params) { "SELECT value FROM requests_per_minute WHERE time > :start:" }
+    let(:query_with_named_params) { "SELECT value FROM requests_per_minute WHERE time > %{start}" }
     let(:named_params) { { start: 1_437_019_900 } }
-    let(:query_with_positional_params) { "SELECT value FROM requests_per_minute WHERE time > :1:" }
+    let(:query_with_positional_params) { "SELECT value FROM requests_per_minute WHERE time > %{1}" }
     let(:positional_params) { [1_437_019_900] }
     it "should build a query with parameters" do
-      expect(subject.query_builder(query_with_named_params => named_params)).to eq(query_compiled)
-      expect(subject.query_builder(query_with_positional_params => positional_params)).to eq(query_compiled)
+      expect(subject.query_builder(query_with_named_params, params: named_params)).to eq(query_compiled)
+      expect(subject.query_builder(query_with_positional_params, params: positional_params)).to eq(query_compiled)
     end
   end
 
   describe "#query_with_params" do
-    let(:query)           { "select * from foo where bar > :param:" }
-    let(:compiled_query)  { subject.query_builder(query => query_params) }
+    let(:query)           { "select * from foo where bar > %{param}" }
+    let(:compiled_query)  { subject.query_builder(query, params: query_params) }
 
     context "with empty params hash" do
       let(:query_params) { {} }
