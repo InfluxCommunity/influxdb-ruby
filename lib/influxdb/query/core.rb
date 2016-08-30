@@ -21,17 +21,17 @@ module InfluxDB
         parameters ||= []
         opts ||= {}
 
-        if parameters.length > 0
-          parameters = parameters.collect{|p|
+        unless parameters.empty?
+          parameters = parameters.collect do |p|
             if p.is_a?(String)
-              "'" + p.gsub(/['"\\\x0]/,'\\\\\0') + "'"
+              "'" + p.gsub(/['"\\\x0]/, '\\\\\0') + "'"
             elsif p.is_a?(Integer) || p.is_a?(Float) || p == true || p == false
               p.to_s
             else
               throw "Unexpected parameter type #{p.class} (#{p.inspect})"
             end
-          }
-          query = query.gsub(/:[0-9]+:/){|p| parameters[p[1..-1].to_i - 1]}
+          end
+          query = query.gsub(/:[0-9]+:/) { |p| parameters[p[1..-1].to_i - 1] }
           puts query
         end
 
