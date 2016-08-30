@@ -4,7 +4,6 @@ require 'net/http'
 require 'net/https'
 
 module InfluxDB
-  # rubocop:disable Metrics/ModuleLength
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/AbcSize
   module HTTP # :nodoc:

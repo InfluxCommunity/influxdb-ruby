@@ -25,7 +25,7 @@ module InfluxDB
         if params.is_a?(Array)
           # convert array to hash
           params = params.each_with_object({}).with_index do |(param, hash), i|
-            hash[(i+1).to_s] = quote(param)
+            hash[(i + 11).to_s] = quote(param)
           end
         else
           params = params.each_with_object({}) do |(k, v), hash|
