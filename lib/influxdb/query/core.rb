@@ -22,15 +22,20 @@ module InfluxDB
       end
 
       def query_builder(query_with_params)
+        unless query_with_params.is_a?(Hash)
+          raise ArgumentError, "Query parameters must be Array or Hash, found #{query_with_params.values[0].class}"
+        end
         if query_with_params.values[0].is_a?(Array)
           # convert array to hash
           params = query_with_params.values[0].each_with_object({}).with_index do |(param, hash), i|
             hash[(i + 1).to_s] = param
           end
-        else
+        elsif query_with_params.values[0].is_a?(Hash)
           params = query_with_params.values[0].each_with_object({}) do |(k, v), hash|
             hash[k.to_s] = v # to_s because we may be passed symbols
           end
+        else
+          raise ArgumentError, "Query parameters must be Array or Hash, found #{query_with_params.values[0].class}"
         end
         query_with_params.keys[0].gsub(/:[_\w]+:/) { |p| quote(params[p[1..-2]]) }
       end

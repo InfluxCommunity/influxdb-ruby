@@ -60,4 +60,34 @@ describe InfluxDB::Client do
       expect(subject.query_builder(query_with_positional_params => positional_params)).to eq(query_compiled)
     end
   end
+
+  describe "#query_with_params" do
+    let(:query)           { "select * from foo where bar > :param:" }
+    let(:compiled_query)  { subject.query_builder(query => query_params) }
+
+    context "with empty params hash" do
+      let(:query_params) { {} }
+      it { expect { compiled_query }.to raise_error ArgumentError }
+    end
+
+    context "with empty params array" do
+      let(:query_params) { [] }
+      it { expect { compiled_query }.to raise_error ArgumentError }
+    end
+
+    context "with empty params" do
+      let(:query_params) { nil }
+      it { expect { compiled_query }.to raise_error ArgumentError }
+    end
+
+    context "with simple params" do
+      let(:query_params) { { param: 42 } }
+      it { expect(compiled_query).to eq "select * from foo where bar > 42" }
+    end
+
+    context "string escaping" do
+      let(:query_params) { { param: "string" } }
+      it { expect(compiled_query).to eq "select * from foo where bar > 'string'" }
+    end
+  end
 end
