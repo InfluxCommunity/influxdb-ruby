@@ -1,16 +1,7 @@
 module InfluxDB
   module Query # :nodoc: all
     # rubocop:disable Metrics/AbcSize
-    module Core
-      def ping
-        url = URI::Generic.build(path: File.join(config.prefix, '/ping')).to_s
-        get url
-      end
-
-      def version
-        ping.header['x-influxdb-version']
-      end
-
+    class Builder
       def quote(param)
         if param.is_a?(String)
           "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
@@ -21,7 +12,8 @@ module InfluxDB
         end
       end
 
-      def query_builder(query, params)
+      # rubocop:disable Metrics/MethodLength
+      def build(query, params)
         params =  case params
                   when Array then params.each_with_object({}).with_index do |(param, hash), i|
                                     hash[(i + 1).to_s.to_sym] = quote(param)
@@ -36,10 +28,24 @@ module InfluxDB
       rescue KeyError => e
         raise ArgumentError, e.message
       end
+    end
 
-      # rubocop:disable Metrics/MethodLength
+    module Core
+      def builder
+        @builder ||= Builder.new
+      end
+
+      def ping
+        url = URI::Generic.build(path: File.join(config.prefix, '/ping')).to_s
+        get url
+      end
+
+      def version
+        ping.header['x-influxdb-version']
+      end
+
       def query(query, opts = {})
-        query = query_builder(query, opts[:params])
+        query = builder.build(query, opts[:params])
 
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
