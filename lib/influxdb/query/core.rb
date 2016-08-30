@@ -36,11 +36,9 @@ module InfluxDB
         else
           raise ArgumentError, "Unsupported #{params.class} params"
         end
-        begin
-          query % params
-        rescue KeyError => e
-          raise ArgumentError, e.to_s
-        end
+        query % params
+      rescue KeyError => e
+        raise ArgumentError, e.message
       end
 
       # rubocop:disable Metrics/MethodLength
