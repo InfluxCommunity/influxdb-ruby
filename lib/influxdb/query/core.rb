@@ -11,24 +11,23 @@ module InfluxDB
         ping.header['x-influxdb-version']
       end
 
+      def quote(param)
+        if param.is_a?(String)
+          "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
+        elsif param.is_a?(Integer) || param.is_a?(Float) || param == true || param == false
+          param.to_s
+        else
+          throw "Unexpected parameter type #{p.class} (#{p.inspect})"
+        end
+      end
+
       def query_builder(query, params)
+        # convert array to hash
         if params.is_a?(Array)
           params = Hash[* params.collect.with_index { |p, i| [(i + 1).to_s.to_sym, p] }.flatten]
         end
-
-        params = Hash[* params.collect do |k, v|
-          [
-            k.to_sym,
-            if v.is_a?(String)
-              "'" + v.gsub(/['"\\\x0]/, '\\\\\0') + "'"
-            elsif v.is_a?(Integer) || v.is_a?(Float) || v == true || v == false
-              v.to_s
-            else
-              throw "Unexpected parameter type #{p.class} (#{p.inspect})"
-            end
-          ]
-        end.flatten]
-
+        # convert keys to syms and quote values
+        params = Hash[* params.collect { |k, v| [k.to_sym, quote(v)] }.flatten]
         query.gsub(/:([a-z0-9]+):i/) { |p| params[p[1..-2].to_sym] }
       end
 
