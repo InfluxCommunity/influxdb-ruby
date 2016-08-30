@@ -11,29 +11,30 @@ module InfluxDB
         ping.header['x-influxdb-version']
       end
 
-      # rubocop:disable Metrics/MethodLength
-      def query(query, parameters = nil, opts = nil)
-        if parameters.is_a?(Hash)
-          opts = parameters
-          parameters = nil
+      def query_builder(query, params)
+        if params.is_a?(Array)
+          params = Hash[* params.collect.with_index { |p, i| [(i + 1).to_s.to_sym, p] }.flatten]
         end
 
-        parameters ||= []
-        opts ||= {}
-
-        unless parameters.empty?
-          parameters = parameters.collect do |p|
-            if p.is_a?(String)
-              "'" + p.gsub(/['"\\\x0]/, '\\\\\0') + "'"
-            elsif p.is_a?(Integer) || p.is_a?(Float) || p == true || p == false
-              p.to_s
+        params = Hash[* params.collect do |k, v|
+          [
+            k.to_sym,
+            if v.is_a?(String)
+              "'" + v.gsub(/['"\\\x0]/, '\\\\\0') + "'"
+            elsif v.is_a?(Integer) || v.is_a?(Float) || v == true || v == false
+              v.to_s
             else
               throw "Unexpected parameter type #{p.class} (#{p.inspect})"
             end
-          end
-          query = query.gsub(/:[0-9]+:/) { |p| parameters[p[1..-1].to_i - 1] }
-          puts query
-        end
+          ]
+        end.flatten]
+
+        query.gsub(/:([a-z0-9]+):i/) { |p| params[p[1..-2].to_sym] }
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def query(query, opts = {})
+        query = query_builder(query.keys[0], query.values[0]) if query.is_a?(Hash)
 
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
