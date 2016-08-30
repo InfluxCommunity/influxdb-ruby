@@ -24,12 +24,15 @@ module InfluxDB
       def query_builder(query, params)
         if params.is_a?(Array)
           # convert array to hash
-          params = Hash[* params.collect.with_index { |v, i| [(i + 1).to_s.to_sym, quote(v)] }.flatten]
+          params = params.each_with_object({}).with_index do |(param, hash), i|
+            hash[(i+1).to_s.to_sym] = quote(param) # symbolize because the gsub below expects symbols
+          end
         else
-          # convert keys to syms and quote values
-          params = Hash[* params.collect { |k, v| [k.to_sym, quote(v)] }.flatten]
+          params = params.each_with_object({}) do |(k, v), hash|
+            hash[k.to_sym] = quote(v)
+          end
         end
-        query.gsub(/:([a-z0-9]+):i/) { |p| params[p[1..-2].to_sym] }
+        query.gsub(/:([a-z0-9]+):/i) { |p| params[p[1..-2].to_sym] }
       end
 
       # rubocop:disable Metrics/MethodLength
