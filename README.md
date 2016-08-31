@@ -5,6 +5,25 @@
 The official Ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/).
 Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://github.com/dmke).
 
+## Contents
+
+- [Platform support](#platform-support)
+- [Ruby support](#ruby-support)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Creating a client](#creating-a-client)
+  - [Administrative tasks](#administrative-tasks)
+  - [Continuous queries](#continuous-queries)
+  - [Retention policies](#retention-policies)
+  - [Writing data](#writing-data)
+  - [Reading data](#reading-data)
+    - [Querying](#querying)
+    - [De-normalization](#de--normalization)
+    - [Streaming response](#streaming-response)
+    - [Retry](#retry)
+  - [Testing](#testing)
+  - [Contributing](#contributing)
+
 ## Platform support
 
 > **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that
@@ -21,7 +40,7 @@ This gem should work with Ruby 1.9+, but starting with v0.4, we'll likely drop R
 Please note that for Ruby 1.9, you'll need to install the JSON gem in version 1.8.x yourself,
 for example by pinning the version in your `Gemfile` (i.e. `gem "json", "~> 1.8.3"`).
 
-## Install
+## Installation
 
 ```
 $ [sudo] gem install influxdb
