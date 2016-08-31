@@ -1,35 +1,8 @@
+require_relative 'builder'
+
 module InfluxDB
   module Query # :nodoc: all
     # rubocop:disable Metrics/AbcSize
-    class Builder
-      def quote(param)
-        if param.is_a?(String)
-          "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
-        elsif param.is_a?(Integer) || param.is_a?(Float) || param == true || param == false
-          param.to_s
-        else
-          raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
-        end
-      end
-
-      # rubocop:disable Metrics/MethodLength
-      def build(query, params)
-        params =  case params
-                  when Array then params.each_with_object({}).with_index do |(param, hash), i|
-                                    hash[(i + 1).to_s.to_sym] = quote(param)
-                                  end
-                  when Hash then  params.each_with_object({}) do |(k, v), hash|
-                                    hash[k.to_sym] = quote(v)
-                                  end
-                  when NilClass then {}
-                  else raise ArgumentError, "Unsupported #{params.class} params"
-                  end
-        query % params
-      rescue KeyError => e
-        raise ArgumentError, e.message
-      end
-    end
-
     module Core
       def builder
         @builder ||= Builder.new
@@ -44,9 +17,9 @@ module InfluxDB
         ping.header['x-influxdb-version']
       end
 
+      # rubocop:disable Metrics/MethodLength
       def query(query, opts = {})
         query = builder.build(query, opts[:params])
-
         denormalize = opts.fetch(:denormalize, config.denormalize)
         json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
 
