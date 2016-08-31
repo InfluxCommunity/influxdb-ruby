@@ -2,12 +2,10 @@ module InfluxDB
   module Query # :nodoc: all
     class Builder
       def quote(param)
-        if param.is_a?(String)
-          "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
-        elsif param.is_a?(Integer) || param.is_a?(Float) || param == true || param == false
-          param.to_s
-        else
-          raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
+        case param
+        when String then "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
+        when Integer, Float, TrueClass, FalseClass then param.to_s
+        else raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
         end
       end
 
