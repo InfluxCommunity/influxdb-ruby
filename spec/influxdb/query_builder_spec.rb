@@ -48,7 +48,7 @@ RSpec.describe InfluxDB::Query::Builder do
       let(:query)  { "SELECT value FROM rpm WHERE time > %{1}" }
       let(:params) { [] }
 
-      it { expect { subject }.to raise_error(/key\{1\} not found/) }
+      it { expect { subject }.to raise_error(/key.1. not found/) }
     end
 
     context "extra parameters" do
