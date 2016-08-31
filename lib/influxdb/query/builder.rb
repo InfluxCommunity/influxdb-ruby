@@ -1,24 +1,29 @@
 module InfluxDB
   module Query # :nodoc: all
     class Builder
-      def quote(param)
-        case param
-        when String then "'" + param.gsub(/['"\\\x0]/, '\\\\\0') + "'"
-        when Integer, Float, TrueClass, FalseClass then param.to_s
-        else raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
-        end
-      end
-
       def build(query, params)
-        params =  case params
-                  when Array then params_from_array(params)
-                  when Hash then  params_from_hash(params)
-                  when NilClass then {}
-                  else raise ArgumentError, "Unsupported #{params.class} params"
-                  end
+        case params
+        when Array    then params = params_from_array(params)
+        when Hash     then params = params_from_hash(params)
+        when NilClass then params = {}
+        else raise ArgumentError, "Unsupported #{params.class} params"
+        end
+
         query % params
+
       rescue KeyError => e
         raise ArgumentError, e.message
+      end
+
+      def quote(param)
+        case param
+        when String, Symbol
+          "'" + param.to_s.gsub(/['"\\\x0]/, '\\\\\0') + "'"
+        when Integer, Float, TrueClass, FalseClass
+          param.to_s
+        else
+          raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
+        end
       end
 
       private

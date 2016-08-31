@@ -37,30 +37,6 @@ describe InfluxDB::Client do
     end
   end
 
-  describe "#quote" do
-    it "should quote parameters properly" do
-      expect(subject.builder.quote(3.14)).to eq('3.14')
-      expect(subject.builder.quote(14)).to eq('14')
-      expect(subject.builder.quote('3.14')).to eq("'3.14'")
-      expect(subject.builder.quote(true)).to eq('true')
-      expect(subject.builder.quote(false)).to eq('false')
-      expect(subject.builder.quote(0 || 1)).to eq('0')
-      expect(subject.builder.quote("Ben Hur's Carriage")).to eq("'Ben Hur\\'s Carriage'")
-    end
-  end
-
-  describe "#query.builder" do
-    let(:query_compiled) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
-    let(:query_with_named_params) { "SELECT value FROM requests_per_minute WHERE time > %{start}" }
-    let(:named_params) { { start: 1_437_019_900 } }
-    let(:query_with_positional_params) { "SELECT value FROM requests_per_minute WHERE time > %{1}" }
-    let(:positional_params) { [1_437_019_900] }
-    it "should build a query with parameters" do
-      expect(subject.builder.build(query_with_named_params, named_params)).to eq(query_compiled)
-      expect(subject.builder.build(query_with_positional_params, positional_params)).to eq(query_compiled)
-    end
-  end
-
   describe "#query_with_params" do
     let(:query)           { "select * from foo where bar > %{param}" }
     let(:compiled_query)  { subject.builder.build(query, query_params) }
