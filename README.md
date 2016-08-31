@@ -26,19 +26,21 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 
 ## Platform support
 
-> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this library that
-> will support the older InfluxDB interface is `v0.1.9`, which is available as a gem and
-> tagged on this repository.
+> **Support for InfluxDB v0.8.x is now deprecated**. The final version of this
+> library that will support the older InfluxDB interface is `v0.1.9`, which is
+> available as a gem and tagged on this repository.
 >
-> If you're reading this message, then you should only expect support for InfluxDB v0.9.1
-> and higher.
+> If you're reading this message, then you should only expect support for
+> InfluxDB v0.9.1 and higher.
 
 ## Ruby support
 
-This gem should work with Ruby 1.9+, but starting with v0.4, we'll likely drop Ruby 1.9 support.
+This gem should work with Ruby 1.9+, but starting with v0.4, we'll likely drop
+Ruby 1.9 support.
 
-Please note that for Ruby 1.9, you'll need to install the JSON gem in version 1.8.x yourself,
-for example by pinning the version in your `Gemfile` (i.e. `gem "json", "~> 1.8.3"`).
+Please note that for Ruby 1.9, you'll need to install the JSON gem in version
+1.8.x yourself, for example by pinning the version in your `Gemfile` (i.e.
+`gem "json", "~> 1.8.3"`).
 
 ## Installation
 
@@ -194,7 +196,8 @@ query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
 influxdb.create_continuous_query(name, database, query)
 ```
 
-Additionally, you can specify the resample interval and the time range over which the CQ runs:
+Additionally, you can specify the resample interval and the time range over
+which the CQ runs:
 
 ``` ruby
 influxdb.create_continuous_query(name, database, query, resample_every: "10m", resample_for: "65m")
@@ -222,9 +225,9 @@ influxdb.list_retention_policies(database)
 Create a retention policy for a database:
 
 ``` ruby
-database = 'foo'
-name = '1h.cpu'
-duration = '10m'
+database    = 'foo'
+name        = '1h.cpu'
+duration    = '10m'
 replication = 2
 
 influxdb.create_retention_policy(name, database, duration, replication)
@@ -234,7 +237,7 @@ Delete a retention policy from a database:
 
 ``` ruby
 database = 'foo'
-name = '1h.cpu'
+name     = '1h.cpu'
 
 influxdb.delete_retention_policy(name, database)
 ```
@@ -242,9 +245,9 @@ influxdb.delete_retention_policy(name, database)
 Alter a retention policy for a database:
 
 ``` ruby
-database = 'foo'
-name = '1h.cpu'
-duration = '10m'
+database    = 'foo'
+name        = '1h.cpu'
+duration    = '10m'
 replication = 2
 
 influxdb.alter_retention_policy(name, database, duration, replication)
@@ -260,9 +263,7 @@ password = 'bar'
 database = 'site_development'
 name     = 'foobar'
 
-influxdb = InfluxDB::Client.new database,
-                                username: username,
-                                password: password
+influxdb = InfluxDB::Client.new database, username: username, password: password
 
 # Enumerator that emits a sine wave
 Value = (0..360).to_a.map {|i| Math.send(:sin, i / 10.0) * 10 }.each
@@ -270,7 +271,7 @@ Value = (0..360).to_a.map {|i| Math.send(:sin, i / 10.0) * 10 }.each
 loop do
   data = {
     values: { value: Value.next },
-    tags: { wave: 'sine' } # tags are optional
+    tags:   { wave: 'sine' } # tags are optional
   }
 
   influxdb.write_point(name, data)
@@ -291,9 +292,10 @@ name           = 'foobar'
 time_precision = 's'
 
 # either in the client initialization:
-influxdb = InfluxDB::Client.new database, username: username,
-                                          password: password,
-                                          time_precision: time_precision
+influxdb = InfluxDB::Client.new database,
+  username: username,
+  password: password,
+  time_precision: time_precision
 
 data = {
   values: { value: 0 },
@@ -320,12 +322,12 @@ precision = 's'
 retention = '1h.cpu'
 
 influxdb = InfluxDB::Client.new database,
-                                username: username,
-                                password: password
+  username: username,
+  password: password
 
 data = {
-  values: { value: 0 },
-  tags: { foo: 'bar', bar: 'baz' }
+  values:    { value: 0 },
+  tags:      { foo: 'bar', bar: 'baz' }
   timestamp: Time.now.to_i
 }
 
@@ -339,12 +341,12 @@ Write multiple points in a batch (performance boost):
 data = [
   {
     series: 'cpu',
-    tags: { host: 'server_1', region: 'us' },
-    values: {internal: 5, external: 0.453345}
+    tags:   { host: 'server_1', region: 'us' },
+    values: { internal: 5, external: 0.453345 }
   },
   {
     series: 'gpu',
-    values: {value: 0.9999},
+    values: { value: 0.9999 },
   }
 ]
 
@@ -354,22 +356,20 @@ influxdb.write_points(data)
 
 precision = 'm'
 influxdb.write_points(data, precision)
-
 ```
 
 Write multiple points in a batch with a specific retention policy:
 
 ``` ruby
-
 data = [
   {
     series: 'cpu',
-    tags: { host: 'server_1', region: 'us' },
-    values: {internal: 5, external: 0.453345}
+    tags:   { host: 'server_1', region: 'us' },
+    values: { internal: 5, external: 0.453345 }
   },
   {
     series: 'gpu',
-    values: {value: 0.9999},
+    values: { value: 0.9999 },
   }
 ]
 
@@ -390,13 +390,13 @@ database = 'site_development'
 name     = 'foobar'
 
 influxdb = InfluxDB::Client.new database,
-                                username: username,
-                                password: password,
-                                async:    true
+  username: username,
+  password: password,
+  async:    true
 
 data = {
-  values: { value: 0 },
-  tags: { foo: 'bar', bar: 'baz' }
+  values:    { value: 0 },
+  tags:      { foo: 'bar', bar: 'baz' }
   timestamp: Time.now.to_i
 }
 
@@ -419,9 +419,9 @@ async_options = {
 }
 
 influxdb = InfluxDB::Client.new database,
-                                username: username,
-                                password: password,
-                                async:    async_options
+  username: username,
+  password: password,
+  async:    async_options
 ```
 
 
@@ -438,7 +438,7 @@ name = 'hitchhiker'
 
 data = {
   values: { value: 666 },
-  tags: { foo: 'bar', bar: 'baz' }
+  tags:   { foo: 'bar', bar: 'baz' }
 }
 
 influxdb.write_point(name, data)
@@ -454,40 +454,77 @@ password = 'bar'
 database = 'site_development'
 
 influxdb = InfluxDB::Client.new database,
-                                username: username,
-                                password: password
+  username: username,
+  password: password
 
 # without a block:
-influxdb.query 'select * from time_series_1' # results are grouped by name, but also their tags
+influxdb.query 'select * from time_series_1'
 
-# result:
-# [{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]},
-# {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "values"=>[{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]}]
+# results are grouped by name, but also their tags:
+#
+# [
+#   {
+#     "name"=>"time_series_1",
+#     "tags"=>{"region"=>"uk"},
+#     "values"=>[
+#       {"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673},
+#       {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}
+#     ]
+#   },
+#   {
+#     "name"=>"time_series_1",
+#     "tags"=>{"region"=>"us"},
+#     "values"=>[
+#       {"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}
+#     ]
+#   }
+# ]
 
 # with a block:
 influxdb.query 'select * from time_series_1' do |name, tags, points|
-  puts "#{name} [ #{tags} ] => #{points}"
+  puts "#{name} [ #{tags.inspect} ]"
+  points.each do |pt|
+    puts "  -> #{pt.inspect}"
+  end
 end
 
 # result:
-# time_series_1 [ {"region"=>"uk"} ] => [{"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}, {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]
-# time_series_1 [ {"region"=>"us"} ] => [{"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}]
+# time_series_1 [ {"region"=>"uk"} ]
+#   -> {"time"=>"2015-07-09T09:03:31Z", "count"=>32, "value"=>0.9673}
+#   -> {"time"=>"2015-07-09T09:03:49Z", "count"=>122, "value"=>0.4444}]
+# time_series_1 [ {"region"=>"us"} ]
+#   -> {"time"=>"2015-07-09T09:02:54Z", "count"=>55, "value"=>0.4343}
 ```
 
-If you would rather receive points with integer timestamp, it's possible to set `epoch` parameter:
+If you would rather receive points with integer timestamp, it's possible to set
+`epoch` parameter:
 
 ``` ruby
 # globally, on client initialization:
 influxdb = InfluxDB::Client.new database, epoch: 's'
 
 influxdb.query 'select * from time_series'
-# result:
-# [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376, "count"=>32, "value"=>0.9673}]}]
+# [
+#   {
+#     "name"=>"time_series",
+#     "tags"=>{"region"=>"uk"},
+#     "values"=>[
+#       {"time"=>1438411376, "count"=>32, "value"=>0.9673}
+#     ]
+#   }
+# ]
 
 # or for a specific query call:
 influxdb.query 'select * from time_series', epoch: 'ms'
-# result:
-# [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376000, "count"=>32, "value"=>0.9673}]}]
+# [
+#   {
+#     "name"=>"time_series",
+#     "tags"=>{"region"=>"uk"},
+#     "values"=>[
+#       {"time"=>1438411376000, "count"=>32, "value"=>0.9673}
+#     ]
+#   }
+# ]
 ```
 
 Working with parameterized query strings works as expected:
@@ -509,28 +546,54 @@ influxdb.query positional_params_query, params: ["foobar", 42]
 
 #### (De-) Normalization
 
-By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
+By default, InfluxDB::Client will denormalize points (received from InfluxDB as
+columns and rows). If you want to get *raw* data add `denormalize: false` to
+the initialization options or to query itself:
 
 ``` ruby
 influxdb.query 'select * from time_series_1', denormalize: false
 
-# result
-[{"name"=>"time_series_1", "tags"=>{"region"=>"uk"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]},
- {"name"=>"time_series_1", "tags"=>{"region"=>"us"}, "columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}]
+# [
+#   {
+#     "name"=>"time_series_1",
+#     "tags"=>{"region"=>"uk"},
+#     "columns"=>["time", "count", "value"],
+#     "values"=>[
+#       ["2015-07-09T09:03:31Z", 32, 0.9673],
+#       ["2015-07-09T09:03:49Z", 122, 0.4444]
+#     ]
+#   },
+#   {
+#     "name"=>"time_series_1",
+#     "tags"=>{"region"=>"us"},
+#     "columns"=>["time", "count", "value"],
+#     "values"=>[
+#       ["2015-07-09T09:02:54Z", 55, 0.4343]
+#     ]
+#   }
+# ]
 
 
 influxdb.query 'select * from time_series_1', denormalize: false do |name, tags, points|
-  puts "#{name} [ #{tags} ] => #{points}"
+  puts "#{name} [ #{tags.inspect} ]"
+  points.each do |key, values|
+    puts "  #{key.inspect} -> #{values.inspect}"
+  end
 end
 
-# result:
-# time_series_1 [ {"region"=>"uk"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]}
-# time_series_1 [ {"region"=>"us"} ] => {"columns"=>["time", "count", "value"], "values"=>[["2015-07-09T09:02:54Z", 55, 0.4343]]}
+
+# time_series_1 [ {"region"=>"uk"} ]
+#   columns -> ["time", "count", "value"]
+#   values -> [["2015-07-09T09:03:31Z", 32, 0.9673], ["2015-07-09T09:03:49Z", 122, 0.4444]]}
+# time_series_1 [ {"region"=>"us"} ]
+#   columns -> ["time", "count", "value"]
+#   values -> [["2015-07-09T09:02:54Z", 55, 0.4343]]}
 ```
 
 #### Streaming response
 
-If you expect large quantities of data in a response, you may want to enable JSON streaming by setting a `chunk_size`:
+If you expect large quantities of data in a response, you may want to enable
+JSON streaming by setting a `chunk_size`:
 
 ``` ruby
 influxdb = InfluxDB::Client.new database,
@@ -539,43 +602,37 @@ influxdb = InfluxDB::Client.new database,
   chunk_size: 10000
 ```
 
-See the [official documentation](http://docs.influxdata.com/influxdb/v0.13/guides/querying_data/#chunking) for more details.
+See the [official documentation](http://docs.influxdata.com/influxdb/v0.13/guides/querying_data/#chunking)
+for more details.
 
 
 #### Retry
 
-By default, InfluxDB::Client will keep trying to connect to the database when it gets connection denied,
-if you want to retry a finite number of times (or disable retries altogether), you should pass the `:retry`
-value.
+By default, InfluxDB::Client will keep trying (with exponential fall-off) to
+connect to the database until it gets a connection. If you want to retry only
+a finite number of times (or disable retries altogether), you can pass the
+`:retry` option.
 
-`:retry` can be either `true`, `false` or an `Integer` to retry infinite times, disable retries or retry
-a finite number of times, respectively. `0` is equivalent to `false`
+`:retry` can be either `true`, `false` or an `Integer` to retry infinite times,
+disable retries or retry a finite number of times, respectively. Passing `0` is
+equivalent to `false` and `-1` is equivalent to `true`.
 
 ```
 $ irb -r influxdb
-> influxdb = InfluxDB::Client.new 'database', :retry => 4
-=> #<InfluxDB::Client:0x00000002bb5ce0 @database="database", @hosts=["localhost"],
-@port=8086, @username="root", @password="root", @use_ssl=false,
-@time_precision="s", @initial_delay=0.01, @max_delay=30,
-@open_timeout=5, @read_timeout=300, @async=false, @retry=4>
+> influxdb = InfluxDB::Client.new 'database', retry: 8
+=> #<InfluxDB::Client:0x00000002bb5ce0 ...>
 
 > influxdb.query 'select * from serie limit 1'
-E, [2014-06-02T11:04:13.416209 #22825] ERROR -- : [InfluxDB] Failed to
-contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
-retrying in 0.01s.
-E, [2014-06-02T11:04:13.433646 #22825] ERROR -- : [InfluxDB] Failed to
-contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
-retrying in 0.02s.
-E, [2014-06-02T11:04:13.462566 #22825] ERROR -- : [InfluxDB] Failed to
-contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
-retrying in 0.04s.
-E, [2014-06-02T11:04:13.510853 #22825] ERROR -- : [InfluxDB] Failed to
-contact host localhost: #<SocketError: getaddrinfo: Name or service not known> -
-retrying in 0.08s.
-SocketError: Tried 4 times to reconnect but failed.
+E, [2016-08-31T23:55:18.287947 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.01s.
+E, [2016-08-31T23:55:18.298455 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.02s.
+E, [2016-08-31T23:55:18.319122 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.04s.
+E, [2016-08-31T23:55:18.359785 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.08s.
+E, [2016-08-31T23:55:18.440422 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.16s.
+E, [2016-08-31T23:55:18.600936 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.32s.
+E, [2016-08-31T23:55:18.921740 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.64s.
+E, [2016-08-31T23:55:19.562428 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 1.28s.
+InfluxDB::ConnectionError: Tried 8 times to reconnect but failed.
 ```
-
-If you pass `:retry => -1` it will keep trying forever until it gets the connection.
 
 ## Testing
 
