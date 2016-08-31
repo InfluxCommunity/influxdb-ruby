@@ -6,14 +6,18 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.8, released 2016-08-31
+
+- Added support for named and positional query parameters (#160, @retorquere).
+
 ## v0.3.7, released 2016-08-14
 
-- Fixed `prefix` handling for `#ping` and `#version` (#157, @dimiii)
+- Fixed `prefix` handling for `#ping` and `#version` (#157, @dimiii).
 
 ## v0.3.6, released 2016-07-24
 
 - Added feature for JSON streaming response, via `"chunk_size"` parameter
-  (#155, @mhodson-qxbranch)
+  (#155, @mhodson-qxbranch).
 
 ## v0.3.5, released 2016-06-09
 
@@ -24,7 +28,7 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - Added resample options to `Client#create_continuous_query` (#149).
 - Fixed resample options to be Ruby 1.9 compatible (#150, @SebastianCoetzee).
-- Mentioned in README, that 0.3.x series is the last one to support Ruby 1.9
+- Mentioned in README, that 0.3.x series is the last one to support Ruby 1.9.
 
 ## v0.3.3, released 2016-06-06 (yanked)
 

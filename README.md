@@ -471,6 +471,23 @@ influxdb.query 'select * from time_series', epoch: 'ms'
 # [{"name"=>"time_series", "tags"=>{"region"=>"uk"}, "values"=>[{"time"=>1438411376000, "count"=>32, "value"=>0.9673}]}]
 ```
 
+Working with parameterized query strings works as expected:
+
+``` ruby
+influxdb = InfluxDB::Client.new database
+
+named_parameter_query = "select * from time_series_0 where time > %{min_time}"
+influxdb.query named_parameter_query, params: { min_time: 0 }
+# compiles to:
+#   select * from time_series_0 where time > 0
+
+positional_params_query = "select * from time_series_0 where f = %{1} and i < %{2}"
+influxdb.query positional_params_query, params: ["foobar", 42]
+# compiles to (note the automatic escaping):
+#   select * from time_series_0 where f = 'foobar' and i < 42
+```
+
+
 #### (De-) Normalization
 
 By default, InfluxDB::Client will denormalize points (received from InfluxDB as columns and rows), if you want to get _raw_ data add `denormalize: false` to initialization options or to query itself:
