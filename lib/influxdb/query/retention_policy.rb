@@ -3,8 +3,9 @@ module InfluxDB
     module RetentionPolicy # :nodoc:
       def create_retention_policy(name, database, duration, replication, default = false)
         execute(
-          "CREATE RETENTION POLICY \"#{name}\" ON #{database} "\
-          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}")
+          "CREATE RETENTION POLICY \"#{name}\" ON #{database} " \
+          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}"
+        )
       end
 
       def list_retention_policies(database)
@@ -24,8 +25,9 @@ module InfluxDB
 
       def alter_retention_policy(name, database, duration, replication, default = false)
         execute(
-          "ALTER RETENTION POLICY \"#{name}\" ON #{database} "\
-          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}")
+          "ALTER RETENTION POLICY \"#{name}\" ON #{database} " \
+          "DURATION #{duration} REPLICATION #{replication}#{default ? ' DEFAULT' : ''}"
+        )
       end
     end
   end

@@ -20,7 +20,7 @@ describe InfluxDB::Client do
 
     let(:response) do
       { "results" => [{ "series" => [{ "name" => "requests_per_minute",
-                                       "columns" => %w( time value ) }] }] }
+                                       "columns" => %w(time value) }] }] }
     end
 
     before do

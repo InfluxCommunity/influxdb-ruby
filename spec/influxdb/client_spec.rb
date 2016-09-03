@@ -22,16 +22,19 @@ describe InfluxDB::Client do
   context "with basic auth" do
     let(:args) { { auth_method: 'basic_auth' } }
 
-    let(:stub_url) { "http://username:password@influxdb.test:9999/" }
-    let(:url) { subject.send(:full_url, '/') }
+    let(:credentials) { "username:password" }
+    let(:auth_header) { { "Authorization" => "Basic " + Base64.encode64(credentials).chomp } }
+
+    let(:stub_url)  { "http://influxdb.test:9999/" }
+    let(:url)       { subject.send(:full_url, '/') }
 
     it "GET" do
-      stub_request(:get, stub_url).to_return(body: '[]')
+      stub_request(:get, stub_url).with(headers: auth_header).to_return(body: '[]')
       expect(subject.get(url, parse: true)).to eq []
     end
 
     it "POST" do
-      stub_request(:post, stub_url).to_return(status: 204)
+      stub_request(:post, stub_url).with(headers: auth_header).to_return(status: 204)
       expect(subject.post(url, {})).to be_a(Net::HTTPNoContent)
     end
   end
