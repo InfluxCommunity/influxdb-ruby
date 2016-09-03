@@ -1,18 +1,18 @@
 require "influxdb"
 
-options = {
+puts __FILE__
+puts "\tThis file contains some sanity checks."
+puts
+
+client = InfluxDB::Client.new \
   username: "test_user",
   password: "resu_tset",
-  retry:    4,
-}
+  retry:    4
 
-
-client = InfluxDB::Client.new options
 version = client.version
 
 if version
   puts "Got version: #{version}"
-  exit 0
 else
   raise "version is empty"
 end
