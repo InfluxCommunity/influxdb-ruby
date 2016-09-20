@@ -6,6 +6,12 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.9, released 2016-09-20
+
+- Changed retry behaviour slightly. When the server responds with an incomplete
+  response, we now assume a major server-side problem (insufficient resources,
+  e.g. out-of-memory) and cancel any retry attempts (#165, #166).
+
 ## v0.3.8, released 2016-08-31
 
 - Added support for named and positional query parameters (#160, @retorquere).
