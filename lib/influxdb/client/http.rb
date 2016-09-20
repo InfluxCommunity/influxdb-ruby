@@ -52,7 +52,9 @@ module InfluxDB
         http = setup_ssl(http)
         yield http
 
-      rescue Timeout::Error, *InfluxDB::NET_HTTP_EXCEPTIONS => e
+      rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
+        raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
+      rescue Timeout::Error, *InfluxDB::RECOVERABLE_EXCEPTIONS => e
         retry_count += 1
         if (config.retry == -1 || retry_count <= config.retry) && !stopped?
           log :error, "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s."
