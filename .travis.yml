@@ -21,8 +21,6 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-9.0.5.0
     - rvm: 2.3.1
-      env: TEST_TASK=smoke influx_version=1.0.0-beta3 pkghash=e06269774dca6e3e13071a7c8b980a92
-    - rvm: 2.3.1
       env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   include:
     - rvm: 2.3.1
@@ -40,7 +38,7 @@ matrix:
     - rvm: 2.3.1
       env: TEST_TASK=smoke influx_version=0.13.0 pkghash=4f0aa76fee22cf4c18e2a0779ba4f462
     - rvm: 2.3.1
-      env: TEST_TASK=smoke influx_version=1.0.0~rc2 pkghash=3b9da13d33d816f2c2df53b7c65ad95e
+      env: TEST_TASK=smoke influx_version=1.0.0 pkghash=a25daf049d2482166b248fe2d0be4b69
     - rvm: 2.3.1
       env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   fail_fast: true
