@@ -18,6 +18,8 @@ RSpec.describe InfluxDB::Query::Builder do
       expect(subject.quote(0 || 1)).to eq "0"
 
       expect(subject.quote(:symbol)).to eq "'symbol'"
+
+      expect { subject.quote(/regex/) }.to raise_error(ArgumentError, /Unexpected parameter type Regex/)
     end
   end
 
