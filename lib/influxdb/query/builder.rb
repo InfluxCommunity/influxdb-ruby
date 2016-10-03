@@ -22,7 +22,7 @@ module InfluxDB
         when Integer, Float, TrueClass, FalseClass
           param.to_s
         else
-          raise ArgumentError, "Unexpected parameter type #{p.class} (#{p.inspect})"
+          raise ArgumentError, "Unexpected parameter type #{param.class} (#{param.inspect})"
         end
       end
 
