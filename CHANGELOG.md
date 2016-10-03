@@ -6,6 +6,10 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.10, released 2016-10-03
+
+- Bugfix in `Query::Builder#quote` (#168, @cthulhu666).
+
 ## v0.3.9, released 2016-09-20
 
 - Changed retry behaviour slightly. When the server responds with an incomplete
