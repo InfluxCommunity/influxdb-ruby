@@ -15,9 +15,13 @@ module InfluxDB
 
     private
 
-    def log(level, message)
+    def log(level, message = nil, &block)
       return unless InfluxDB::Logging.logger
-      InfluxDB::Logging.logger.send(level.to_sym, PREFIX) { message }
+      if block_given?
+        InfluxDB::Logging.logger.send(level.to_sym, PREFIX, &block)
+      else
+        InfluxDB::Logging.logger.send(level.to_sym, PREFIX) { message }
+      end
     end
   end
 end

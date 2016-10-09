@@ -77,7 +77,7 @@ module InfluxDB
         def spawn_threads!
           @threads = []
           num_worker_threads.times do |thread_num|
-            log :debug, "Spawning background worker thread #{thread_num}."
+            log(:debug) { "Spawning background worker thread #{thread_num}." }
 
             @threads << Thread.new do
               Thread.current[:influxdb] = object_id
@@ -87,14 +87,15 @@ module InfluxDB
                 sleep rand(sleep_interval)
               end
 
-              log :debug, "Exit background worker thread #{thread_num}."
+              log(:debug) { "Exit background worker thread #{thread_num}." }
             end
           end
         end
 
         def check_background_queue(thread_num = 0)
-          log :debug,
-              "Checking background queue on thread #{thread_num} (#{current_thread_count} active)"
+          log(:debug) do
+            "Checking background queue on thread #{thread_num} (#{current_thread_count} active)"
+          end
 
           loop do
             data = []
@@ -107,7 +108,7 @@ module InfluxDB
             return if data.empty?
 
             begin
-              log :debug, "Found data in the queue! (#{data.length} points)"
+              log(:debug) { "Found data in the queue! (#{data.length} points)" }
               client.write(data.join("\n"), nil)
             rescue => e
               log :error, "Cannot write data: #{e.inspect}"
@@ -118,7 +119,7 @@ module InfluxDB
         end
 
         def stop!
-          log :debug, "Thread exiting, flushing queue."
+          log(:debug) { "Thread exiting, flushing queue." }
           check_background_queue until queue.empty?
         end
       end

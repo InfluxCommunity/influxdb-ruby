@@ -58,7 +58,7 @@ module InfluxDB
         unless (config.retry == -1 || retry_count <= config.retry) && !stopped?
           raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
         end
-        log :error, "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s."
+        log(:error) { "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s." }
         sleep delay
         delay = [config.max_delay, delay * 2].min
         retry
