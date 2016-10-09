@@ -12,11 +12,19 @@ client = InfluxDB::Client.new \
   password: "resu_tset",
   retry:    4
 
+TestFailure         = Class.new StandardError
+TestAllowedFailure  = Class.new StandardError
+
 def test_case(name)
   print name
   yield
   puts " [ OK ]"
-rescue
+
+rescue TestAllowedFailure
+  puts " [WARN]"
+  puts $!.message
+
+rescue TestFailure
   puts " [FAIL]"
   puts $!.message
   exit 1
@@ -27,21 +35,27 @@ test_case "See all five measurements?" do
   expected    = %w[ average_temperature h2o_feet h2o_pH h2o_quality h2o_temperature ]
   actual      = result[0]["values"].map{|v| v["name"] }
   unexpected  = actual - expected
-  raise "unexpected measurements: #{unexpected.join(", ")}" if unexpected.any?
+  if unexpected.any?
+    raise TestFailure, "unexpected measurements: #{unexpected.join(", ")}"
+  end
 end
 
 test_case "Count the number of non-null values of water_level in h2o_feet" do
   result      = client.query "select count(water_level) from h2o_feet"
   expected    = 15258
   actual      = result[0]["values"][0]["count"]
-  raise "expected to find #{expected} points, got #{actual}" if expected != actual
+  if expected != actual
+    raise TestFailure, "expected to find #{expected} points, got #{actual}"
+  end
 end
 
 test_case "Select the first five observations in the measurement h2o_feet" do
   result    = client.query("select * from h2o_feet limit 5").first["values"]
   expected  = 5
   actual    = result.size
-  raise "expected #{expected} observations, got #{actual}" if expected != actual
+  if expected != actual
+    raise TestFailure, "expected #{expected} observations, got #{actual}"
+  end
 
   expected = {
     "time"              => "2015-08-18T00:00:00Z",
@@ -49,7 +63,9 @@ test_case "Select the first five observations in the measurement h2o_feet" do
     "location"          => "coyote_creek",
     "water_level"       => 8.12
   }
-  raise "unexpected first result, got #{result[0]}" if expected != result[0]
+  if expected != result[0]
+    raise TestAllowedFailure, "unexpected first result, got #{result[0]}"
+  end
 
   expected = {
     "time"              => "2015-08-18T00:12:00Z",
@@ -57,5 +73,7 @@ test_case "Select the first five observations in the measurement h2o_feet" do
     "location"          => "coyote_creek",
     "water_level"       => 7.887
   }
-  raise "unexpected last result, got #{result[-1]}" if expected != result[-1]
+  if expected != result[-1]
+    raise TestAllowedFailure, "unexpected last result, got #{result[-1]}"
+  end
 end
