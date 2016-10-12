@@ -5,15 +5,22 @@ describe InfluxDB::PointValue do
     let(:data) do
       {
         series: '1= ,"\\1',
-        tags: { '2= ,"\\2' => '3= ,"\\3' },
-        values: { '4= ,"\\4' => '5= ,"\\5', intval: 5, floatval: 7.0 }
+        tags: {
+          '2= ,"\\2' => '3= ,"\\3'
+        },
+        values: {
+          '4= ,"\\4' => '5= ,"\\5',
+          intval:       5,
+          floatval:     7.0,
+          encoding:     "a\255 b"
+        }
       }
     end
 
     it 'should escape correctly' do
       point = InfluxDB::PointValue.new(data)
       expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
-                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0)
+                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0,encoding="a b")
       expect(point.dump).to eq(expected)
     end
   end
