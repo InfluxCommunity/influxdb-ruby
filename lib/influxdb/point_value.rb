@@ -30,10 +30,14 @@ module InfluxDB
     }.freeze
 
     def escape(s, type)
+      # rubocop:disable Style/AlignParameters
+      s = s.encode "UTF-8".freeze, "binary".freeze,
+        invalid: :replace,
+        undef: :replace,
+        replace: "".freeze
+
       ESCAPES[type].each do |ch|
-        s = s
-            .encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
-            .gsub(ch) { "\\#{ch}" }
+        s = s.encode.gsub(ch) { "\\#{ch}" }
       end
       s
     end
