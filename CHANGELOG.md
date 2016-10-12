@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.11, released 2016-10-12
+
+- Bugfix/Enhancement in `PointValue#escape`. Input strings are now scrubbed
+  of invalid UTF byte sequences (#169, @ton31337).
+
 ## v0.3.10, released 2016-10-03
 
 - Bugfix in `Query::Builder#quote` (#168, @cthulhu666).
