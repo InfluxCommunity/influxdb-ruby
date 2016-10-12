@@ -31,7 +31,9 @@ module InfluxDB
 
     def escape(s, type)
       ESCAPES[type].each do |ch|
-        s = s.gsub(ch) { "\\#{ch}" }
+        s = s
+            .encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+            .gsub(ch) { "\\#{ch}" }
       end
       s
     end
