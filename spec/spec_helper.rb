@@ -22,7 +22,7 @@ RSpec.configure do |config|
     logfile = File.open("tmp/spec.log", File::WRONLY | File::TRUNC | File::CREAT)
 
     InfluxDB::Logging.logger = Logger.new(logfile).tap do |logger|
-      logger.formatter = proc {|severity, _datetime, progname, message|
+      logger.formatter = proc { |severity, _datetime, progname, message|
         "%-5s - %s: %s\n".format severity, progname, message
       }
     end

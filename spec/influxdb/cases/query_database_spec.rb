@@ -16,14 +16,18 @@ describe InfluxDB::Client do
   end
 
   let(:args) { {} }
+  let(:query) { nil }
+  let(:response) { { "results" => [] } }
+
+  before do
+    stub_request(:get, "http://influxdb.test:9999/query").with(
+      query: { u: "username", p: "password", q: query }
+    ).to_return(body: JSON.generate(response))
+  end
 
   describe "#create_database" do
     describe "from param" do
-      before do
-        stub_request(:get, "http://influxdb.test:9999/query").with(
-          query: { u: "username", p: "password", q: "CREATE DATABASE foo" }
-        )
-      end
+      let(:query) { "CREATE DATABASE foo" }
 
       it "should GET to create a new database" do
         expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
@@ -31,11 +35,7 @@ describe InfluxDB::Client do
     end
 
     describe "from config" do
-      before do
-        stub_request(:get, "http://influxdb.test:9999/query").with(
-          query: { u: "username", p: "password", q: "CREATE DATABASE database" }
-        )
-      end
+      let(:query) { "CREATE DATABASE database" }
 
       it "should GET to create a new database using database name from config" do
         expect(subject.create_database).to be_a(Net::HTTPOK)
@@ -45,11 +45,7 @@ describe InfluxDB::Client do
 
   describe "#delete_database" do
     describe "from param" do
-      before do
-        stub_request(:get, "http://influxdb.test:9999/query").with(
-          query: { u: "username", p: "password", q: "DROP DATABASE foo" }
-        )
-      end
+      let(:query) { "DROP DATABASE foo" }
 
       it "should GET to remove a database" do
         expect(subject.delete_database("foo")).to be_a(Net::HTTPOK)
@@ -57,11 +53,7 @@ describe InfluxDB::Client do
     end
 
     describe "from config" do
-      before do
-        stub_request(:get, "http://influxdb.test:9999/query").with(
-          query: { u: "username", p: "password", q: "DROP DATABASE database" }
-        )
-      end
+      let(:query) { "DROP DATABASE database" }
 
       it "should GET to remove a database using database name from config" do
         expect(subject.delete_database).to be_a(Net::HTTPOK)
@@ -70,14 +62,9 @@ describe InfluxDB::Client do
   end
 
   describe "#list_databases" do
+    let(:query) { "SHOW DATABASES" }
     let(:response) { { "results" => [{ "series" => [{ "name" => "databases", "columns" => ["name"], "values" => [["foobar"]] }] }] } }
     let(:expected_result) { [{ "name" => "foobar" }] }
-
-    before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: "SHOW DATABASES" }
-      ).to_return(body: JSON.generate(response), status: 200)
-    end
 
     it "should GET a list of databases" do
       expect(subject.list_databases).to eq(expected_result)
