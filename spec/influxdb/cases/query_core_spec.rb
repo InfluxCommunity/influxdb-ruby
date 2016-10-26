@@ -16,7 +16,7 @@ describe InfluxDB::Client do
   describe "#query" do
     let(:query) { "SELECT value FROM requests_per_minute WHERE time > 1437019900" }
     let(:response) do
-      { "results" => [{ "statment_id" => 0,
+      { "results" => [{ "statement_id" => 0,
                         "series" => [{ "name" => "requests_per_minute",
                                        "columns" => %w(time value) }] }] }
     end

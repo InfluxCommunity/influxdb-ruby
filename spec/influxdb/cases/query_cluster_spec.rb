@@ -51,7 +51,7 @@ describe InfluxDB::Client do
 
   describe "#list_cluster_admins" do
     let(:response) do
-      { "results" => [{ "statment_id" => 0,
+      { "results" => [{ "statement_id" => 0,
                         "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] }
     end
     let(:expected_result) { ["dbadmin"] }

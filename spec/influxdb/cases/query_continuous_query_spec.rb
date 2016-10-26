@@ -21,7 +21,7 @@ describe InfluxDB::Client do
     let(:query) { "SHOW CONTINUOUS QUERIES" }
     let(:database) { "testdb" }
     let(:response) do
-      { "results" => [{ "statment_id" => 0,
+      { "results" => [{ "statement_id" => 0,
                         "series" => [{ "name" => "otherdb", "columns" => %w(name query),
                                        "values" => [["clicks_per_hour", "CREATE CONTINUOUS QUERY clicks_per_hour ON otherdb BEGIN SELECT count(name) INTO \"otherdb\".\"default\".clicksCount_1h FROM \"otherdb\".\"default\".clicks GROUP BY time(1h) END"]] },
                                      { "name" => "testdb", "columns" => %w(name query),
