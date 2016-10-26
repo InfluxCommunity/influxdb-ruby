@@ -17,7 +17,7 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
   let(:query) { nil }
-  let(:response) { { "results" => [] } }
+  let(:response) { { "results" => [{ "statement_id" => 0 }] } }
 
   before do
     stub_request(:get, "http://influxdb.test:9999/query").with(
@@ -98,8 +98,8 @@ describe InfluxDB::Client do
   end
 
   describe "#list_users" do
-    let(:response) { { "results" => [{ "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
     let(:query) { "SHOW USERS" }
+    let(:response) { { "results" => [{ "statement_id" => 0, "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
     let(:expected_result) { [{ "username" => "dbadmin", "admin" => true }, { "username" => "foobar", "admin" => false }] }
 
     it "should GET a list of database users" do

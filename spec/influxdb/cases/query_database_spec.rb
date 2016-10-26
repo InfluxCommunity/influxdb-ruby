@@ -17,7 +17,7 @@ describe InfluxDB::Client do
 
   let(:args) { {} }
   let(:query) { nil }
-  let(:response) { { "results" => [] } }
+  let(:response) { { "results" => [{ "statement_id" => 0 }] } }
 
   before do
     stub_request(:get, "http://influxdb.test:9999/query").with(
