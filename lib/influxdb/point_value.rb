@@ -37,7 +37,7 @@ module InfluxDB
         replace: "".freeze
 
       ESCAPES[type].each do |ch|
-        s = s.encode.gsub(ch) { "\\#{ch}" }
+        s = s.gsub(ch) { "\\#{ch}" }
       end
       s
     end
