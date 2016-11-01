@@ -10,9 +10,10 @@ describe InfluxDB::PointValue do
         },
         values: {
           '4= ,"\\4' => '5= ,"\\5',
-          intval:       5,
-          floatval:     7.0,
-          encoding:     "a\255 b"
+          intval:           5,
+          floatval:         7.0,
+          invalid_encoding: "a\255 b",
+          non_latin:        "Улан-Удэ"
         }
       }
     end
@@ -20,7 +21,7 @@ describe InfluxDB::PointValue do
     it 'should escape correctly' do
       point = InfluxDB::PointValue.new(data)
       expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
-                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0,encoding="a b")
+                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0,invalid_encoding="a b",non_latin="Улан-Удэ")
       expect(point.dump).to eq(expected)
     end
   end
