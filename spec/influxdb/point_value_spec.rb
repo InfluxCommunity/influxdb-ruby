@@ -5,7 +5,7 @@ require "spec_helper"
 describe InfluxDB::PointValue do
   describe "escaping" do
     let(:data) do
-      {
+      point = {
         series: '1= ,"\\1',
         tags: {
           '2= ,"\\2' => '3= ,"\\3'
@@ -14,10 +14,15 @@ describe InfluxDB::PointValue do
           '4= ,"\\4' => '5= ,"\\5',
           intval:           5,
           floatval:         7.0,
-          invalid_encoding: "a\255 b",
+          invalid_encoding: "a b",
           non_latin:        "Улан-Удэ"
         }
       }
+      if RUBY_VERSION > "2.0.0"
+        # see github.com/influxdata/influxdb-ruby/issues/171 for details
+        point[:values][:invalid_encoding] = "a\255 b"
+      end
+      point
     end
 
     it 'should escape correctly' do
