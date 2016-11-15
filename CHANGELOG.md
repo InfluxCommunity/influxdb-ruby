@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.12, released 2016-11-15
+
+- Bugfix for broken Unicode support (regression introduced in #169).
+  Please note, this is only properly tested on Ruby 2.1+ (#171).
+
 ## v0.3.11, released 2016-10-12
 
 - Bugfix/Enhancement in `PointValue#escape`. Input strings are now scrubbed
