@@ -13,7 +13,7 @@ module InfluxDB
         socket.connect(host, port)
       end
 
-      def write(payload, _precision = nil, _retention_policy = nil)
+      def write(payload, _precision = nil, _retention_policy = nil, _database = nil)
         socket.send(payload, 0)
       end
     end
