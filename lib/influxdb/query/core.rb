@@ -51,21 +51,24 @@ module InfluxDB
       #     values: {value: 0.9999},
       #   }
       # ])
-      def write_points(data, precision = nil, retention_policy = nil)
+      def write_points(data, precision = nil, retention_policy = nil, database = nil)
         data = data.is_a?(Array) ? data : [data]
         payload = generate_payload(data)
-        writer.write(payload, precision, retention_policy)
+        writer.write(payload, precision, retention_policy, database)
       end
 
       # Example:
       # write_point('cpu', tags: {region: 'us'}, values: {internal: 60})
-      def write_point(series, data, precision = nil, retention_policy = nil)
-        write_points(data.merge(series: series), precision, retention_policy)
+      def write_point(series, data, precision = nil, retention_policy = nil, database = nil)
+        write_points(data.merge(series: series), precision, retention_policy, database)
       end
 
-      def write(data, precision, retention_policy = nil)
-        precision ||= config.time_precision
-        params      = { db: config.database, precision: precision }
+      def write(data, precision, retention_policy = nil, database = nil)
+        params = {
+          db: database || config.database,
+          precision: precision || config.time_precision
+        }
+
         params[:rp] = retention_policy if retention_policy
         url = full_url("/write", params)
         post(url, data)

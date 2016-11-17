@@ -154,5 +154,31 @@ describe InfluxDB::Client do
         expect(subject.write_points(data, nil, 'rp_1_hour')).to be_a(Net::HTTPNoContent)
       end
     end
+
+    context "with database" do
+      let(:data) do
+        [{ series: 'cpu',
+           values: { temp: 88, value: 54 } },
+         { series: 'gpu',
+           values: { value: 0.5435345 } }]
+      end
+
+      let(:body) do
+        data.map do |point|
+          InfluxDB::PointValue.new(point).dump
+        end.join("\n")
+      end
+
+      before do
+        stub_request(:post, "http://influxdb.test:9999/write").with(
+          query: { u: "username", p: "password", precision: 's', db: 'overriden_db' },
+          headers: { "Content-Type" => "application/octet-stream" },
+          body: body
+        ).to_return(status: 204)
+      end
+      it "should POST multiple points" do
+        expect(subject.write_points(data, nil, nil, 'overriden_db')).to be_a(Net::HTTPNoContent)
+      end
+    end
   end
 end
