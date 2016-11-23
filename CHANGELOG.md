@@ -6,6 +6,13 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.13, released 2016-11-23
+
+- You can now `InfluxDB::Client#query`, `#write_points`, `#write_point` and
+  `#write` now accept an additional parameter to override the database on
+  invokation time (#173, #176, @jfragoulis).
+
+
 ## v0.3.12, released 2016-11-15
 
 - Bugfix for broken Unicode support (regression introduced in #169).
