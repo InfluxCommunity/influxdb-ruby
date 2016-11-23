@@ -334,6 +334,31 @@ data = {
 influxdb.write_point(name, data, precision, retention)
 ```
 
+Write data while choosing the database:
+
+``` ruby
+require 'influxdb'
+
+username  = 'foo'
+password  = 'bar'
+database  = 'site_development'
+name      = 'foobar'
+precision = 's'
+retention = '1h.cpu'
+
+influxdb = InfluxDB::Client.new
+  username: username,
+  password: password
+
+data = {
+  values:    { value: 0 },
+  tags:      { foo: 'bar', bar: 'baz' }
+  timestamp: Time.now.to_i
+}
+
+influxdb.write_point(name, data, precision, retention, database)
+```
+
 Write multiple points in a batch (performance boost):
 
 ``` ruby
