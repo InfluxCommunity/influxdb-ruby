@@ -458,7 +458,7 @@ influxdb = InfluxDB::Client.new database,
   password: password
 
 # without a block:
-influxdb.query 'select * from time_series_1'
+influxdb.query 'select * from time_series_1 group by region'
 
 # results are grouped by name, but also their tags:
 #
@@ -481,7 +481,7 @@ influxdb.query 'select * from time_series_1'
 # ]
 
 # with a block:
-influxdb.query 'select * from time_series_1' do |name, tags, points|
+influxdb.query 'select * from time_series_1 group by region' do |name, tags, points|
   puts "#{name} [ #{tags.inspect} ]"
   points.each do |pt|
     puts "  -> #{pt.inspect}"
@@ -503,7 +503,7 @@ If you would rather receive points with integer timestamp, it's possible to set
 # globally, on client initialization:
 influxdb = InfluxDB::Client.new database, epoch: 's'
 
-influxdb.query 'select * from time_series'
+influxdb.query 'select * from time_series group by region'
 # [
 #   {
 #     "name"=>"time_series",
@@ -515,7 +515,7 @@ influxdb.query 'select * from time_series'
 # ]
 
 # or for a specific query call:
-influxdb.query 'select * from time_series', epoch: 'ms'
+influxdb.query 'select * from time_series group by region', epoch: 'ms'
 # [
 #   {
 #     "name"=>"time_series",
@@ -551,7 +551,7 @@ columns and rows). If you want to get *raw* data add `denormalize: false` to
 the initialization options or to query itself:
 
 ``` ruby
-influxdb.query 'select * from time_series_1', denormalize: false
+influxdb.query 'select * from time_series_1 group by region', denormalize: false
 
 # [
 #   {
@@ -574,7 +574,7 @@ influxdb.query 'select * from time_series_1', denormalize: false
 # ]
 
 
-influxdb.query 'select * from time_series_1', denormalize: false do |name, tags, points|
+influxdb.query 'select * from time_series_1 group by region', denormalize: false do |name, tags, points|
   puts "#{name} [ #{tags.inspect} ]"
   points.each do |key, values|
     puts "  #{key.inspect} -> #{values.inspect}"
