@@ -76,12 +76,14 @@ module InfluxDB
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def query_params(query, opts)
         precision   = opts.fetch(:precision, config.time_precision)
         epoch       = opts.fetch(:epoch, config.epoch)
         chunk_size  = opts.fetch(:chunk_size, config.chunk_size)
+        database    = opts.fetch(:database, config.database)
 
-        params = { q: query, db: config.database, precision: precision }
+        params = { q: query, db: database, precision: precision }
         params[:epoch] = epoch if epoch
 
         if chunk_size
@@ -91,6 +93,7 @@ module InfluxDB
 
         params
       end
+      # rubocop:enable Metrics/MethodLength
 
       def denormalized_series_list(series)
         series.map do |s|
