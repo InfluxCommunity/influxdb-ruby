@@ -590,6 +590,12 @@ end
 #   values -> [["2015-07-09T09:02:54Z", 55, 0.4343]]}
 ```
 
+You can also pick the database to query from:
+
+```
+influxdb.query 'select * from time_series_1', database: 'database'
+```
+
 #### Streaming response
 
 If you expect large quantities of data in a response, you may want to enable

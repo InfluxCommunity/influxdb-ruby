@@ -159,6 +159,25 @@ describe InfluxDB::Client do
         expect(subject.query(query)).to eq(expected_result)
       end
     end
+
+    context "with database" do
+      let(:extra_params) { { db: 'overriden_db' } }
+      let(:response) do
+        { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "us" },
+                                         "columns" => %w(time temp value),
+                                         "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] }] }
+      end
+      let(:expected_result) do
+        [{ "name" => "cpu", "tags" => { "region" => "us" },
+           "values" => [{ "time" => "2015-07-07T14:58:37Z", "temp" => 92, "value" => 0.3445 },
+                        { "time" => "2015-07-07T14:59:09Z", "temp" => 68, "value" => 0.8787 }] }]
+      end
+      let(:query) { 'SELECT * FROM cpu' }
+
+      it "should return array with single hash containing multiple values" do
+        expect(subject.query(query, database: 'overriden_db')).to eq(expected_result)
+      end
+    end
   end
 
   describe "multiple select queries" do
