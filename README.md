@@ -346,9 +346,10 @@ name      = 'foobar'
 precision = 's'
 retention = '1h.cpu'
 
-influxdb = InfluxDB::Client.new
+influxdb = InfluxDB::Client.new {
   username: username,
   password: password
+}
 
 data = {
   values:    { value: 0 },
