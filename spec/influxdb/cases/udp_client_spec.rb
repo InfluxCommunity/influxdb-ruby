@@ -8,7 +8,7 @@ describe InfluxDB::Client do
   describe "#write" do
     let(:message) { 'responses,region=eu value=5i' }
 
-    it "sends a UPD packet" do
+    it "sends a UDP packet" do
       s = UDPSocket.new
       s.bind("localhost", 44_444)
 
