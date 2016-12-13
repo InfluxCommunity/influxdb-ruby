@@ -15,6 +15,7 @@ module InfluxDB
     include InfluxDB::Query::User
     include InfluxDB::Query::ContinuousQuery
     include InfluxDB::Query::RetentionPolicy
+    include InfluxDB::Query::Series
 
     # Initializes a new InfluxDB client
     #

@@ -14,6 +14,7 @@ require "influxdb/query/database"
 require "influxdb/query/user"
 require "influxdb/query/continuous_query"
 require "influxdb/query/retention_policy"
+require "influxdb/query/series"
 
 require "influxdb/client/http"
 require "influxdb/client"

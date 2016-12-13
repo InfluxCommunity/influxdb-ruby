@@ -122,6 +122,11 @@ module InfluxDB
         get(url, options)
       end
 
+      def execute_db(query, options = {})
+        url = full_url("/query", q: query, db: config.database)
+        get(url, options)
+      end
+
       def denormalize_series(series)
         Array(series["values".freeze]).map do |values|
           Hash[series["columns".freeze].zip(values)]
