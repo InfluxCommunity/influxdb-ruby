@@ -118,12 +118,11 @@ module InfluxDB
       end
 
       def execute(query, options = {})
-        url = full_url("/query", q: query)
-        get(url, options)
-      end
-
-      def execute_db(query, options = {})
-        url = full_url("/query", q: query, db: config.database)
+        url = if options[:db]
+                full_url("/query", q: query, db: options[:db])
+              else
+                full_url("/query", q: query)
+              end
         get(url, options)
       end
 
