@@ -110,7 +110,7 @@ module InfluxDB
               log :debug, "Found data in the queue! (#{data.length} points)"
               client.write(data.join("\n"), nil)
             rescue => e
-              puts "Cannot write data: #{e.inspect}"
+              log :error, "Cannot write data: #{e.inspect}"
             end
 
             break if queue.length > max_post_points
