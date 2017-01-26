@@ -2,8 +2,9 @@ sudo: required
 dist: trusty
 language: ruby
 before_install:
-  - gem install bundler
-  - gem update bundler
+  - gem update --system --no-doc
+  - gem install bundler --no-doc
+  - gem update bundler --no-doc
   - smoke/provision.sh
 rvm:
   - 1.9.3
