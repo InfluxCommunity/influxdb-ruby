@@ -9,6 +9,7 @@ AllCops:
     - 'smoke/**/*'
   DisplayCopNames: true
   StyleGuideCopsOnly: false
+  TargetRubyVersion: 1.9
 
 Rails:
   Enabled: false
