@@ -31,17 +31,11 @@ matrix:
     - rvm: jruby-head
       env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
     - rvm: 2.4.0
-      env: TEST_TASK=smoke influx_version=0.10.3-1 pkghash=96244557d9bb7485ddc9d084ff7ce783
-    - rvm: 2.4.0
-      env: TEST_TASK=smoke influx_version=0.11.1-1 pkghash=f4cf8363125038dff038ced6b16bcafd
-    - rvm: 2.4.0
-      env: TEST_TASK=smoke influx_version=0.12.2-1 pkghash=f28bb1c57d52dc1593dca45b86be5913
-    - rvm: 2.4.0
-      env: TEST_TASK=smoke influx_version=0.13.0 pkghash=4f0aa76fee22cf4c18e2a0779ba4f462
-    - rvm: 2.4.0
       env: TEST_TASK=smoke influx_version=1.0.2 pkghash=3e4c349cb57507913d9abda1459bdbed
     - rvm: 2.4.0
       env: TEST_TASK=smoke influx_version=1.1.0 pkghash=682904c350ecfc2a60ec9c6c08453ef2
+    - rvm: 2.4.0
+      env: TEST_TASK=smoke influx_version=1.2.0 pkghash=f79959802930c7e9d6e81ffd366c0629
     - rvm: 2.4.0
       env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   fail_fast: true
