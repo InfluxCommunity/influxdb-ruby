@@ -470,6 +470,21 @@ data = {
 influxdb.write_point(name, data)
 ```
 
+Discard write errors:
+
+``` ruby
+require 'influxdb'
+host = '127.0.0.1'
+port = 4444
+
+influxdb = InfluxDB::Client.new(
+  udp: { host: host, port: port },
+  discard_write_errors: true
+)
+
+influxdb.write_point('hitchhiker', { values: { value: 666 } })
+```
+
 ### Reading data
 
 #### Querying

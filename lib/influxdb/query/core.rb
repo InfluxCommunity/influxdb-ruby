@@ -55,6 +55,12 @@ module InfluxDB
         data = data.is_a?(Array) ? data : [data]
         payload = generate_payload(data)
         writer.write(payload, precision, retention_policy, database)
+      rescue => e
+        if config.discard_write_errors
+          log :error, "Cannot write data: #{e.inspect}"
+        else
+          raise e
+        end
       end
 
       # Example:
