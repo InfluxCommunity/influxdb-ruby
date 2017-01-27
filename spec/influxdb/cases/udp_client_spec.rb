@@ -39,9 +39,9 @@ describe InfluxDB::Client do
       client.write_point("responses", values: { value: 7 }, tags: { region: 'eu' })
 
       allow(client).to receive(:log)
-      expect {
+      expect do
         client.write_point("responses", values: { value: 7 }, tags: { region: 'eu' })
-      }.not_to raise_error
+      end.not_to raise_error
     end
   end
 end
