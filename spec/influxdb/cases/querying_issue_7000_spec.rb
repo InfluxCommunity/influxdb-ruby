@@ -32,10 +32,12 @@ describe InfluxDB::Client do
       let(:extra_params) { { chunked: "true", chunk_size: "100" } }
 
       let(:response_line_1) do
-        { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [["2015-07-07T15:13:04Z", 34, 0.343443]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "cpu", "tags" => { "region" => "pl" }, "columns" => %w(time temp value), "values" => [["2015-07-07T15:13:04Z", 34, 0.343443]] }] }] }
       end
       let(:response_line_2) do
-        { "results" => [{ "series" => [{ "name" => "cpu", "tags" => { "region" => "us" }, "columns" => %w(time temp value), "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "cpu", "tags" => { "region" => "us" }, "columns" => %w(time temp value), "values" => [["2015-07-07T14:58:37Z", 92, 0.3445], ["2015-07-07T14:59:09Z", 68, 0.8787]] }] }] }
       end
       let(:response) do
         JSON.generate(response_line_1) + "\n" + JSON.generate(response_line_2)
@@ -59,16 +61,20 @@ describe InfluxDB::Client do
       let(:extra_params) { { chunked: "true", chunk_size: "100" } }
 
       let(:response_line_1) do
-        { "results" => [{ "series" => [{ "name" => "access_times.service_1", "tags" => { "code" => "200", "result" => "failure", "status" => "OK" }, "columns" => %w(time value), "values" => [["2015-07-08T07:15:22Z", 327]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "access_times.service_1", "tags" => { "code" => "200", "result" => "failure", "status" => "OK" }, "columns" => %w(time value), "values" => [["2015-07-08T07:15:22Z", 327]] }] }] }
       end
       let(:response_line_2) do
-        { "results" => [{ "series" => [{ "name" => "access_times.service_1", "tags" => { "code" => "500", "result" => "failure", "status" => "Internal Server Error" }, "columns" => %w(time value), "values" => [["2015-07-08T06:15:22Z", 873]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "access_times.service_1", "tags" => { "code" => "500", "result" => "failure", "status" => "Internal Server Error" }, "columns" => %w(time value), "values" => [["2015-07-08T06:15:22Z", 873]] }] }] }
       end
       let(:response_line_3) do
-        { "results" => [{ "series" => [{ "name" => "access_times.service_2", "tags" => { "code" => "200", "result" => "failure", "status" => "OK" }, "columns" => %w(time value), "values" => [["2015-07-08T07:15:22Z", 943]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "access_times.service_2", "tags" => { "code" => "200", "result" => "failure", "status" => "OK" }, "columns" => %w(time value), "values" => [["2015-07-08T07:15:22Z", 943]] }] }] }
       end
       let(:response_line_4) do
-        { "results" => [{ "series" => [{ "name" => "access_times.service_2", "tags" => { "code" => "500", "result" => "failure", "status" => "Internal Server Error" }, "columns" => %w(time value), "values" => [["2015-07-08T06:15:22Z", 606]] }] }] }
+        { "results" => [{ "statement_id" => 0,
+                          "series" => [{ "name" => "access_times.service_2", "tags" => { "code" => "500", "result" => "failure", "status" => "Internal Server Error" }, "columns" => %w(time value), "values" => [["2015-07-08T06:15:22Z", 606]] }] }] }
       end
       let(:response) do
         JSON.generate(response_line_1) + "\n" + JSON.generate(response_line_2) + "\n" + JSON.generate(response_line_3) + "\n" + JSON.generate(response_line_4)

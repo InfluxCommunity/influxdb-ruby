@@ -22,7 +22,8 @@ module InfluxDB
                   :prefix,
                   :chunk_size,
                   :denormalize,
-                  :epoch
+                  :epoch,
+                  :discard_write_errors
 
     attr_reader :async, :udp
 
@@ -109,8 +110,9 @@ module InfluxDB
     end
 
     def extract_writer_options!(opts)
-      @async = opts.fetch :async, false
-      @udp   = opts.fetch :udp, false
+      @async                = opts.fetch :async, false
+      @udp                  = opts.fetch :udp, false
+      @discard_write_errors = opts.fetch :discard_write_errors, false
     end
 
     def extract_query_options!(opts)
