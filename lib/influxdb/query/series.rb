@@ -9,7 +9,7 @@ module InfluxDB
         resp = execute("SHOW SERIES".freeze, parse: true, db: config.database)
         resp = fetch_series(resp)
         raw_values(resp[0])
-          .fetch('values', [])
+          .fetch('values'.freeze, [])
           .map { |val| val[0].split(',')[0] }
           .uniq
       end
