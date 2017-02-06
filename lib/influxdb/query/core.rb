@@ -122,7 +122,9 @@ module InfluxDB
       end
 
       def execute(query, options = {})
-        url = full_url("/query", q: query)
+        params = { q: query }
+        params[:db] = options.delete(:db) if options.key?(:db)
+        url = full_url("/query".freeze, params)
         get(url, options)
       end
 
