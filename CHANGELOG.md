@@ -6,6 +6,13 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.3.14, released 2017-02-06
+
+- Added option `discard_write_errors` to silently ignore errors when writing
+  to the server (#182, @mickey).
+- Added `#list_series` and `#delete_series` to `InfluxDB::Client` (#183-186,
+  @wrcola).
+
 ## v0.3.13, released 2016-11-23
 
 - You can now `InfluxDB::Client#query`, `#write_points`, `#write_point` and
