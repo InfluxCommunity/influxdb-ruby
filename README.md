@@ -325,7 +325,7 @@ influxdb.write_point(name, data, time_precision)
 Allowed values for `time_precision` are:
 
 - `"ns"` or `nil` for nanosecond
-- `"u"` or `"µs"` for microsecond
+- `"u"` for microsecond
 - `"ms"` for millisecond
 - `"s"` for second
 - `"m"` for minute
