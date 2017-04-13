@@ -306,8 +306,30 @@ influxdb.write_point(name, data)
 
 # or in a method call:
 influxdb.write_point(name, data, time_precision)
-
 ```
+
+> **Note:** The default precision (in this Rubygem) is `"s"` (second), as
+> `Time#to_i` operates on this resolution.
+>
+> If you write data points with sub-second resolution (for example
+> via `Time#to_r`), you need to configure your client instance with an
+> appropiate `time_precision` option **and** you'll need to provide a
+> timestamp value which reflects this precision:
+>
+> ```ruby
+> influxdb = InfluxDB::Client.new time_precision: "ms"
+> time = (Time.now.to_r * 10**6).to_i
+> influxdb.write_point("foobar", { values: { n: 42 }, timestamp: time })
+> ```
+
+Allowed values for `time_precision` are:
+
+- `"ns"` or `nil` for nanosecond
+- `"u"` or `"µs"` for microsecond
+- `"ms"` for millisecond
+- `"s"` for second
+- `"m"` for minute
+- `"h"` for hour
 
 Write data with a specific retention policy:
 
