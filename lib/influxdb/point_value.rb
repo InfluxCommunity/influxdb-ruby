@@ -7,7 +7,6 @@ module InfluxDB
       @series    = escape data[:series], :measurement
       @values    = escape_values data[:values]
       @tags      = escape_tags data[:tags]
-
       @timestamp = data[:timestamp]
     end
 
@@ -26,7 +25,7 @@ module InfluxDB
       tag_key:      ['='.freeze, ' '.freeze, ','.freeze],
       tag_value:    ['='.freeze, ' '.freeze, ','.freeze],
       field_key:    ['='.freeze, ' '.freeze, ','.freeze, '"'.freeze],
-      field_value:  ['"'.freeze]
+      field_value:  ['"'.freeze],
     }.freeze
 
     def escape(s, type)

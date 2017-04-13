@@ -39,35 +39,38 @@ describe InfluxDB::PointValue do
         'responses,region=eu,status=200 value=5i,threshold=0.54 1436349652'
       end
       it 'should have proper form' do
-        point = InfluxDB::PointValue.new(series: "responses",
-                                         values: { value: 5, threshold: 0.54 },
-                                         tags: { region: 'eu', status: 200 },
-                                         timestamp: 1_436_349_652)
+        point = InfluxDB::PointValue.new \
+          series:     "responses",
+          values:     { value: 5, threshold: 0.54 },
+          tags:       { region: 'eu', status: 200 },
+          timestamp:  1_436_349_652
 
         expect(point.dump).to eq(expected_value)
       end
     end
 
-    context "with no tags" do
+    context "without tags" do
       let(:expected_value) do
         "responses value=5i,threshold=0.54 1436349652"
       end
       it 'should have proper form' do
-        point = InfluxDB::PointValue.new(series: "responses",
-                                         values: { value: 5, threshold: 0.54 },
-                                         timestamp: 1_436_349_652)
+        point = InfluxDB::PointValue.new \
+          series:     "responses",
+          values:     { value: 5, threshold: 0.54 },
+          timestamp:  1_436_349_652
 
         expect(point.dump).to eq(expected_value)
       end
     end
 
-    context "with values only" do
+    context "without tags and timestamp" do
       let(:expected_value) do
         "responses value=5i,threshold=0.54"
       end
       it 'should have proper form' do
-        point = InfluxDB::PointValue.new(series: "responses",
-                                         values: { value: 5, threshold: 0.54 })
+        point = InfluxDB::PointValue.new \
+          series: "responses",
+          values: { value: 5, threshold: 0.54 }
 
         expect(point.dump).to eq(expected_value)
       end
@@ -79,9 +82,10 @@ describe InfluxDB::PointValue do
       end
 
       it "should be omitted" do
-        point = InfluxDB::PointValue.new(series: "responses",
-                                         values: { value: 5 },
-                                         tags: { region: "eu", status: nil, other: "", nil => "ignored", "" => "ignored" })
+        point = InfluxDB::PointValue.new \
+          series: "responses",
+          values: { value: 5 },
+          tags:   { region: "eu", status: nil, other: "", nil => "ignored", "" => "ignored" }
         expect(point.dump).to eq(expected_value)
       end
     end

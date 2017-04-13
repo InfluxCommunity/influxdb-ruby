@@ -69,8 +69,8 @@ module InfluxDB
 
       def write(data, precision, retention_policy = nil, database = nil)
         params = {
-          db: database || config.database,
-          precision: precision || config.time_precision
+          db:         database || config.database,
+          precision:  precision || config.time_precision,
         }
 
         params[:rp] = retention_policy if retention_policy
@@ -102,9 +102,9 @@ module InfluxDB
       def denormalized_series_list(series)
         series.map do |s|
           {
-            "name"   => s["name".freeze],
-            "tags"   => s["tags".freeze],
-            "values" => denormalize_series(s)
+            "name".freeze   => s["name".freeze],
+            "tags".freeze   => s["tags".freeze],
+            "values".freeze => denormalize_series(s),
           }
         end
       end

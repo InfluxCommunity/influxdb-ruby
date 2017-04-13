@@ -1,12 +1,12 @@
 AllCops:
   Include:
-    - 'Rakefile'
-    - '*.gemspec'
-    - 'lib/**/*.rb'
-    - 'spec/**/*.rb'
+  - 'Rakefile'
+  - '*.gemspec'
+  - 'lib/**/*.rb'
+  - 'spec/**/*.rb'
   Exclude:
-    - 'bin/**/*'
-    - 'smoke/**/*'
+  - 'bin/**/*'
+  - 'smoke/**/*'
   DisplayCopNames: true
   StyleGuideCopsOnly: false
   TargetRubyVersion: 1.9
@@ -29,8 +29,13 @@ Style/RescueModifier:
 Metrics/LineLength:
   Max: 100
   Exclude:
-    - 'spec/**/*.rb'
+  - 'spec/**/*.rb'
 
 Metrics/ModuleLength:
   CountComments: false  # count full line comments?
   Max: 120
+
+Style/TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: comma
+  Exclude:
+  - "spec/**/*.rb"

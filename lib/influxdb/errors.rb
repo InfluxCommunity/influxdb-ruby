@@ -36,7 +36,7 @@ module InfluxDB # :nodoc:
     Net::HTTPHeaderSyntaxError,
     Net::ProtocolError,
     SocketError,
-    (OpenSSL::SSL::SSLError if defined?(OpenSSL))
+    (OpenSSL::SSL::SSLError if defined?(OpenSSL)),
   ].compact.freeze
 
   # Exception classes which hint to a larger problem on the server side,
@@ -44,7 +44,7 @@ module InfluxDB # :nodoc:
   # _don't_ retry a query but escalate it upwards.
   NON_RECOVERABLE_EXCEPTIONS = [
     EOFError,
-    Zlib::Error
+    Zlib::Error,
   ].freeze
 
   NON_RECOVERABLE_MESSAGE = "The server has sent incomplete data" \
