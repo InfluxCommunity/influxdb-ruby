@@ -35,7 +35,7 @@ matrix:
     - rvm: 2.4.0
       env: TEST_TASK=smoke influx_version=1.1.0 pkghash=682904c350ecfc2a60ec9c6c08453ef2
     - rvm: 2.4.0
-      env: TEST_TASK=smoke influx_version=1.2.0 pkghash=f79959802930c7e9d6e81ffd366c0629
+      env: TEST_TASK=smoke influx_version=1.2.2 pkghash=c30103d19cb35f5414c920596b487c65
     - rvm: 2.4.0
       env: TEST_TASK=smoke influx_version=nightly channel=nightlies
   fail_fast: true

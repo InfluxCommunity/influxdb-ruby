@@ -1,5 +1,6 @@
 # influxdb-ruby
 
+[![Gem Version](https://badge.fury.io/rb/influxdb.svg)](https://badge.fury.io/rb/influxdb)
 [![Build Status](https://travis-ci.org/influxdata/influxdb-ruby.svg?branch=master)](https://travis-ci.org/influxdata/influxdb-ruby)
 
 The official Ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/).
