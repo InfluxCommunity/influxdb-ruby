@@ -21,8 +21,8 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
     - [De-normalization](#de--normalization)
     - [Streaming response](#streaming-response)
     - [Retry](#retry)
-  - [Testing](#testing)
-  - [Contributing](#contributing)
+- [Testing](#testing)
+- [Contributing](#contributing)
 
 ## Platform support
 
@@ -334,18 +334,14 @@ Allowed values for `time_precision` are:
 Write data with a specific retention policy:
 
 ``` ruby
-require 'influxdb'
-
-username  = 'foo'
-password  = 'bar'
 database  = 'site_development'
 name      = 'foobar'
 precision = 's'
 retention = '1h.cpu'
 
 influxdb = InfluxDB::Client.new database,
-  username: username,
-  password: password
+  username: "foo",
+  password: "bar"
 
 data = {
   values:    { value: 0 },
@@ -359,18 +355,14 @@ influxdb.write_point(name, data, precision, retention)
 Write data while choosing the database:
 
 ``` ruby
-require 'influxdb'
-
-username  = 'foo'
-password  = 'bar'
 database  = 'site_development'
 name      = 'foobar'
 precision = 's'
 retention = '1h.cpu'
 
 influxdb = InfluxDB::Client.new {
-  username: username,
-  password: password
+  username: "foo",
+  password: "bar"
 }
 
 data = {
@@ -385,7 +377,6 @@ influxdb.write_point(name, data, precision, retention, database)
 Write multiple points in a batch (performance boost):
 
 ``` ruby
-
 data = [
   {
     series: 'cpu',
@@ -424,22 +415,17 @@ data = [
 precision = 'm'
 retention = '1h.cpu'
 influxdb.write_points(data, precision, retention)
-
 ```
 
 Write asynchronously (note that a retention policy cannot be specified for asynchronous writes):
 
 ``` ruby
-require 'influxdb'
-
-username = 'foo'
-password = 'bar'
 database = 'site_development'
 name     = 'foobar'
 
 influxdb = InfluxDB::Client.new database,
-  username: username,
-  password: password,
+  username: "foo",
+  password: "bar",
   async:    true
 
 data = {
@@ -466,21 +452,13 @@ async_options = {
   sleep_interval:     5
 }
 
-influxdb = InfluxDB::Client.new database,
-  username: username,
-  password: password,
-  async:    async_options
+influxdb = InfluxDB::Client.new database, async: async_options
 ```
-
 
 Write data via UDP (note that a retention policy cannot be specified for UDP writes):
 
 ``` ruby
-require 'influxdb'
-host = '127.0.0.1'
-port = 4444
-
-influxdb = InfluxDB::Client.new udp: { host: host, port: port }
+influxdb = InfluxDB::Client.new udp: { host: "127.0.0.1", port: 4444 }
 
 name = 'hitchhiker'
 
@@ -495,12 +473,8 @@ influxdb.write_point(name, data)
 Discard write errors:
 
 ``` ruby
-require 'influxdb'
-host = '127.0.0.1'
-port = 4444
-
 influxdb = InfluxDB::Client.new(
-  udp: { host: host, port: port },
+  udp: { host: "127.0.0.1", port: 4444 },
   discard_write_errors: true
 )
 
@@ -512,13 +486,10 @@ influxdb.write_point('hitchhiker', { values: { value: 666 } })
 #### Querying
 
 ``` ruby
-username = 'foo'
-password = 'bar'
 database = 'site_development'
-
 influxdb = InfluxDB::Client.new database,
-  username: username,
-  password: password
+  username: "foo",
+  password: "bar"
 
 # without a block:
 influxdb.query 'select * from time_series_1 group by region'
@@ -545,9 +516,9 @@ influxdb.query 'select * from time_series_1 group by region'
 
 # with a block:
 influxdb.query 'select * from time_series_1 group by region' do |name, tags, points|
-  puts "#{name} [ #{tags.inspect} ]"
+  printf "%s [ %p ]\n", name, tags
   points.each do |pt|
-    puts "  -> #{pt.inspect}"
+    printf "  -> %p\n", pt
   end
 end
 
@@ -638,12 +609,11 @@ influxdb.query 'select * from time_series_1 group by region', denormalize: false
 
 
 influxdb.query 'select * from time_series_1 group by region', denormalize: false do |name, tags, points|
-  puts "#{name} [ #{tags.inspect} ]"
+  printf "%s [ %p ]\n", name, tags
   points.each do |key, values|
-    puts "  #{key.inspect} -> #{values.inspect}"
+    printf "  %p -> %p\n", key, values
   end
 end
-
 
 # time_series_1 [ {"region"=>"uk"} ]
 #   columns -> ["time", "count", "value"]
