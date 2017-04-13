@@ -4,7 +4,7 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
-- None.
+- Degraded dependency on "cause" from runtime to development.
 
 ## v0.3.14, released 2017-02-06
 

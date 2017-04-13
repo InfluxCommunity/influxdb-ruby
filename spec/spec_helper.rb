@@ -1,5 +1,6 @@
 require "influxdb"
 require "webmock/rspec"
+require "cause" unless Exception.instance_methods.include?(:cause)
 
 begin
   # rubocop:disable Lint/HandleExceptions

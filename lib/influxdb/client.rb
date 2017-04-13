@@ -1,5 +1,4 @@
 require 'json'
-require 'cause' unless Exception.instance_methods.include?(:cause)
 require 'thread'
 
 module InfluxDB
