@@ -145,6 +145,14 @@ influxdb.write_point(name, data, time_precision)
 > time = (Time.now.to_r * 10**6).to_i
 > influxdb.write_point("foobar", { values: { n: 42 }, timestamp: time })
 > ```
+>
+> As of version 0.3.15, timestamps are automatically converted into the
+> right format, i.e. you can simply use a `Time` object (or anything
+> else which responds to `#to_time`) as `timestamp`:
+>
+> ```ruby
+> influxdb.write_point "foobar", { values: { n: 42 }, timestamp: Time.now }, "u"
+> ```
 
 Allowed values for `time_precision` are:
 

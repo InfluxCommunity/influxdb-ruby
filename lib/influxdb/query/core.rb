@@ -52,12 +52,12 @@ module InfluxDB
       #   }
       # ])
       def write_points(data, precision = nil, retention_policy = nil, database = nil)
-        data = data.is_a?(Array) ? data : [data]
-        payload = generate_payload(data)
+        data        = data.is_a?(Array) ? data : [data]
+        precision ||= config.time_precision
+        payload     = generate_payload(data, precision)
         writer.write(payload, precision, retention_policy, database)
       rescue => e
         raise e unless config.discard_write_errors
-
         log :error, "Cannot write data: #{e.inspect}"
       end
 
@@ -116,9 +116,9 @@ module InfluxDB
         end
       end
 
-      def generate_payload(data)
+      def generate_payload(data, precision = nil)
         data.map do |point|
-          InfluxDB::PointValue.new(point).dump
+          InfluxDB::PointValue.new(point, precision: precision).dump
         end.join("\n".freeze)
       end
 

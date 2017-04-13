@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 require "spec_helper"
+require "date"
 
 describe InfluxDB::PointValue do
   describe "escaping" do
@@ -30,6 +31,97 @@ describe InfluxDB::PointValue do
       expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
                  %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0,invalid_encoding="a b",non_latin="Улан-Удэ")
       expect(point.dump).to eq(expected)
+    end
+  end
+
+  describe "timestamp escaping" do
+    let(:timestamp) { nil }
+    let(:precision) { nil }
+    let(:data) do
+      point = {
+        series:     "responses",
+        tags:       { reg: :eu },
+        values:     { v: 5 },
+      }
+      point[:timestamp] = timestamp if timestamp
+      point
+    end
+
+    subject { InfluxDB::PointValue.new(data, precision: precision).dump }
+
+    context "default behaviour" do
+      subject { InfluxDB::PointValue.new(data).dump }
+      it { is_expected.to eq "responses,reg=eu v=5i" }
+    end
+
+    context "no precision" do
+      context "given a numeric value" do
+        let(:timestamp) { 1234 }
+        it { is_expected.to eq "responses,reg=eu v=5i 1234" }
+      end
+
+      context "given a Time value" do
+        let(:timestamp) { Time.at(1234.5) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1234500000000" }
+      end
+
+      context "given a Date value" do
+        let(:timestamp) { Date.new(2017, 4, 13) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492034400000000000" }
+      end
+
+      context "given a DateTime value" do
+        let(:timestamp) { DateTime.new(2017, 4, 13, 12, 52, 7.0005) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492087927000500000" }
+      end
+    end
+
+    context "given second precision" do
+      let(:precision) { "s" }
+
+      context "given a numeric value" do
+        let(:timestamp) { 1234 }
+        it { is_expected.to eq "responses,reg=eu v=5i 1234" }
+      end
+
+      context "given a Time value" do
+        let(:timestamp) { Time.at(1234.56) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1234" }
+      end
+
+      context "given a Date value" do
+        let(:timestamp) { Date.new(2017, 4, 13) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492034400" }
+      end
+
+      context "given a DateTime value" do
+        let(:timestamp) { DateTime.new(2017, 4, 13, 12, 52, 7.0005) }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492087927" }
+      end
+    end
+
+    context "given hour precision" do
+      let(:precision) { "h" }
+
+      context "a numeric value doesn't change" do
+        let(:timestamp) { 1234 }
+        it { is_expected.to eq "responses,reg=eu v=5i 1234" }
+      end
+
+      context "given a Time value" do
+        let(:timestamp) { Time.at(7200.56) }
+        it { is_expected.to eq "responses,reg=eu v=5i 2" }
+      end
+
+      context "given a Date value" do
+        let(:timestamp) { Date.new(2017, 4, 13) }
+        it { is_expected.to eq "responses,reg=eu v=5i 414454" }
+      end
+
+      context "given a DateTime value" do
+        let(:timestamp) { DateTime.new(2017, 4, 13, 12, 52, 7.0005) }
+        it { is_expected.to eq "responses,reg=eu v=5i 414468" }
+      end
     end
   end
 

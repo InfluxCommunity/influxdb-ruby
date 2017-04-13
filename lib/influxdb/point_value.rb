@@ -3,11 +3,14 @@ module InfluxDB
   class PointValue
     attr_reader :series, :values, :tags, :timestamp
 
-    def initialize(data)
+    def initialize(data, options = {})
+      options  ||= {}
+      precision  = options.fetch(:precision, "s")
+
       @series    = escape data[:series], :measurement
       @values    = escape_values data[:values]
       @tags      = escape_tags data[:tags]
-      @timestamp = data[:timestamp]
+      @timestamp = escape_time data[:timestamp], precision
     end
 
     def dump
@@ -26,6 +29,18 @@ module InfluxDB
       tag_value:    ['='.freeze, ' '.freeze, ','.freeze],
       field_key:    ['='.freeze, ' '.freeze, ','.freeze, '"'.freeze],
       field_value:  ['"'.freeze],
+    }.freeze
+
+    # Time in Ruby is based on the second, depending on the target
+    # precision, we need to multiply the value by a constant amount.
+    PRECISION_MULTIPLIER = {
+      "ns"        => 10**9,             # nanosecond
+      nil         => 10**9,             # nanosecond (alias)
+      "u".freeze  => 10**6,             # microsecond
+      "ms".freeze => 10**3,             # millisecond
+      "s".freeze  => 1,                 # second
+      "m".freeze  => Rational(1, 60),   # minute
+      "h".freeze  => Rational(1, 3600), # hour
     }.freeze
 
     def escape(s, type)
@@ -71,6 +86,14 @@ module InfluxDB
       end.compact
 
       tags.join(",") unless tags.empty?
+    end
+
+    def escape_time(t, precision)
+      return t if t.nil? || t.is_a?(Integer) # ignore precision
+
+      t = t.to_time if t.respond_to?(:to_time)
+      f = PRECISION_MULTIPLIER.fetch(precision, 1)
+      (t.to_r * f).to_i
     end
   end
 end

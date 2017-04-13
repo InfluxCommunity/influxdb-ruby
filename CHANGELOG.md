@@ -2,8 +2,10 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## Unreleased changes
+## v0.3.15, unreleased
 
+- Allow Time values (and those responding to `#to_time`) as time stamps
+  in `InfluxDB::PointValue`, and convert between known precision options.
 - Degraded dependency on "cause" from runtime to development.
 
 ## v0.3.14, released 2017-02-06
