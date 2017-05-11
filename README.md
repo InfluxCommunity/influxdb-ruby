@@ -13,12 +13,13 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 - [Installation](#installation)
 - [Usage](#usage)
   - [Creating a client](#creating-a-client)
+  - [Writing data](#writing-data)
+  - [Querying](#querying)
+- [Advanced Topics](#advanced-topics)
   - [Administrative tasks](#administrative-tasks)
   - [Continuous queries](#continuous-queries)
   - [Retention policies](#retention-policies)
-  - [Writing data](#writing-data)
   - [Reading data](#reading-data)
-    - [Querying](#querying)
     - [De-normalization](#de--normalization)
     - [Streaming response](#streaming-response)
     - [Retry](#retry)
@@ -71,187 +72,6 @@ Connecting to multiple hosts (with built-in load balancing and failover):
 require 'influxdb'
 
 influxdb = InfluxDB::Client.new hosts: ["influxdb1.domain.com", "influxdb2.domain.com"]
-```
-
-### Administrative tasks
-
-Create a database:
-
-``` ruby
-database = 'site_development'
-
-influxdb.create_database(database)
-```
-
-Delete a database:
-
-``` ruby
-database = 'site_development'
-
-influxdb.delete_database(database)
-```
-
-List databases:
-
-``` ruby
-influxdb.list_databases
-```
-
-Create a user for a database:
-
-``` ruby
-database = 'site_development'
-new_username = 'foo'
-new_password = 'bar'
-permission = :write
-
-# with all permissions
-influxdb.create_database_user(database, new_username, new_password)
-
-# with specified permission - options are: :read, :write, :all
-influxdb.create_database_user(database, new_username, new_password, permissions: permission)
-```
-
-Update a user password:
-
-``` ruby
-username = 'foo'
-new_password = 'bar'
-
-influxdb.update_user_password(username, new_password)
-```
-
-Grant user privileges on database:
-
-``` ruby
-username = 'foobar'
-database = 'foo'
-permission = :read # options are :read, :write, :all
-
-influxdb.grant_user_privileges(username, database, permission)
-```
-
-Revoke user privileges from database:
-
-``` ruby
-username = 'foobar'
-database = 'foo'
-permission = :write # options are :read, :write, :all
-
-influxdb.revoke_user_privileges(username, database, permission)
-```
-Delete a user:
-
-``` ruby
-username = 'foobar'
-
-influxdb.delete_user(username)
-```
-
-List users:
-
-``` ruby
-influxdb.list_users
-```
-
-Create cluster admin:
-
-``` ruby
-username = 'foobar'
-password = 'pwd'
-
-influxdb.create_cluster_admin(username, password)
-```
-
-List cluster admins:
-
-``` ruby
-influxdb.list_cluster_admins
-```
-
-Revoke cluster admin privileges from user:
-
-``` ruby
-username = 'foobar'
-
-influxdb.revoke_cluster_admin_privileges(username)
-```
-
-### Continuous Queries
-
-List continuous queries of a database:
-
-``` ruby
-database = 'foo'
-
-influxdb.list_continuous_queries(database)
-```
-
-Create a continuous query for a database:
-
-``` ruby
-database = 'foo'
-name = 'clicks_count'
-query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
-
-influxdb.create_continuous_query(name, database, query)
-```
-
-Additionally, you can specify the resample interval and the time range over
-which the CQ runs:
-
-``` ruby
-influxdb.create_continuous_query(name, database, query, resample_every: "10m", resample_for: "65m")
-```
-
-Delete a continuous query from a database:
-
-``` ruby
-database = 'foo'
-name = 'clicks_count'
-
-influxdb.delete_continuous_query(name, database)
-```
-
-### Retention Policies
-
-List retention policies of a database:
-
-``` ruby
-database = 'foo'
-
-influxdb.list_retention_policies(database)
-```
-
-Create a retention policy for a database:
-
-``` ruby
-database    = 'foo'
-name        = '1h.cpu'
-duration    = '10m'
-replication = 2
-
-influxdb.create_retention_policy(name, database, duration, replication)
-```
-
-Delete a retention policy from a database:
-
-``` ruby
-database = 'foo'
-name     = '1h.cpu'
-
-influxdb.delete_retention_policy(name, database)
-```
-
-Alter a retention policy for a database:
-
-``` ruby
-database    = 'foo'
-name        = '1h.cpu'
-duration    = '10m'
-replication = 2
-
-influxdb.alter_retention_policy(name, database, duration, replication)
 ```
 
 ### Writing data
@@ -482,9 +302,8 @@ influxdb = InfluxDB::Client.new(
 influxdb.write_point('hitchhiker', { values: { value: 666 } })
 ```
 
-### Reading data
 
-#### Querying
+### Querying
 
 ``` ruby
 database = 'site_development'
@@ -578,6 +397,190 @@ influxdb.query positional_params_query, params: ["foobar", 42]
 #   select * from time_series_0 where f = 'foobar' and i < 42
 ```
 
+## Advanced Topics
+
+### Administrative tasks
+
+Create a database:
+
+``` ruby
+database = 'site_development'
+
+influxdb.create_database(database)
+```
+
+Delete a database:
+
+``` ruby
+database = 'site_development'
+
+influxdb.delete_database(database)
+```
+
+List databases:
+
+``` ruby
+influxdb.list_databases
+```
+
+Create a user for a database:
+
+``` ruby
+database = 'site_development'
+new_username = 'foo'
+new_password = 'bar'
+permission = :write
+
+# with all permissions
+influxdb.create_database_user(database, new_username, new_password)
+
+# with specified permission - options are: :read, :write, :all
+influxdb.create_database_user(database, new_username, new_password, permissions: permission)
+```
+
+Update a user password:
+
+``` ruby
+username = 'foo'
+new_password = 'bar'
+
+influxdb.update_user_password(username, new_password)
+```
+
+Grant user privileges on database:
+
+``` ruby
+username = 'foobar'
+database = 'foo'
+permission = :read # options are :read, :write, :all
+
+influxdb.grant_user_privileges(username, database, permission)
+```
+
+Revoke user privileges from database:
+
+``` ruby
+username = 'foobar'
+database = 'foo'
+permission = :write # options are :read, :write, :all
+
+influxdb.revoke_user_privileges(username, database, permission)
+```
+Delete a user:
+
+``` ruby
+username = 'foobar'
+
+influxdb.delete_user(username)
+```
+
+List users:
+
+``` ruby
+influxdb.list_users
+```
+
+Create cluster admin:
+
+``` ruby
+username = 'foobar'
+password = 'pwd'
+
+influxdb.create_cluster_admin(username, password)
+```
+
+List cluster admins:
+
+``` ruby
+influxdb.list_cluster_admins
+```
+
+Revoke cluster admin privileges from user:
+
+``` ruby
+username = 'foobar'
+
+influxdb.revoke_cluster_admin_privileges(username)
+```
+
+### Continuous Queries
+
+List continuous queries of a database:
+
+``` ruby
+database = 'foo'
+
+influxdb.list_continuous_queries(database)
+```
+
+Create a continuous query for a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+query = 'SELECT COUNT(name) INTO clicksCount_1h FROM clicks GROUP BY time(1h)'
+
+influxdb.create_continuous_query(name, database, query)
+```
+
+Additionally, you can specify the resample interval and the time range over
+which the CQ runs:
+
+``` ruby
+influxdb.create_continuous_query(name, database, query, resample_every: "10m", resample_for: "65m")
+```
+
+Delete a continuous query from a database:
+
+``` ruby
+database = 'foo'
+name = 'clicks_count'
+
+influxdb.delete_continuous_query(name, database)
+```
+
+### Retention Policies
+
+List retention policies of a database:
+
+``` ruby
+database = 'foo'
+
+influxdb.list_retention_policies(database)
+```
+
+Create a retention policy for a database:
+
+``` ruby
+database    = 'foo'
+name        = '1h.cpu'
+duration    = '10m'
+replication = 2
+
+influxdb.create_retention_policy(name, database, duration, replication)
+```
+
+Delete a retention policy from a database:
+
+``` ruby
+database = 'foo'
+name     = '1h.cpu'
+
+influxdb.delete_retention_policy(name, database)
+```
+
+Alter a retention policy for a database:
+
+``` ruby
+database    = 'foo'
+name        = '1h.cpu'
+duration    = '10m'
+replication = 2
+
+influxdb.alter_retention_policy(name, database, duration, replication)
+```
+
+### Reading data
 
 #### (De-) Normalization
 
@@ -673,6 +676,7 @@ E, [2016-08-31T23:55:18.921740 #23476] ERROR -- InfluxDB: Failed to contact host
 E, [2016-08-31T23:55:19.562428 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 1.28s.
 InfluxDB::ConnectionError: Tried 8 times to reconnect but failed.
 ```
+
 
 ## Testing
 
