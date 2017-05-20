@@ -1,4 +1,5 @@
 require 'thread'
+require 'uri'
 
 module InfluxDB
   # InfluxDB client configuration
@@ -28,6 +29,7 @@ module InfluxDB
     attr_reader :async, :udp
 
     def initialize(opts = {})
+      merge_url(opts)
       extract_http_options!(opts)
       extract_ssl_options!(opts)
       extract_database_options!(opts)
@@ -117,6 +119,18 @@ module InfluxDB
 
     def extract_query_options!(opts)
       @chunk_size = opts.fetch :chunk_size, nil
+    end
+
+    def merge_url(opts)
+      return unless opts[:url]
+      u = URI.parse opts[:url]
+      opts[:host] = u.host
+      opts[:port] = u.port if u.port
+      opts[:username] = u.user if u.user
+      opts[:password] = u.password if u.password
+      opts[:database] = u.path[1..-1] if u.path.length > 1
+      opts[:use_ssl] = true if %w(ssl tls).include? u.scheme
+      opts[:udp] = true if u.scheme == "udp"
     end
   end
 end
