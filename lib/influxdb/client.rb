@@ -48,6 +48,8 @@ module InfluxDB
     # +:verify_ssl+:: verify ssl server certificate?
     # +:ssl_ca_cert+:: ssl CA certificate, chainfile or CA path.
     #                  The system CA path is automatically included
+    # +:url+:: configure everything with a single URL, eg: tls://user:pass@host/db
+    #          scheme "tls" and "ssl" enables ssl, "udp" makes it talk udp, everything else plain tcp
     def initialize(*args)
       opts = args.last.is_a?(Hash) ? args.last : {}
       opts[:database] = args.first if args.first.is_a? String
