@@ -14,6 +14,7 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 - [Usage](#usage)
   - [Creating a client](#creating-a-client)
   - [Writing data](#writing-data)
+    - [A Note About Time Precision](#a-note-about-time-precision)
   - [Querying](#querying)
 - [Advanced Topics](#advanced-topics)
   - [Administrative tasks](#administrative-tasks)
@@ -129,7 +130,9 @@ influxdb.write_point(name, data)
 influxdb.write_point(name, data, time_precision)
 ```
 
-> **Note:** The default precision (in this Rubygem) is `"s"` (second), as
+> ### A Note About Time Precision
+>
+> The default precision (in this Rubygem) is `"s"` (second), as Ruby's
 > `Time#to_i` operates on this resolution.
 >
 > If you write data points with sub-second resolution (for example
