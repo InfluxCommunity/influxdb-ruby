@@ -90,10 +90,19 @@ module InfluxDB
 
     def escape_time(t, precision)
       return t if t.nil? || t.is_a?(Integer) # ignore precision
-
-      t = t.to_time if t.respond_to?(:to_time)
+      t = normalize_time(t)
       f = PRECISION_MULTIPLIER.fetch(precision, 1)
       (t.to_r * f).to_i
+    end
+
+    def normalize_time(t)
+      # avoid time zone inherited from localtime(3), but only for Date
+      # instances (DateTime < Date)
+      if t.class == Date
+        Time.utc(t.year, t.month, t.day)
+      else
+        (t.respond_to?(:to_time) ? t.to_time : t).getutc
+      end
     end
   end
 end

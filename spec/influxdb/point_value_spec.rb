@@ -67,7 +67,7 @@ describe InfluxDB::PointValue do
 
       context "given a Date value" do
         let(:timestamp) { Date.new(2017, 4, 13) }
-        it { is_expected.to eq "responses,reg=eu v=5i 1492034400000000000" }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492041600000000000" }
       end
 
       context "given a DateTime value" do
@@ -91,7 +91,7 @@ describe InfluxDB::PointValue do
 
       context "given a Date value" do
         let(:timestamp) { Date.new(2017, 4, 13) }
-        it { is_expected.to eq "responses,reg=eu v=5i 1492034400" }
+        it { is_expected.to eq "responses,reg=eu v=5i 1492041600" }
       end
 
       context "given a DateTime value" do
@@ -115,7 +115,7 @@ describe InfluxDB::PointValue do
 
       context "given a Date value" do
         let(:timestamp) { Date.new(2017, 4, 13) }
-        it { is_expected.to eq "responses,reg=eu v=5i 414454" }
+        it { is_expected.to eq "responses,reg=eu v=5i 414456" }
       end
 
       context "given a DateTime value" do
