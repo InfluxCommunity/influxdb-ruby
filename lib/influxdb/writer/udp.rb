@@ -14,7 +14,11 @@ module InfluxDB
       end
 
       def write(payload, _precision = nil, _retention_policy = nil, _database = nil)
-        socket.send(payload, 0)
+        begin
+          socket.send(payload, 0)
+        rescue => e
+          puts "Cannot write data: #{e.inspect}"
+        end
       end
     end
   end
