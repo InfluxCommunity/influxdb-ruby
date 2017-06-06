@@ -1,7 +1,6 @@
 # encoding: UTF-8
 
 require "spec_helper"
-require "date"
 
 describe InfluxDB::PointValue do
   describe "escaping" do

@@ -1,3 +1,5 @@
+require "date"
+
 module InfluxDB
   # Convert data point to string using Line protocol
   class PointValue
