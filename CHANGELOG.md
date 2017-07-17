@@ -4,6 +4,15 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
+- nothing yet
+
+## v0.3.15, released 2017-07-17
+
+- Bugfix for `InfluxDB::Client#list_series` when no series available
+  (#195, @skladd).
+- Clarified/expanded docs (also #190, @paneq).
+- Added preliminary `show_field_keys` method to `InfluxDB::Client` (note:
+  the API for this is not stable yet).
 - Degraded dependency on "cause" from runtime to development.
 
 ## v0.3.14, released 2017-02-06
@@ -18,7 +27,6 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 - You can now `InfluxDB::Client#query`, `#write_points`, `#write_point` and
   `#write` now accept an additional parameter to override the database on
   invokation time (#173, #176, @jfragoulis).
-
 
 ## v0.3.12, released 2016-11-15
 
