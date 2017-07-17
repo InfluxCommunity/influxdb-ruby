@@ -35,6 +35,23 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "GET empty #list_series" do
+    let(:response) { { "results" => [{ "series" => [] }] } }
+    let(:query) { "SHOW SERIES" }
+
+    before do
+      stub_request(:get, "http://influxdb.test:9999/query").with(
+        query: { u: "username", p: "password", q: query, db: "database" }
+      ).to_return(
+        body: JSON.generate(response)
+      )
+    end
+
+    it "returns a empty list" do
+      expect(subject.list_series).to eq []
+    end
+  end
+
   describe "#delete_series" do
     let(:name) { "events" }
     let(:query) { "DROP SERIES FROM #{name}" }
