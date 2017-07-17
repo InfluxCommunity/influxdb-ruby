@@ -39,3 +39,6 @@ Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
   Exclude:
   - "spec/**/*.rb"
+
+Metrics/AbcSize:
+  Max: 20

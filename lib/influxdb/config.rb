@@ -62,7 +62,6 @@ module InfluxDB
 
     private
 
-    # rubocop:disable Metrics/AbcSize
     def extract_http_options!(opts)
       @port           = opts.fetch :port, 8086
       @prefix         = opts.fetch :prefix, "".freeze
