@@ -169,7 +169,7 @@ influxdb = InfluxDB::Client.new database,
 
 data = {
   values:    { value: 0 },
-  tags:      { foo: 'bar', bar: 'baz' }
+  tags:      { foo: 'bar', bar: 'baz' },
   timestamp: Time.now.to_i
 }
 
