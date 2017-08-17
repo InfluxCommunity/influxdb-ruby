@@ -7,8 +7,8 @@ before_install:
   - gem update bundler --no-doc
   - smoke/provision.sh
 rvm:
-  - 2.2.5
-  - 2.3.3
+  - 2.2.7
+  - 2.3.4
   - 2.4.1
   - ruby-head
 env:
