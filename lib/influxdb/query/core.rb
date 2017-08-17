@@ -18,14 +18,17 @@ module InfluxDB
       end
 
       # rubocop:disable Metrics/MethodLength
-      def query(query, opts = {})
-        query = builder.build(query, opts[:params])
-        denormalize = opts.fetch(:denormalize, config.denormalize)
-        json_streaming = !opts.fetch(:chunk_size, config.chunk_size).nil?
+      def query(
+        query,
+        params:       nil,
+        denormalize:  config.denormalize,
+        chunk_size:   config.chunk_size,
+        **opts
+      )
+        query = builder.build(query, params)
 
-        params = query_params(query, opts)
-        url = full_url("/query".freeze, params)
-        series = fetch_series(get(url, parse: true, json_streaming: json_streaming))
+        url = full_url("/query".freeze, query_params(query, opts))
+        series = fetch_series(get(url, parse: true, json_streaming: !chunk_size.nil?))
 
         if block_given?
           series.each do |s|
@@ -81,12 +84,13 @@ module InfluxDB
       private
 
       # rubocop:disable Metrics/MethodLength
-      def query_params(query, opts)
-        precision   = opts.fetch(:precision, config.time_precision)
-        epoch       = opts.fetch(:epoch, config.epoch)
-        chunk_size  = opts.fetch(:chunk_size, config.chunk_size)
-        database    = opts.fetch(:database, config.database)
-
+      def query_params(
+          query,
+          precision:  config.time_precision,
+          epoch:      config.epoch,
+          chunk_size: config.chunk_size,
+          database:   config.database
+      )
         params = { q: query, db: database }
         params[:precision] = precision if precision
         params[:epoch]     = epoch     if epoch
@@ -122,9 +126,9 @@ module InfluxDB
         end.join("\n".freeze)
       end
 
-      def execute(query, options = {})
+      def execute(query, db: nil, **options)
         params = { q: query }
-        params[:db] = options.delete(:db) if options.key?(:db)
+        params[:db] = db if db
         url = full_url("/query".freeze, params)
         get(url, options)
       end

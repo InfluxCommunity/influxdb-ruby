@@ -4,11 +4,11 @@ module InfluxDB
     class UDP
       attr_accessor :socket
       attr_reader :host, :port
-      def initialize(client, config)
+
+      def initialize(client, host: "localhost".freeze, port: 4444)
         @client = client
-        config = config.is_a?(Hash) ? config : {}
-        @host = config.fetch(:host, "localhost".freeze)
-        @port = config.fetch(:port, 4444)
+        @host = host
+        @port = port
         self.socket = UDPSocket.new
         socket.connect(host, port)
       end

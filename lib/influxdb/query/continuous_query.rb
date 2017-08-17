@@ -10,13 +10,13 @@ module InfluxDB
           .map { |v| { 'name' => v.first, 'query' => v.last } }
       end
 
-      def create_continuous_query(name, database, query, options = {})
+      def create_continuous_query(name, database, query, resample_every: nil, resample_for: nil)
         clause = ["CREATE CONTINUOUS QUERY", name, "ON", database]
 
-        if options[:resample_every] || options[:resample_for]
+        if resample_every || resample_for
           clause << "RESAMPLE"
-          clause << "EVERY #{options[:resample_every]}" if options[:resample_every]
-          clause << "FOR #{options[:resample_for]}"     if options[:resample_for]
+          clause << "EVERY #{resample_every}" if resample_every
+          clause << "FOR #{resample_for}"     if resample_for
         end
 
         clause = clause.join(" ") << " BEGIN\n" << query << "\nEND"

@@ -6,6 +6,8 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - **Dropped support for Ruby < 2.2**
 - Updated dependencies
+- Refactor some method declarations, to take kwargs instead of an
+  options hash (this shouldn't break call sites).
 
 ## v0.3.16, released 2017-08-17
 
