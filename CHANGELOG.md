@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - nothing yet
 
+## v0.3.16, released 2017-08-17
+
+- **This is propably the last release in the 0.3.x series**
+- Typo fix in README (#196, @MichaelSp)
+
 ## v0.3.15, released 2017-07-17
 
 - Bugfix for `InfluxDB::Client#list_series` when no series available
