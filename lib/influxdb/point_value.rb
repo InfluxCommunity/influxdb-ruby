@@ -28,6 +28,8 @@ module InfluxDB
       field_value:  ['"'.freeze],
     }.freeze
 
+    private_constant :ESCAPES
+
     def escape(s, type)
       # rubocop:disable Layout/AlignParameters
       s = s.encode "UTF-8".freeze, "UTF-8".freeze,
@@ -47,12 +49,12 @@ module InfluxDB
         key = escape(k.to_s, :field_key)
         val = escape_value(v)
         "#{key}=#{val}"
-      end.join(",")
+      end.join(",".freeze)
     end
 
     def escape_value(value)
       if value.is_a?(String)
-        '"' + escape(value, :field_value) + '"'
+        '"'.freeze + escape(value, :field_value) + '"'.freeze
       elsif value.is_a?(Integer)
         "#{value}i"
       else
@@ -67,7 +69,7 @@ module InfluxDB
         key = escape(k.to_s, :tag_key)
         val = escape(v.to_s, :tag_value)
 
-        "#{key}=#{val}" unless key == "" || val == ""
+        "#{key}=#{val}" unless key == "".freeze || val == "".freeze
       end.compact
 
       tags.join(",") unless tags.empty?

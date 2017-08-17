@@ -14,12 +14,12 @@ module InfluxDB
         clause = ["CREATE CONTINUOUS QUERY", name, "ON", database]
 
         if resample_every || resample_for
-          clause << "RESAMPLE"
+          clause << "RESAMPLE".freeze
           clause << "EVERY #{resample_every}" if resample_every
           clause << "FOR #{resample_for}"     if resample_for
         end
 
-        clause = clause.join(" ") << " BEGIN\n" << query << "\nEND"
+        clause = clause.join(" ".freeze) << " BEGIN\n".freeze << query << "\nEND".freeze
         execute(clause)
       end
 

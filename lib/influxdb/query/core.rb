@@ -83,7 +83,6 @@ module InfluxDB
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def query_params(
           query,
           precision:  config.time_precision,
@@ -102,7 +101,6 @@ module InfluxDB
 
         params
       end
-      # rubocop:enable Metrics/MethodLength
 
       def denormalized_series_list(series)
         series.map do |s|

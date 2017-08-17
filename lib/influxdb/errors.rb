@@ -2,23 +2,12 @@ require "net/http"
 require "zlib"
 
 module InfluxDB # :nodoc:
-  class Error < StandardError
-  end
-
-  class AuthenticationError < Error
-  end
-
-  class ConnectionError < Error
-  end
-
-  class SeriesNotFound < Error
-  end
-
-  class JSONParserError < Error
-  end
-
-  class QueryError < Error
-  end
+  Error               = Class.new StandardError
+  AuthenticationError = Class.new Error
+  ConnectionError     = Class.new Error
+  SeriesNotFound      = Class.new Error
+  JSONParserError     = Class.new Error
+  QueryError          = Class.new Error
 
   # When executing queries via HTTP, some errors can more or less safely
   # be ignored and we can retry the query again. This following

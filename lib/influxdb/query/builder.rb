@@ -17,7 +17,7 @@ module InfluxDB
       def quote(param)
         case param
         when String, Symbol
-          "'" + param.to_s.gsub(/['"\\\x0]/, '\\\\\0') + "'"
+          "'".freeze + param.to_s.gsub(/['"\\\x0]/, '\\\\\0') + "'".freeze
         when Integer, Float, TrueClass, FalseClass
           param.to_s
         else
