@@ -29,7 +29,7 @@ module InfluxDB
     }.freeze
 
     def escape(s, type)
-      # rubocop:disable Style/AlignParameters
+      # rubocop:disable Layout/AlignParameters
       s = s.encode "UTF-8".freeze, "UTF-8".freeze,
         invalid: :replace,
         undef: :replace,

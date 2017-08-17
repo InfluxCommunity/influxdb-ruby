@@ -47,3 +47,6 @@ Style/TrailingCommaInLiteral:
 
 Metrics/AbcSize:
   Max: 20
+
+Style/FormatStringToken:
+  Enabled: false

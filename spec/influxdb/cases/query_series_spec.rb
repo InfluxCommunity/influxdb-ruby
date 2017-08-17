@@ -19,7 +19,7 @@ describe InfluxDB::Client do
 
   describe "GET #list_series" do
     let(:response) { { "results" => [{ "series" => [{ "columns" => "key", "values" => [["series1,name=default,duration=0"], ["series2,name=another,duration=1"]] }] }] } }
-    let(:data) { %w(series1 series2) }
+    let(:data) { %w[series1 series2] }
     let(:query) { "SHOW SERIES" }
 
     before do

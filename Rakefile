@@ -18,7 +18,7 @@ Rake::TestTask.new(:smoke) do |t|
   t.test_files = FileList["smoke/*.rb"]
 end
 
-task default: [:spec, :rubocop]
+task default: %i[spec rubocop]
 
 task :console do
   lib = File.expand_path("../lib", __FILE__)

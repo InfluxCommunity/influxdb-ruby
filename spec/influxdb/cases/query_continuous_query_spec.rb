@@ -22,9 +22,9 @@ describe InfluxDB::Client do
     let(:database) { "testdb" }
     let(:response) do
       { "results" => [{ "statement_id" => 0,
-                        "series" => [{ "name" => "otherdb", "columns" => %w(name query),
+                        "series" => [{ "name" => "otherdb", "columns" => %w[name query],
                                        "values" => [["clicks_per_hour", "CREATE CONTINUOUS QUERY clicks_per_hour ON otherdb BEGIN SELECT count(name) INTO \"otherdb\".\"default\".clicksCount_1h FROM \"otherdb\".\"default\".clicks GROUP BY time(1h) END"]] },
-                                     { "name" => "testdb", "columns" => %w(name query),
+                                     { "name" => "testdb", "columns" => %w[name query],
                                        "values" => [["event_counts", "CREATE CONTINUOUS QUERY event_counts ON testdb BEGIN SELECT count(type) INTO \"testdb\".\"default\".typeCount_10m_byType FROM \"testdb\".\"default\".events GROUP BY time(10m), type END"]] }] }] }
     end
 

@@ -27,7 +27,7 @@ describe InfluxDB::Client do
 
   describe "#list_retention_policies" do
     let(:query) { "SHOW RETENTION POLICIES ON \"database\"" }
-    let(:response) { { "results" => [{ "statement_id" => 0, "series" => [{ "columns" => %w(name duration replicaN default), "values" => [["default", "0", 1, true], ["another", "1", 2, false]] }] }] } }
+    let(:response) { { "results" => [{ "statement_id" => 0, "series" => [{ "columns" => %w[name duration replicaN default], "values" => [["default", "0", 1, true], ["another", "1", 2, false]] }] }] } }
     let(:expected_result) { [{ "name" => "default", "duration" => "0", "replicaN" => 1, "default" => true }, { "name" => "another", "duration" => "1", "replicaN" => 2, "default" => false }] }
 
     it "should GET a list of retention policies" do

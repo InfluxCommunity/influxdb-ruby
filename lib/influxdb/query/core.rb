@@ -136,7 +136,7 @@ module InfluxDB
       end
 
       def raw_values(series)
-        series.select { |k, _| %w(columns values).include?(k) }
+        series.select { |k, _| %w[columns values].include?(k) }
       end
 
       def full_url(path, params = {})

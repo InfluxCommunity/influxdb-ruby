@@ -99,7 +99,7 @@ describe InfluxDB::Client do
 
   describe "#list_users" do
     let(:query) { "SHOW USERS" }
-    let(:response) { { "results" => [{ "statement_id" => 0, "series" => [{ "columns" => %w(user admin), "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
+    let(:response) { { "results" => [{ "statement_id" => 0, "series" => [{ "columns" => %w[user admin], "values" => [["dbadmin", true], ["foobar", false]] }] }] } }
     let(:expected_result) { [{ "username" => "dbadmin", "admin" => true }, { "username" => "foobar", "admin" => false }] }
 
     it "should GET a list of database users" do

@@ -51,7 +51,6 @@ module InfluxDB
 
         http = setup_ssl(http)
         yield http
-
       rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
         raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
       rescue Timeout::Error, *InfluxDB::RECOVERABLE_EXCEPTIONS => e

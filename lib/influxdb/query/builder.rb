@@ -10,7 +10,6 @@ module InfluxDB
         end
 
         query % params
-
       rescue KeyError => e
         raise ArgumentError, e.message
       end

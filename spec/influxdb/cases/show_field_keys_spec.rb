@@ -26,15 +26,15 @@ describe InfluxDB::Client do
         "results" => [{
           "series" => [{
             "name"    => "measurement_a",
-            "columns" => %w(fieldKey fieldType),
-            "values"  => [%w(a_string_field string),
-                          %w(a_boolean_field boolean),
-                          %w(a_float_field float),
-                          %w(an_integer_field integer)]
+            "columns" => %w[fieldKey fieldType],
+            "values"  => [%w[a_string_field string],
+                          %w[a_boolean_field boolean],
+                          %w[a_float_field float],
+                          %w[an_integer_field integer]]
           }, {
             "name"    => "measurement_b",
-            "columns" => %w(fieldKey fieldType),
-            "values"  => [%w(another_string string)]
+            "columns" => %w[fieldKey fieldType],
+            "values"  => [%w[another_string string]]
           }]
         }]
       }
