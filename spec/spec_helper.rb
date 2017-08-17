@@ -1,12 +1,12 @@
 require "influxdb"
 require "webmock/rspec"
-require "cause" unless Exception.instance_methods.include?(:cause)
 
+# rubocop:disable Lint/HandleExceptions
 begin
-  # rubocop:disable Lint/HandleExceptions
   require "pry-byebug"
 rescue LoadError
 end
+# rubocop:enable Lint/HandleExceptions
 
 RSpec.configure do |config|
   config.color = ENV["TRAVIS"] != "true"
@@ -17,6 +17,7 @@ RSpec.configure do |config|
   else
     config.formatter = :progress
   end
+  # rubocop:enable Style/ConditionalAssignment
 
   if ENV["LOG"]
     Dir.mkdir("tmp") unless Dir.exist?("tmp")

@@ -38,14 +38,9 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 
 ## Ruby support
 
-Up to and including version 0.3.x, this gem will work with Ruby 1.9+. Starting
-with 0.4.0, only Ruby 2.2+ will be supported.
-
-To read the documentation for 0.3.x, see the [stable-03 branch](https://github.com/influxdata/influxdb-ruby/tree/stable-03).
-
-Please note that for Ruby 1.9, you'll need to install the JSON gem in version
-1.8.x yourself, for example by pinning the version in your `Gemfile` (i.e.
-`gem "json", "~> 1.8.3"`).
+Since v0.4.0, this gem requires Ruby >= 2.2.0. Support for MRI < 2.2 is
+still available in the v0.3.x series, see [stable-03 branch](https://github.com/influxdata/influxdb-ruby/tree/stable-03)
+for documentation.
 
 ## Installation
 

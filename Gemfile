@@ -1,10 +1,5 @@
 source "https://rubygems.org"
 
-if RUBY_ENGINE != "jruby" && RUBY_VERSION < "2.0"
-  gem "json", "~> 1.8.3"
-  gem "public_suffix", "< 1.5"
-end
-
 gemspec
 
 local_gemfile = 'Gemfile.local'
