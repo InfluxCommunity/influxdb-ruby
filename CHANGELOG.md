@@ -5,6 +5,7 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 ## Unreleased changes
 
 - **Dropped support for Ruby < 2.2**
+- Updated dependencies
 
 ## v0.3.16, released 2017-08-17
 
