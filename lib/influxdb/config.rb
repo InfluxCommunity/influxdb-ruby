@@ -3,38 +3,68 @@ require 'thread'
 module InfluxDB
   # InfluxDB client configuration
   class Config
-    AUTH_METHODS = ["params".freeze, "basic_auth".freeze, "none".freeze].freeze
+    # Valid values for the "auth_method" option.
+    AUTH_METHODS = [
+      "params".freeze,
+      "basic_auth".freeze,
+      "none".freeze,
+    ].freeze
 
-    attr_accessor :port,
-                  :username,
-                  :password,
-                  :database,
-                  :time_precision,
-                  :use_ssl,
-                  :verify_ssl,
-                  :ssl_ca_cert,
-                  :auth_method,
-                  :initial_delay,
-                  :max_delay,
-                  :open_timeout,
-                  :read_timeout,
-                  :retry,
-                  :prefix,
-                  :chunk_size,
-                  :denormalize,
-                  :epoch,
-                  :discard_write_errors
+    # DEFAULTS contains all available configuration options and their
+    # default values. Each option (except for "async" and "udp") can be
+    # changed at runtime throug the InfluxDB::Client instance.
+    #
+    # If you need to change the writer to be asynchronuous or use UDP,
+    # you need to get a new InfluxDB::Client instance.
+    DEFAULTS = {
+      # HTTP connection options
+      port:                 8086,
+      prefix:               "".freeze,
+      username:             "root".freeze,
+      password:             "root".freeze,
+      open_timeout:         5,
+      read_timeout:         300,
+      max_delay:            30,
+      initial_delay:        0.01,
+      auth_method:          nil,
 
-    attr_reader :async, :udp
+      # SSL options
+      use_ssl:              false,
+      verify_ssl:           true,
+      ssl_ca_cert:          false,
 
-    def initialize(opts = {})
-      extract_http_options!(opts)
-      extract_ssl_options!(opts)
-      extract_database_options!(opts)
-      extract_writer_options!(opts)
-      extract_query_options!(opts)
+      # Database options
+      database:             nil,
+      time_precision:       "s".freeze,
+      denormalize:          true,
+      epoch:                false,
 
-      configure_retry! opts.fetch(:retry, nil)
+      # Writer options
+      async:                false,
+      udp:                  false,
+      discard_write_errors: false,
+      retry:                nil,
+
+      # Query options
+      chunk_size:           nil,
+    }.freeze
+
+    ATTR_READER = %i[async udp].freeze
+    private_constant :ATTR_READER
+
+    ATTR_ACCESSOR = (DEFAULTS.keys - ATTR_READER).freeze
+    private_constant :ATTR_ACCESSOR
+
+    attr_reader(*ATTR_READER)
+    attr_accessor(*ATTR_ACCESSOR)
+
+    # Creates a new instance. See `DEFAULTS` for available config options
+    # and their default values.
+    def initialize(**opts)
+      DEFAULTS.each do |name, value|
+        set_ivar! name, opts.fetch(name, value)
+      end
+
       configure_hosts! opts[:hosts] || opts[:host] || "localhost".freeze
     end
 
@@ -62,34 +92,22 @@ module InfluxDB
 
     private
 
-    def extract_http_options!(opts)
-      @port           = opts.fetch :port, 8086
-      @prefix         = opts.fetch :prefix, "".freeze
-      @username       = opts.fetch :username, "root".freeze
-      @password       = opts.fetch :password, "root".freeze
-      @open_timeout   = opts.fetch :write_timeout, 5
-      @read_timeout   = opts.fetch :read_timeout, 300
-      @max_delay      = opts.fetch :max_delay, 30
-      @initial_delay  = opts.fetch :initial_delay, 0.01
-      auth            = opts[:auth_method]
-      @auth_method    = AUTH_METHODS.include?(auth) ? auth : "params".freeze
+    def set_ivar!(name, value)
+      case name
+      when :auth_method
+        value = "params".freeze unless AUTH_METHODS.include?(value)
+      when :retry
+        value = normalize_retry_option(value)
+      end
+
+      instance_variable_set "@#{name}", value
     end
 
-    def extract_ssl_options!(opts)
-      @use_ssl      = opts.fetch :use_ssl, false
-      @verify_ssl   = opts.fetch :verify_ssl, true
-      @ssl_ca_cert  = opts.fetch :ssl_ca_cert, false
-    end
-
-    # normalize retry option
-    def configure_retry!(value)
+    def normalize_retry_option(value)
       case value
-      when Integer
-        @retry = value
-      when true, nil
-        @retry = -1
-      when false
-        @retry = 0
+      when Integer   then value
+      when true, nil then -1
+      when false     then 0
       end
     end
 
@@ -99,23 +117,6 @@ module InfluxDB
       Array(hosts).each do |host|
         @hosts_queue.push(host)
       end
-    end
-
-    def extract_database_options!(opts)
-      @database       = opts[:database]
-      @time_precision = opts.fetch :time_precision, "s".freeze
-      @denormalize    = opts.fetch :denormalize, true
-      @epoch          = opts.fetch :epoch, false
-    end
-
-    def extract_writer_options!(opts)
-      @async                = opts.fetch :async, false
-      @udp                  = opts.fetch :udp, false
-      @discard_write_errors = opts.fetch :discard_write_errors, false
-    end
-
-    def extract_query_options!(opts)
-      @chunk_size = opts.fetch :chunk_size, nil
     end
   end
 end
