@@ -9,12 +9,21 @@ module InfluxDB
         @client = client
         @host = host
         @port = port
-        self.socket = UDPSocket.new
-        socket.connect(host, port)
       end
 
       def write(payload, _precision = nil, _retention_policy = nil, _database = nil)
-        socket.send(payload, 0)
+        with_socket { |sock| sock.send(payload, 0) }
+      end
+
+      private
+
+      def with_socket
+        unless socket
+          self.socket = UDPSocket.new
+          socket.connect(host, port)
+        end
+
+        yield socket
       end
     end
   end
