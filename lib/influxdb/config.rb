@@ -1,4 +1,5 @@
 require "thread"
+require "uri"
 
 module InfluxDB
   # DEFAULT_CONFIG_OPTIONS maps (most) of the configuration options to
@@ -62,7 +63,17 @@ module InfluxDB
 
     # Creates a new instance. See `DEFAULT_CONFIG_OPTIONS` for available
     # config options and their default values.
-    def initialize(**opts)
+    #
+    # If you provide a "url" option, either as String (hint: ENV) or as
+    # URI instance, you can override the defaults. The precedence for a
+    # config value is as follows (first found wins):
+    #
+    # - values given in the options hash
+    # - values found in URL (if given)
+    # - default values
+    def initialize(url: nil, **opts)
+      opts = opts_from_url(url).merge(opts) if url
+
       DEFAULT_CONFIG_OPTIONS.each do |name, value|
         set_ivar! name, opts.fetch(name, value)
       end
@@ -118,6 +129,60 @@ module InfluxDB
       @hosts_queue = Queue.new
       Array(hosts).each do |host|
         @hosts_queue.push(host)
+      end
+    end
+
+    # merges URI options into opts
+    def opts_from_url(url)
+      url = URI.parse(url) unless url.is_a?(URI)
+      opts_from_non_params(url).merge opts_from_params(url.query)
+    rescue URI::InvalidURIError
+      {}
+    end
+
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+
+    def opts_from_non_params(url)
+      {}.tap do |o|
+        o[:host]     = url.host        if url.host
+        o[:port]     = url.port        if url.port
+        o[:username] = url.user        if url.user
+        o[:password] = url.password    if url.password
+        o[:database] = url.path[1..-1] if url.path.length > 1
+        o[:use_ssl]  = url.scheme == "https".freeze
+
+        o[:udp] = { host: o[:host], port: o[:port] } if url.scheme == "udp"
+      end
+    end
+
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
+
+    OPTIONS_FROM_PARAMS = (DEFAULT_CONFIG_OPTIONS.keys - %i[
+      host port username password database use_ssl udp
+    ]).freeze
+    private_constant :OPTIONS_FROM_PARAMS
+
+    def opts_from_params(query)
+      params = CGI.parse(query || "").tap { |h| h.default = [] }
+
+      OPTIONS_FROM_PARAMS.each_with_object({}) do |k, opts|
+        next unless params[k.to_s].size == 1
+        opts[k] = coerce(k, params[k.to_s].first)
+      end
+    end
+
+    def coerce(name, value)
+      case name
+      when :open_timeout, :read_timeout, :max_delay, :retry, :chunk_size
+        value.to_i
+      when :initial_delay
+        value.to_f
+      when :verify_ssl, :denormalize, :async, :discard_write_errors
+        %w[true 1 yes on].include?(value.downcase)
+      else
+        value
       end
     end
   end

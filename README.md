@@ -53,24 +53,43 @@ Or add it to your `Gemfile`, and run `bundle install`.
 
 ## Usage
 
+*All examples assume you have a `require "influxdb"` in your code.*
+
 ### Creating a client
 
 Connecting to a single host:
 
 ``` ruby
-require 'influxdb'
+influxdb = InfluxDB::Client.new  # default connects to localhost:8086
 
-influxdb = InfluxDB::Client.new host: "influxdb.domain.com"
 # or
-influxdb = InfluxDB::Client.new  # no host given defaults connecting to localhost
+influxdb = InfluxDB::Client.new host: "influxdb.domain.com"
 ```
 
 Connecting to multiple hosts (with built-in load balancing and failover):
 
 ``` ruby
-require 'influxdb'
-
 influxdb = InfluxDB::Client.new hosts: ["influxdb1.domain.com", "influxdb2.domain.com"]
+```
+
+#### Using a configuration URL
+
+You can also provide a URL to connect to your server. This is particulary
+useful for 12-factor apps, i.e. you can put the configuration in an environment
+variable:
+
+``` ruby
+url = ENV["INFLUXDB_URL"] || "https://influxdb.example.com:8086/database_name?retry=3"
+influxdb = InfluxDB::Client.new url: url
+```
+
+Please note, that the config options found in the URL have a lower precedence
+than those explicitly given in the options hash. This means, that the following
+sample will use an open-timeout of 10 seconds:
+
+``` ruby
+url = "https://influxdb.example.com:8086/database_name?open_timeout=3"
+influxdb = InfluxDB::Client.new url: url, open_timeout: 10
 ```
 
 ### Writing data
@@ -103,8 +122,6 @@ end
 Write data with time precision (precision can be set in 2 ways):
 
 ``` ruby
-require 'influxdb'
-
 username       = 'foo'
 password       = 'bar'
 database       = 'site_development'

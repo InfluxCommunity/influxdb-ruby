@@ -124,4 +124,85 @@ describe InfluxDB::Config do
 
     specify { expect(conf.epoch).to eq 's' }
   end
+
+  context "given a config URL" do
+    let(:url) { "https://foo:bar@influx.example.com:8765/testdb?open_timeout=42&unknown=false&denormalize=false" }
+    let(:args) { [{ url: url }] }
+
+    it "applies values found in URL" do
+      expect(conf.database).to eq "testdb"
+      expect(conf.hosts).to eq ["influx.example.com"]
+      expect(conf.port).to eq 8765
+      expect(conf.username).to eq "foo"
+      expect(conf.password).to eq "bar"
+      expect(conf.use_ssl).to be true
+      expect(conf.denormalize).to be false
+      expect(conf.open_timeout).to eq 42
+    end
+
+    it "applies defaults" do
+      expect(conf.prefix).to eq ""
+      expect(conf.read_timeout).to be 300
+      expect(conf.max_delay).to be 30
+      expect(conf.initial_delay).to be_within(0.0001).of(0.01)
+      expect(conf.verify_ssl).to be true
+      expect(conf.ssl_ca_cert).to be false
+      expect(conf.epoch).to be false
+      expect(conf.discard_write_errors).to be false
+      expect(conf.retry).to be(-1)
+      expect(conf.chunk_size).to be nil
+      expect(conf).not_to be_udp
+      expect(conf.auth_method).to eq "params"
+      expect(conf).not_to be_async
+    end
+
+    context "UDP" do
+      let(:url) { "udp://test.localhost:2345?discard_write_errors=1" }
+      specify { expect(conf).to be_udp }
+      specify { expect(conf.udp[:port]).to be 2345 }
+      specify { expect(conf.discard_write_errors).to be true }
+    end
+  end
+
+  context "given a config URL and explicit options" do
+    let(:url) { "https://foo:bar@influx.example.com:8765/testdb?open_timeout=42&unknown=false&denormalize=false" }
+    let(:args) do
+      [
+        "primarydb",
+        url: url,
+        open_timeout: 20,
+        read_timeout: 30,
+      ]
+    end
+
+    it "applies values found in URL" do
+      expect(conf.hosts).to eq ["influx.example.com"]
+      expect(conf.port).to eq 8765
+      expect(conf.username).to eq "foo"
+      expect(conf.password).to eq "bar"
+      expect(conf.use_ssl).to be true
+      expect(conf.denormalize).to be false
+    end
+
+    it "applies values found in opts hash" do
+      expect(conf.database).to eq "primarydb"
+      expect(conf.open_timeout).to eq 20
+      expect(conf.read_timeout).to be 30
+    end
+
+    it "applies defaults" do
+      expect(conf.prefix).to eq ""
+      expect(conf.max_delay).to be 30
+      expect(conf.initial_delay).to be_within(0.0001).of(0.01)
+      expect(conf.verify_ssl).to be true
+      expect(conf.ssl_ca_cert).to be false
+      expect(conf.epoch).to be false
+      expect(conf.discard_write_errors).to be false
+      expect(conf.retry).to be(-1)
+      expect(conf.chunk_size).to be nil
+      expect(conf).not_to be_udp
+      expect(conf.auth_method).to eq "params"
+      expect(conf).not_to be_async
+    end
+  end
 end

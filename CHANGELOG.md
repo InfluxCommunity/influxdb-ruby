@@ -8,6 +8,7 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 - Updated dependencies
 - Refactor some method declarations, to take kwargs instead of an
   options hash (this shouldn't break call sites).
+- Allow configuration by an URL (idea by @carlhoerberg in #188)
 
 ## v0.3.16, released 2017-08-17
 
