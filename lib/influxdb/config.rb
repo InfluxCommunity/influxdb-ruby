@@ -1,6 +1,47 @@
-require 'thread'
+require "thread"
 
 module InfluxDB
+  # DEFAULT_CONFIG_OPTIONS maps (most) of the configuration options to
+  # their default value. Each option (except for "async" and "udp") can
+  # be changed at runtime throug the InfluxDB::Client instance.
+  #
+  # If you need to change the writer to be asynchronuous or use UDP, you
+  # need to get a new InfluxDB::Client instance.
+  DEFAULT_CONFIG_OPTIONS = {
+    # HTTP connection options
+    port:                 8086,
+    prefix:               "".freeze,
+    username:             "root".freeze,
+    password:             "root".freeze,
+    open_timeout:         5,
+    read_timeout:         300,
+    auth_method:          nil,
+
+    # SSL options
+    use_ssl:              false,
+    verify_ssl:           true,
+    ssl_ca_cert:          false,
+
+    # Database options
+    database:             nil,
+    time_precision:       "s".freeze,
+    epoch:                false,
+
+    # Writer options
+    async:                false,
+    udp:                  false,
+    discard_write_errors: false,
+
+    # Retry options
+    retry:                -1,
+    max_delay:            30,
+    initial_delay:        0.01,
+
+    # Query options
+    chunk_size:           nil,
+    denormalize:          true,
+  }.freeze
+
   # InfluxDB client configuration
   class Config
     # Valid values for the "auth_method" option.
@@ -10,58 +51,19 @@ module InfluxDB
       "none".freeze,
     ].freeze
 
-    # DEFAULTS contains all available configuration options and their
-    # default values. Each option (except for "async" and "udp") can be
-    # changed at runtime throug the InfluxDB::Client instance.
-    #
-    # If you need to change the writer to be asynchronuous or use UDP,
-    # you need to get a new InfluxDB::Client instance.
-    DEFAULTS = {
-      # HTTP connection options
-      port:                 8086,
-      prefix:               "".freeze,
-      username:             "root".freeze,
-      password:             "root".freeze,
-      open_timeout:         5,
-      read_timeout:         300,
-      max_delay:            30,
-      initial_delay:        0.01,
-      auth_method:          nil,
-
-      # SSL options
-      use_ssl:              false,
-      verify_ssl:           true,
-      ssl_ca_cert:          false,
-
-      # Database options
-      database:             nil,
-      time_precision:       "s".freeze,
-      denormalize:          true,
-      epoch:                false,
-
-      # Writer options
-      async:                false,
-      udp:                  false,
-      discard_write_errors: false,
-      retry:                nil,
-
-      # Query options
-      chunk_size:           nil,
-    }.freeze
-
     ATTR_READER = %i[async udp].freeze
     private_constant :ATTR_READER
 
-    ATTR_ACCESSOR = (DEFAULTS.keys - ATTR_READER).freeze
+    ATTR_ACCESSOR = (DEFAULT_CONFIG_OPTIONS.keys - ATTR_READER).freeze
     private_constant :ATTR_ACCESSOR
 
     attr_reader(*ATTR_READER)
     attr_accessor(*ATTR_ACCESSOR)
 
-    # Creates a new instance. See `DEFAULTS` for available config options
-    # and their default values.
+    # Creates a new instance. See `DEFAULT_CONFIG_OPTIONS` for available
+    # config options and their default values.
     def initialize(**opts)
-      DEFAULTS.each do |name, value|
+      DEFAULT_CONFIG_OPTIONS.each do |name, value|
         set_ivar! name, opts.fetch(name, value)
       end
 

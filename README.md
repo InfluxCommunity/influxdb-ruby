@@ -24,6 +24,7 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
     - [De-normalization](#de--normalization)
     - [Streaming response](#streaming-response)
     - [Retry](#retry)
+- [List of configuration options](#list-of-configuration-options)
 - [Testing](#testing)
 - [Contributing](#contributing)
 
@@ -258,6 +259,7 @@ data = {
 influxdb.write_point(name, data)
 ```
 
+<a name="async-options"></a>
 Using `async: true` is a shortcut for the following:
 
 ``` ruby
@@ -276,6 +278,7 @@ async_options = {
 influxdb = InfluxDB::Client.new database, async: async_options
 ```
 
+<a name="udp-options"></a>
 Write data via UDP (note that a retention policy cannot be specified for UDP writes):
 
 ``` ruby
@@ -677,6 +680,35 @@ E, [2016-08-31T23:55:19.562428 #23476] ERROR -- InfluxDB: Failed to contact host
 InfluxDB::ConnectionError: Tried 8 times to reconnect but failed.
 ```
 
+## List of configuration options
+
+This index might be out of date. Please refer to `InfluxDB::DEFAULT_CONFIG_OPTIONS`,
+found in `lib/influxdb/config.rb` for the source of truth.
+
+| Category        | Option                  | Default value | Notes
+|:----------------|:------------------------|:--------------|:-----
+| HTTP connection | `:host` or `:hosts`     | "localhost"   | can be an array and can include port
+|                 | `:port`                 | 8086          | fallback port, unless provided by `:host` option
+|                 | `:prefix`               | ""            | URL path prefix (e.g. server is behind reverse proxy)
+|                 | `:username`             | "root"        | user credentials
+|                 | `:password`             | "root"        | user credentials
+|                 | `:open_timeout`         | 5             | socket timeout
+|                 | `:read_timeout`         | 300           | socket timeout
+|                 | `:auth_method`          | "params"      | "params", "basic_auth" or "none"
+| Retry           | `:retry`                | -1            | max. number of retry attempts (reading and writing)
+|                 | `:initial_delay`        | 0.01          | initial wait time (doubles every retry attempt)
+|                 | `:max_delay`            | 30            | max. wait time when retrying
+| SSL/HTTPS       | `:use_ssl`              | false         | whether or not to use SSL (HTTPS)
+|                 | `:verify_ssl`           | true          | verify vertificate when using SSL
+|                 | `:ssl_ca_cert`          | false         | path to or name of CA cert
+| Database        | `:database`             | *empty*       | name of database
+|                 | `:time_precision`       | "s"           | time resolution for data send to server
+|                 | `:epoch`                | false         | time resolution for server responses (false = server default)
+| Writer          | `:async`                | false         | Async options hash, [details here](#async-options)
+|                 | `:udp`                  | false         | UDP connection info, [details here](#udp-options)
+|                 | `:discard_write_errors` | false         | suppress UDP socket errors
+| Query           | `:chunk_size`           | *empty*       | [details here](#streaming-response)
+|                 | `:denormalize`          | true          | format of result
 
 ## Testing
 
