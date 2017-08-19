@@ -2,7 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## v0.4.0 (unreleased)
+## Unreleased changes
+
+- None yet.
+
+## v0.4.0, released 2017-08-19
 
 - **Dropped support for Ruby < 2.2.**
 - Updated dependencies.
