@@ -29,16 +29,17 @@ task :console do
     require "pry-byebug"
     Pry.start
   rescue LoadError
-    puts <<-TEXT.gsub(/^\s{6}([^ ])/, "\1"), ""
-      Could not load pry-byebug. Create a file Gemfile.local with
-      the following line, if you want to get rid of this message:
-
-      \tgem "pry-byebug"
-
-      (don't forget to run bundle afterwards). Falling back to IRB.
-    TEXT
+    puts \
+      "Could not load pry-byebug. Create a file Gemfile.local with",
+      "the following line, if you want to get rid of this message:",
+      "",
+      "\tgem \"pry-byebug\"",
+      "",
+      "(don't forget to run bundle afterwards). Falling back to IRB.",
+      ""
 
     require "irb"
+    require "irb/completion"
     ARGV.clear
     IRB.start
   end
