@@ -48,15 +48,15 @@ describe InfluxDB::Logging do
     subject { LoggerTest.new }
 
     it "logs with string message" do
-      expect(InfluxDB::Logging.logger).to receive(:debug).with(an_instance_of(String)).once
-      subject.write_to_log(:debug, 'test')
+      expect(InfluxDB::Logging.logger).to receive(:info).with(an_instance_of(String)).once
+      subject.write_to_log(:info, 'test')
     end
 
     it "logs with block message" do
       msg = double("message")
       expect(msg).to receive(:expensive_message).and_return("42")
-      expect(InfluxDB::Logging.logger).to receive(:debug).and_yield.once
-      subject.block_log(:debug) { msg.expensive_message }
+      expect(InfluxDB::Logging.logger).to receive(:info).and_yield.once
+      subject.block_log(:info) { msg.expensive_message }
     end
   end
 end

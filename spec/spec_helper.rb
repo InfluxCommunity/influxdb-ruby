@@ -25,13 +25,14 @@ RSpec.configure do |config|
 
     InfluxDB::Logging.logger = Logger.new(logfile).tap do |logger|
       logger.formatter = proc { |severity, _datetime, progname, message|
-        "%-5s - %s: %s\n".format severity, progname, message
+        format "%-5s - %s: %s\n", severity, progname, message
       }
     end
 
     config.before(:each) do
       InfluxDB::Logging.logger.info("RSpec") { self.class }
       InfluxDB::Logging.logger.info("RSpec") { @__inspect_output }
+      InfluxDB::Logging.log_level = Logger.const_get(ENV["LOG"].upcase)
     end
 
     config.after(:each) do

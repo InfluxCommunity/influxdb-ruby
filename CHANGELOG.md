@@ -4,16 +4,17 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## v0.4.0 (unreleased)
 
-- **Dropped support for Ruby < 2.2**
-- Updated dependencies
+- **Dropped support for Ruby < 2.2.**
+- Updated dependencies.
 - Refactor some method declarations, to take kwargs instead of an
   options hash (this shouldn't break call sites).
-- Allow configuration by an URL (idea by @carlhoerberg in #188)
+- Allow configuration by an URL (idea by @carlhoerberg in #188).
+- Improved logging (#180).
 
 ## v0.3.16, released 2017-08-17
 
-- **This is propably the last release in the 0.3.x series**
-- Typo fix in README (#196, @MichaelSp)
+- **This is propably the last release in the 0.3.x series.**
+- Typo fix in README (#196, @MichaelSp).
 
 ## v0.3.15, released 2017-07-17
 
