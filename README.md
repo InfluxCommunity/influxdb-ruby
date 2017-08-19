@@ -686,14 +686,14 @@ $ irb -r influxdb
 => #<InfluxDB::Client:0x00000002bb5ce0 ...>
 
 > influxdb.query 'select * from serie limit 1'
-E, [2016-08-31T23:55:18.287947 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.01s.
-E, [2016-08-31T23:55:18.298455 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.02s.
-E, [2016-08-31T23:55:18.319122 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.04s.
-E, [2016-08-31T23:55:18.359785 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.08s.
-E, [2016-08-31T23:55:18.440422 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.16s.
-E, [2016-08-31T23:55:18.600936 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.32s.
-E, [2016-08-31T23:55:18.921740 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.64s.
-E, [2016-08-31T23:55:19.562428 #23476] ERROR -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 1.28s.
+E, [2016-08-31T23:55:18.287947 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.01s.
+E, [2016-08-31T23:55:18.298455 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.02s.
+E, [2016-08-31T23:55:18.319122 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.04s.
+E, [2016-08-31T23:55:18.359785 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.08s.
+E, [2016-08-31T23:55:18.440422 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.16s.
+E, [2016-08-31T23:55:18.600936 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.32s.
+E, [2016-08-31T23:55:18.921740 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 0.64s.
+E, [2016-08-31T23:55:19.562428 #23476] WARN  -- InfluxDB: Failed to contact host localhost: #<Errno::ECONNREFUSED: Failed to open TCP connection to localhost:8086 (Connection refused - connect(2) for "localhost" port 8086)> - retrying in 1.28s.
 InfluxDB::ConnectionError: Tried 8 times to reconnect but failed.
 ```
 
