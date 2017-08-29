@@ -56,11 +56,16 @@ module InfluxDB
       @stopped = false
       @writer = find_writer
 
-      at_exit { stop! } if config.retry > 0
+      at_exit { stop! }
     end
 
     def stop!
-      writer.worker.stop! if config.async?
+      if config.async?
+        # If retry was infinite (-1), set it to zero to give the main thread one
+        # last chance to flush the queue
+        config.retry = 0 if config.retry < 0
+        writer.worker.stop!
+      end
       @stopped = true
     end
 
