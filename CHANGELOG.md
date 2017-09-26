@@ -6,6 +6,10 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None yet.
 
+## v0.4.2, released 2017-09-26
+
+- Bugfix in `InfluxDB::PointValue`: Properly encode backslashes (#200)
+
 ## v0.4.1, released 2017-08-30
 
 - Bugfix in async client: Flush queue before exit (#198, #199 @onlynone)
