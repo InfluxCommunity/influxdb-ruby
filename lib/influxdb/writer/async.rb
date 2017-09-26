@@ -101,8 +101,12 @@ module InfluxDB
             data = []
 
             while data.size < max_post_points && !queue.empty?
-              p = queue.pop(true) rescue next
-              data.push p
+              begin
+                p = queue.pop(true)
+                data.push p
+              rescue ThreadError
+                next
+              end
             end
 
             return if data.empty?
@@ -110,7 +114,7 @@ module InfluxDB
             begin
               log(:debug) { "Found data in the queue! (#{data.length} points)" }
               client.write(data.join("\n"), nil)
-            rescue => e
+            rescue StandardError => e
               log :error, "Cannot write data: #{e.inspect}"
             end
 
