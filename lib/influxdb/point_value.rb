@@ -25,7 +25,7 @@ module InfluxDB
       tag_key:      ['='.freeze, ' '.freeze, ','.freeze],
       tag_value:    ['='.freeze, ' '.freeze, ','.freeze],
       field_key:    ['='.freeze, ' '.freeze, ','.freeze, '"'.freeze],
-      field_value:  ['"'.freeze],
+      field_value:  ["\\".freeze, '"'.freeze],
     }.freeze
 
     def escape(s, type)

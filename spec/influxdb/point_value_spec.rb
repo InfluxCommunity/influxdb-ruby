@@ -15,7 +15,8 @@ describe InfluxDB::PointValue do
           intval:           5,
           floatval:         7.0,
           invalid_encoding: "a b",
-          non_latin:        "Улан-Удэ"
+          non_latin:        "Улан-Удэ",
+          backslash:        "C:\\", # issue #200
         }
       }
       if RUBY_VERSION > "2.0.0"
@@ -27,8 +28,20 @@ describe InfluxDB::PointValue do
 
     it 'should escape correctly' do
       point = InfluxDB::PointValue.new(data)
-      expected = %(1=\\ \\,"\\1,2\\=\\ \\,"\\2=3\\=\\ \\,"\\3 ) +
-                 %(4\\=\\ \\,\\"\\4="5= ,\\"\\5",intval=5i,floatval=7.0,invalid_encoding="a b",non_latin="Улан-Удэ")
+      series = [
+        %(1=\\ \\,"\\1),
+        %(2\\=\\ \\,"\\2=3\\=\\ \\,"\\3),
+      ]
+      fields = [
+        %(4\\=\\ \\,\\"\\4="5= ,\\"\\\\5"),
+        %(intval=5i),
+        %(floatval=7.0),
+        %(invalid_encoding="a b"),
+        %(non_latin="Улан-Удэ"),
+        %(backslash="C:\\\\"),
+      ]
+
+      expected = series.join(",") + " " + fields.join(",")
       expect(point.dump).to eq(expected)
     end
   end
