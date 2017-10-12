@@ -89,7 +89,7 @@ module InfluxDB
         parsed_response = response.body.each_line.with_object({}) do |line, parsed|
           parsed.merge!(JSON.parse(line)) { |_key, oldval, newval| oldval + newval }
         end
-      elsif response.body
+      elsif (body = response.body) && (body != "")
         parsed_response = JSON.parse(response.body)
       end
 
