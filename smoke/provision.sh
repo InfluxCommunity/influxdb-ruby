@@ -23,16 +23,21 @@ fi
 
 echo "== Download verification"
 hash_sum=$(md5sum "${HOME}/${package_name}" | awk '{ print $1 }')
+sha2_sum=$(sha256sum "${HOME}/${package_name}" | awk '{ print $1 }')
 
-if [ -z "${pkghash}" ]; then
+if [ -z "${pkghash}" ] || [ -z "${pkghash256}"]; then
   echo "-- Skipping, pkghash is empty"
 else
-  if [ "${hash_sum}" != "${pkghash}" ]; then
+  if [ -n "${pkghash256}" ] && [ "${sha2_sum}" != "${pkghash256}" ]; then
+    echo >&2 "E: Hash sum mismatch (got ${sha2_sum}, expected ${pkghash256})"
+    exit 1
+  elif [ "${hash_sum}" != "${pkghash}" ]; then
     echo >&2 "E: Hash sum mismatch (got ${hash_sum}, expected ${pkghash})"
     exit 1
   fi
 fi
 echo "-- Download has MD5 hash: ${hash_sum}"
+echo "-- Download has SHA256 hash: ${sha2_sum}"
 
 
 echo "== Installing"
