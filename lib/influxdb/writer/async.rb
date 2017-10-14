@@ -12,9 +12,9 @@ module InfluxDB
         @config = config
       end
 
-      def write(data, _precision = nil, _retention_policy = nil, _database = nil)
+      def write(data, _precision = nil, retention_policy = nil, _database = nil)
         data = data.is_a?(Array) ? data : [data]
-        data.map { |p| worker.push(p) }
+        data.map { |payload| worker.push(payload, retention_policy) }
       end
 
       WORKER_MUTEX = Mutex.new
@@ -58,8 +58,8 @@ module InfluxDB
           spawn_threads!
         end
 
-        def push(payload)
-          queue.push(payload)
+        def push(payload, retention_policy)
+          queue.push([payload, retention_policy])
         end
 
         def current_threads
@@ -98,22 +98,23 @@ module InfluxDB
           end
 
           loop do
-            data = []
+            data = {}
 
-            while data.size < max_post_points && !queue.empty?
+            while data.values.flatten.size < max_post_points && !queue.empty?
               begin
-                p = queue.pop(true)
-                data.push p
+                data_points, retention_policy = queue.pop(true)
+                data[retention_policy] ||= []
+                data[retention_policy] << data_points
               rescue ThreadError
                 next
               end
             end
 
-            return if data.empty?
+            return if data.values.flatten.empty?
 
             begin
-              log(:debug) { "Found data in the queue! (#{data.length} points)" }
-              client.write(data.join("\n"), nil)
+              log(:debug) { "Found data in the queue! (#{data.values.flatten.length} points)" }
+              write(data)
             rescue StandardError => e
               log :error, "Cannot write data: #{e.inspect}"
             end
@@ -125,6 +126,14 @@ module InfluxDB
         def stop!
           log(:debug) { "Thread exiting, flushing queue." }
           check_background_queue until queue.empty?
+        end
+
+        private
+
+        def write(data)
+          data.each do |retention_policy, points|
+            client.write(points.join("\n"), nil, retention_policy)
+          end
         end
       end
     end

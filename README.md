@@ -256,7 +256,7 @@ retention = '1h.cpu'
 influxdb.write_points(data, precision, retention)
 ```
 
-Write asynchronously (note that a retention policy cannot be specified for asynchronous writes):
+Write asynchronously:
 
 ``` ruby
 database = 'site_development'
