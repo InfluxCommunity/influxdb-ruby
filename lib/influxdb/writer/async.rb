@@ -12,9 +12,9 @@ module InfluxDB
         @config = config
       end
 
-      def write(data, _precision = nil, retention_policy = nil, _database = nil)
+      def write(data, precision = nil, retention_policy = nil, database = nil)
         data = data.is_a?(Array) ? data : [data]
-        data.map { |payload| worker.push(payload, retention_policy) }
+        data.map { |payload| worker.push(payload, precision, retention_policy, database) }
       end
 
       WORKER_MUTEX = Mutex.new
@@ -58,8 +58,8 @@ module InfluxDB
           spawn_threads!
         end
 
-        def push(payload, retention_policy)
-          queue.push([payload, retention_policy])
+        def push(payload, precision = nil, retention_policy = nil, database = nil)
+          queue.push([payload, precision, retention_policy, database])
         end
 
         def current_threads
@@ -102,9 +102,14 @@ module InfluxDB
 
             while data.values.flatten.size < max_post_points && !queue.empty?
               begin
-                data_points, retention_policy = queue.pop(true)
-                data[retention_policy] ||= []
-                data[retention_policy] << data_points
+                payload, precision, retention_policy, database = queue.pop(true)
+                key = {
+                  db: database,
+                  pr: precision,
+                  rp: retention_policy,
+                }
+                data[key] ||= []
+                data[key] << payload
               rescue ThreadError
                 next
               end
@@ -131,8 +136,8 @@ module InfluxDB
         private
 
         def write(data)
-          data.each do |retention_policy, points|
-            client.write(points.join("\n"), nil, retention_policy)
+          data.each do |key, points|
+            client.write(points.join("\n"), key[:pr], key[:rp], key[:db])
           end
         end
       end
