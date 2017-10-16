@@ -35,6 +35,52 @@ describe InfluxDB::Client do
       # but cannot be less than 2 due to MAX_POST_POINTS limit
       expect(post_request).to have_been_requested.at_least_times(2)
     end
+
+    context 'when precision, retention_policy and database are given' do
+      let(:series)           { 'test_series' }
+      let(:precision)        { 'test_precision' }
+      let(:retention_policy) { 'test_period' }
+      let(:database)         { 'test_database' }
+
+      it "writes aggregate payload to the client" do
+        queue = Queue.new
+        allow(client).to receive(:write) do |*args|
+          queue.push(args)
+        end
+
+        subject.write_point(series, { values: { t: 60 } }, precision, retention_policy, database)
+        subject.write_point(series, { values: { t: 61 } }, precision, retention_policy, database)
+
+        Timeout.timeout(worker.sleep_interval) do
+          expect(queue.pop).to eq ["#{series} t=60i\n#{series} t=61i", precision, retention_policy, database]
+        end
+      end
+
+      context 'when different precision, retention_policy and database are given' do
+        let(:precision2)        { 'test_precision2' }
+        let(:retention_policy2) { 'test_period2' }
+        let(:database2)         { 'test_database2' }
+
+        it "writes separated payloads for each {precision, retention_policy, database} set" do
+          queue = Queue.new
+          allow(client).to receive(:write) do |*args|
+            queue.push(args)
+          end
+
+          subject.write_point(series, { values: { t: 60 } }, precision,  retention_policy,  database)
+          subject.write_point(series, { values: { t: 61 } }, precision2, retention_policy,  database)
+          subject.write_point(series, { values: { t: 62 } }, precision,  retention_policy2, database)
+          subject.write_point(series, { values: { t: 63 } }, precision,  retention_policy,  database2)
+
+          Timeout.timeout(worker.sleep_interval) do
+            expect(queue.pop).to eq ["#{series} t=60i", precision,  retention_policy,  database]
+            expect(queue.pop).to eq ["#{series} t=61i", precision2, retention_policy,  database]
+            expect(queue.pop).to eq ["#{series} t=62i", precision,  retention_policy2, database]
+            expect(queue.pop).to eq ["#{series} t=63i", precision,  retention_policy,  database2]
+          end
+        end
+      end
+    end
   end
 
   describe "async options" do
