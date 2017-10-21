@@ -100,7 +100,7 @@ module InfluxDB
           loop do
             data = {}
 
-            while data.values.flatten.size < max_post_points && !queue.empty?
+            while data.all? { |_, points| points.size < max_post_points } && !queue.empty?
               begin
                 payload, precision, retention_policy, database = queue.pop(true)
                 key = {
@@ -118,7 +118,7 @@ module InfluxDB
             return if data.values.flatten.empty?
 
             begin
-              log(:debug) { "Found data in the queue! (#{data.values.flatten.length} points)" }
+              log(:debug) { "Found data in the queue! (#{sizes(data)})" }
               write(data)
             rescue StandardError => e
               log :error, "Cannot write data: #{e.inspect}"
@@ -139,6 +139,17 @@ module InfluxDB
           data.each do |key, points|
             client.write(points.join("\n"), key[:pr], key[:rp], key[:db])
           end
+        end
+
+        def sizes(data)
+          data.map do |key, points|
+            without_nils = key.reject { |_, v| v.nil? }
+            if without_nils.empty?
+              "#{points.size} points"
+            else
+              "#{key} => #{points.size} points"
+            end
+          end.join(', ')
         end
       end
     end
