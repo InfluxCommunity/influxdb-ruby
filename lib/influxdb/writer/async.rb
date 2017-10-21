@@ -1,4 +1,3 @@
-require 'thread'
 require "net/http"
 require "uri"
 

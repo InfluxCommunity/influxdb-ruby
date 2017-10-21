@@ -1,5 +1,3 @@
-require "thread"
-
 module InfluxDB
   # Queue with max length limit
   class MaxQueue < Queue
