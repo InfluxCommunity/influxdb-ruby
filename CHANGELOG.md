@@ -6,6 +6,18 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None yet.
 
+## v0.5.0, released 2017-10-21
+
+- Add support for precision, retention policy and database parameters
+  to async writer (#140, #202 @rockclimber73)
+
+  **Attention** You may need to validate that your calls to the write
+  API (`InfluxDB::Client#write`, `#write_point`, `#write_points`) don't
+  accidentally included a precision, RP, and/or database argument. These
+  arguments were ignored until now. This is likely if you have changed
+  your client instance configuration in the past, when you added a
+  `async: true`. **Updating might cause data inconsistencies!**
+
 ## v0.4.2, released 2017-09-26
 
 - Bugfix in `InfluxDB::PointValue`: Properly encode backslashes (#200)
