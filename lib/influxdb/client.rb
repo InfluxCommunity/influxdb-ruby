@@ -1,5 +1,4 @@
 require 'json'
-require 'thread'
 
 module InfluxDB
   # InfluxDB client class
