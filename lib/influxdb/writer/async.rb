@@ -11,7 +11,16 @@ module InfluxDB
         @config = config
       end
 
-      def write(data, _precision = nil, _retention_policy = nil, _database = nil)
+      def write(data, precision = nil, retention_policy = nil, database = nil)
+        if !precision.nil? || !retention_policy.nil? || !database.nil?
+          opts = {
+            precision:        precision,
+            retention_policy: retention_policy,
+            database:         database,
+          }.delete_if { |_, v| v.nil? }
+          warn_arguments(opts)
+        end
+
         data = data.is_a?(Array) ? data : [data]
         data.map { |p| worker.push(p) }
       end
@@ -25,6 +34,17 @@ module InfluxDB
           return @worker if @worker
           @worker = Worker.new(client, config)
         end
+      end
+
+      private
+
+      def warn_arguments(**which)
+        warn [
+          "You are using influxdb in async mode, and have provided one or",
+          "more parameter which are currently ignored:",
+          which.map { |k, v| format "%s=%p", k, v }.join(", "),
+          "Starting with v0.5.0, these arguments will no longer be ignored.",
+        ].join(" ")
       end
 
       class Worker
