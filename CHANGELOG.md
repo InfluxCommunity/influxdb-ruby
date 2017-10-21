@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None yet.
 
+## v0.4.3, released 2017-10-21
+
+- Added warning to `InfluxDB::Write::Async#write`, marking the currently
+  ignored arguments as significant in the next release.
+
 ## v0.4.2, released 2017-09-26
 
 - Bugfix in `InfluxDB::PointValue`: Properly encode backslashes (#200)
