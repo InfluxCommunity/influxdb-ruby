@@ -40,6 +40,9 @@ Metrics/ModuleLength:
   CountComments: false  # count full line comments?
   Max: 120
 
+Metrics/ParameterLists:
+  Max: 6
+
 Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
   Exclude:
