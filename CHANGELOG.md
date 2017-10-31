@@ -4,7 +4,9 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
-- Add support for `SHARD DURATION` in retention policy (@ljagiello)
+## v0.5.1, released 2017-10-31
+
+- Add support for `SHARD DURATION` in retention policy (#203, @ljagiello)
 
 ## v0.5.0, released 2017-10-21
 
