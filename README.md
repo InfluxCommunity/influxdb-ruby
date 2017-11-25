@@ -157,7 +157,7 @@ influxdb.write_point(name, data, time_precision)
 >
 > ```ruby
 > influxdb = InfluxDB::Client.new time_precision: "ms"
-> time = (Time.now.to_r * 10**6).to_i
+> time = (Time.now.to_r * 1000).to_i
 > influxdb.write_point("foobar", { values: { n: 42 }, timestamp: time })
 > ```
 
