@@ -156,7 +156,8 @@ a more granular `time_precision` option **and** you need to provide
 timestamp values which reflect this precision.
 
 **If you don't do this, your points will be lost!**
-InfluxDB will store no more than one point per second per unique series!
+
+InfluxDB will store no more than one point per second per unique series by default!
 
 For example, this is how to specify millisecond precision
 (for under 1000 points per second):
