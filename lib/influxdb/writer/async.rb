@@ -2,6 +2,16 @@ require "net/http"
 require "uri"
 
 module InfluxDB
+  CLOCK_PRECISIONS = {
+    'ns' => :nanosecond,
+    'u'  => :microsecond,
+    'ms' => :millisecond,
+    's'  => :second,
+    'm'  => :second,
+    'h'  => :second,
+    nil  => :second,
+  }.freeze
+
   module Writer # :nodoc: all
     class Async
       attr_reader :config, :client
@@ -13,7 +23,21 @@ module InfluxDB
 
       def write(data, precision = nil, retention_policy = nil, database = nil)
         data = data.is_a?(Array) ? data : [data]
+        stamp(data, current_time(precision))
         data.map { |payload| worker.push(payload, precision, retention_policy, database) }
+      end
+
+      def stamp(data, time)
+        data.each do |point|
+          point[:timestamp] ||= time
+        end
+      end
+
+      def current_time(precision)
+        t = Process.clock_gettime(Process::CLOCK_MONOTONIC, CLOCK_PRECISIONS[precision])
+        t = t / 60      if precision == 'm'
+        t = t / 60 / 60 if precision == 'h'
+        t
       end
 
       WORKER_MUTEX = Mutex.new
