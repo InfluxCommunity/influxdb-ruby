@@ -4,6 +4,8 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
+- Add async option to block on full queue (#209, @davemt)
+
 ## v0.5.1, released 2017-10-31
 
 - Add support for `SHARD DURATION` in retention policy (#203, @ljagiello)

@@ -34,7 +34,8 @@ module InfluxDB
                     :max_post_points,
                     :max_queue_size,
                     :num_worker_threads,
-                    :sleep_interval
+                    :sleep_interval,
+                    :block_on_full_queue
 
         include InfluxDB::Logging
 
@@ -42,17 +43,20 @@ module InfluxDB
         MAX_QUEUE_SIZE      = 10_000
         NUM_WORKER_THREADS  = 3
         SLEEP_INTERVAL      = 5
+        BLOCK_ON_FULL_QUEUE = false
 
         def initialize(client, config)
           @client = client
           config = config.is_a?(Hash) ? config : {}
 
-          @max_post_points    = config.fetch(:max_post_points,    MAX_POST_POINTS)
-          @max_queue_size     = config.fetch(:max_queue_size,     MAX_QUEUE_SIZE)
-          @num_worker_threads = config.fetch(:num_worker_threads, NUM_WORKER_THREADS)
-          @sleep_interval     = config.fetch(:sleep_interval,     SLEEP_INTERVAL)
+          @max_post_points     = config.fetch(:max_post_points,     MAX_POST_POINTS)
+          @max_queue_size      = config.fetch(:max_queue_size,      MAX_QUEUE_SIZE)
+          @num_worker_threads  = config.fetch(:num_worker_threads,  NUM_WORKER_THREADS)
+          @sleep_interval      = config.fetch(:sleep_interval,      SLEEP_INTERVAL)
+          @block_on_full_queue = config.fetch(:block_on_full_queue, BLOCK_ON_FULL_QUEUE)
 
-          @queue = InfluxDB::MaxQueue.new max_queue_size
+          queue_class = @block_on_full_queue ? SizedQueue : InfluxDB::MaxQueue
+          @queue = queue_class.new max_queue_size
 
           spawn_threads!
         end

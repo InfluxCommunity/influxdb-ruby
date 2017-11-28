@@ -86,10 +86,11 @@ describe InfluxDB::Client do
   describe "async options" do
     let(:async_options) do
       {
-        max_post_points:    10,
-        max_queue_size:     100,
-        num_worker_threads: 1,
-        sleep_interval:     0.5
+        max_post_points:     10,
+        max_queue_size:      100,
+        num_worker_threads:  1,
+        sleep_interval:      0.5,
+        block_on_full_queue: false
       }
     end
 
@@ -100,5 +101,7 @@ describe InfluxDB::Client do
     specify { expect(subject.max_queue_size).to be 100 }
     specify { expect(subject.num_worker_threads).to be 1 }
     specify { expect(subject.sleep_interval).to be_within(0.0001).of(0.5) }
+    specify { expect(subject.block_on_full_queue).to be false }
+    specify { expect(subject.queue).to be_kind_of(InfluxDB::MaxQueue) }
   end
 end
