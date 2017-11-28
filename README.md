@@ -282,14 +282,16 @@ Using `async: true` is a shortcut for the following:
 ``` ruby
 async_options = {
   # number of points to write to the server at once
-  max_post_points:    1000,
+  max_post_points:     1000,
   # queue capacity
-  max_queue_size:     10_000,
+  max_queue_size:      10_000,
   # number of threads
-  num_worker_threads: 3,
+  num_worker_threads:  3,
   # max. time (in seconds) a thread sleeps before
   # checking if there are new jobs in the queue
-  sleep_interval:     5
+  sleep_interval:      5,
+  # whether client will block if queue is full
+  block_on_full_queue: false
 }
 
 influxdb = InfluxDB::Client.new database, async: async_options
