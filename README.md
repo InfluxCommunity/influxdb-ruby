@@ -153,11 +153,20 @@ operates on this resolution.
 If you write data points with sub-second resolution, you _have_ to configure
 your client instance with a more granular `time_precision` option **and** you
 need to provide timestamp values which reflect this precision. **If you don't do
-this, your points will be lost!** InfluxDB will store no more than one point per
-second per unique series by default!
+this, your points will be squashed!**
 
-For example, this is how to specify millisecond precision (for under 1000 points
-per second):
+> A point is uniquely identified by the measurement name, tag set, and
+> timestamp. If you submit a new point with the same measurement, tag set, and
+> timestamp as an existing point, the field set becomes the union of the old
+> field set and the new field set, where any ties go to the new field set. This
+> is the intended behavior.
+
+See [How does InfluxDB handle duplicate
+points?](https://docs.influxdata.com/influxdb/v1.3/troubleshooting/frequently-asked-questions/#how-does-influxdb-handle-duplicate-points)
+for details.
+
+For example, this is how to specify millisecond precision (which moves the
+pitfall from the second- to the millisecond barrier):
 
 ```ruby
 influxdb = InfluxDB::Client.new(time_precision: "ms")
