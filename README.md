@@ -147,20 +147,17 @@ influxdb.write_point(name, data, time_precision)
 
 ### A Note About Time Precision
 
-The default precision in this gem is `"s"` (second), as Ruby's
-`Time#to_i` operates on this resolution.
+The default precision in this gem is `"s"` (second), as Ruby's `Time#to_i`
+operates on this resolution.
 
-If you write data points with sub-second resolution,
-you _have_ to configure your client instance with
-a more granular `time_precision` option **and** you need to provide
-timestamp values which reflect this precision.
+If you write data points with sub-second resolution, you _have_ to configure
+your client instance with a more granular `time_precision` option **and** you
+need to provide timestamp values which reflect this precision. **If you don't do
+this, your points will be lost!** InfluxDB will store no more than one point per
+second per unique series by default!
 
-**If you don't do this, your points will be lost!**
-
-InfluxDB will store no more than one point per second per unique series by default!
-
-For example, this is how to specify millisecond precision
-(for under 1000 points per second):
+For example, this is how to specify millisecond precision (for under 1000 points
+per second):
 
 ```ruby
 influxdb = InfluxDB::Client.new(time_precision: "ms")
