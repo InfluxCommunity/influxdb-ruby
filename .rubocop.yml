@@ -15,24 +15,21 @@ AllCops:
 Rails:
   Enabled: false
 
-Style/FrozenStringLiteralComment:
+Layout/EmptyLinesAroundArguments:
   Enabled: false
 
-Style/NumericPredicate:
-  Enabled: false
+Layout/SpaceBeforeBlockBraces:
+  EnforcedStyleForEmptyBraces: space
 
-Style/StringLiterals:
-  Enabled: false
+Metrics/AbcSize:
+  Max: 20
 
-Style/RescueModifier:
-  Enabled: false
-
-Metrics/LineLength:
-  Max: 100
+Metrics/BlockLength:
   Exclude:
   - 'spec/**/*.rb'
 
-Metrics/BlockLength:
+Metrics/LineLength:
+  Max: 100
   Exclude:
   - 'spec/**/*.rb'
 
@@ -43,13 +40,23 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 6
 
+Style/FormatStringToken:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/RescueModifier:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
 Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
   Exclude:
   - "spec/**/*.rb"
 
-Metrics/AbcSize:
-  Max: 20
-
-Style/FormatStringToken:
-  Enabled: false

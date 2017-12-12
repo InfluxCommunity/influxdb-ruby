@@ -131,6 +131,10 @@ module InfluxDB
           end
         end
 
+        # rubocop:enable Metrics/CyclomaticComplexity
+        # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/AbcSize
+
         def stop!
           log(:debug) { "Thread exiting, flushing queue." }
           check_background_queue until queue.empty?

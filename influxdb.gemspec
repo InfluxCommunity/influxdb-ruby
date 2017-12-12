@@ -2,7 +2,6 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'influxdb/version'
 
-# rubocop:disable Style/SpecialGlobalVars
 Gem::Specification.new do |spec|
   spec.name          = "influxdb"
   spec.version       = InfluxDB::VERSION
@@ -13,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = "http://influxdb.org"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files`.split($/)
+  spec.files         = `git ls-files`.split($/) # rubocop:disable Style/SpecialGlobalVars
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features|smoke)/})
   spec.require_paths = ["lib"]

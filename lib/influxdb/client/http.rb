@@ -78,10 +78,12 @@ module InfluxDB
     end
 
     def resolve_error(response)
-      if response =~ /Couldn\'t find series/
+      case response
+      when /Couldn\'t find series/
         raise InfluxDB::SeriesNotFound, response
+      else
+        raise InfluxDB::Error, response
       end
-      raise InfluxDB::Error, response
     end
 
     def handle_successful_response(response, options)
@@ -130,4 +132,6 @@ module InfluxDB
       store
     end
   end
+  # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/AbcSize
 end

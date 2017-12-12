@@ -36,6 +36,7 @@ module InfluxDB
         invalid: :replace,
         undef: :replace,
         replace: "".freeze
+      # rubocop:enable Layout/AlignParameters
 
       ESCAPES[type].each do |ch|
         s = s.gsub(ch) { "\\#{ch}" }

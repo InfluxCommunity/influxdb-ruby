@@ -2,7 +2,6 @@ require_relative 'builder'
 
 module InfluxDB
   module Query # :nodoc: all
-    # rubocop:disable Metrics/AbcSize
     module Core
       def builder
         @builder ||= Builder.new
@@ -17,8 +16,7 @@ module InfluxDB
         ping.header['x-influxdb-version']
       end
 
-      # rubocop:disable Metrics/MethodLength
-      def query(
+      def query( # rubocop:disable Metrics/MethodLength
         query,
         params:       nil,
         denormalize:  config.denormalize,
@@ -147,11 +145,16 @@ module InfluxDB
           params[:p] = config.password
         end
 
-        query = params.map do |k, v|
+        URI::Generic.build(
+          path:  File.join(config.prefix, path),
+          query: cgi_escape_params(params)
+        ).to_s
+      end
+
+      def cgi_escape_params(params)
+        params.map do |k, v|
           [CGI.escape(k.to_s), "=".freeze, CGI.escape(v.to_s)].join
         end.join("&".freeze)
-
-        URI::Generic.build(path: File.join(config.prefix, path), query: query).to_s
       end
     end
   end
