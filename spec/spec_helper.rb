@@ -10,7 +10,8 @@ end
 
 RSpec.configure do |config|
   config.color = ENV["TRAVIS"] != "true"
-
+  config.filter_run_excluding smoke: ENV["TRAVIS"] != "true" || !ENV.key?("influx_version")
+  puts "SMOKE TESTS ARE NOT CURRENTLY RUNNING" if ENV["TRAVIS"] != "true"
   # rubocop:disable Style/ConditionalAssignment
   if config.files_to_run.one? || ENV["TRAVIS"] == "true"
     config.formatter = :documentation

@@ -5,7 +5,7 @@ before_install:
   - gem update --system --no-doc
   - gem install bundler --no-doc
   - gem update bundler --no-doc
-  - smoke/provision.sh
+  - bin/provision.sh
 rvm:
   - 2.2.8
   - 2.3.5
@@ -20,25 +20,25 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-9.1.5.0
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=nightly channel=nightlies
+      env: influx_version=nightly channel=nightlies
   include:
     - rvm: 2.4.2
       env: TEST_TASK=rubocop
     - rvm: jruby-9.1.5.0
     - rvm: jruby-head
-      env: TEST_TASK=spec JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+      env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=1.0.2 pkghash=3e4c349cb57507913d9abda1459bdbed
+      env: influx_version=1.0.2 pkghash=3e4c349cb57507913d9abda1459bdbed
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=1.1.0 pkghash=682904c350ecfc2a60ec9c6c08453ef2
+      env: influx_version=1.1.0 pkghash=682904c350ecfc2a60ec9c6c08453ef2
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=1.2.4 pkghash=0545d67217393282188e5d5cdedfdc85
+      env: influx_version=1.2.4 pkghash=0545d67217393282188e5d5cdedfdc85
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=1.3.6 pkghash256=6406cdd21466bcb832b967078adaa9f07cb6ae524a6579c15141692031f5f840
+      env: influx_version=1.3.6 pkghash256=6406cdd21466bcb832b967078adaa9f07cb6ae524a6579c15141692031f5f840
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=1.4.2 pkghash256=96ced90cfc436da7833721fd635b9942f9175cff2f897c113ef068f224cf8605
+      env: influx_version=1.4.2 pkghash256=96ced90cfc436da7833721fd635b9942f9175cff2f897c113ef068f224cf8605
     - rvm: 2.4.2
-      env: TEST_TASK=smoke influx_version=nightly channel=nightlies
+      env: influx_version=nightly channel=nightlies
   fail_fast: true
 addons:
   apt:
