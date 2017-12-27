@@ -14,10 +14,6 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = FileList[file_pattern]
 end
 
-Rake::TestTask.new(:smoke) do |t|
-  t.test_files = FileList["smoke/*.rb"]
-end
-
 task default: %i[spec rubocop]
 
 task :console do
@@ -43,10 +39,4 @@ task :console do
     ARGV.clear
     IRB.start
   end
-end
-
-if !ENV.key?("influx_version") || ENV["influx_version"] == ""
-  task default: :spec
-elsif ENV["TRAVIS"] == "true"
-  task default: :smoke
 end
