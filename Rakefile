@@ -14,7 +14,11 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = FileList[file_pattern]
 end
 
-task default: %i[spec rubocop]
+if ENV.key?("TRAVIS")
+  task default: %i[spec]
+else
+  task default: %i[spec rubocop]
+end
 
 task :console do
   lib = File.expand_path("../lib", __FILE__)
