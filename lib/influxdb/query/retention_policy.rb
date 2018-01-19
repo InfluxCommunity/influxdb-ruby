@@ -17,9 +17,9 @@ module InfluxDB
 
       def list_retention_policies(database)
         resp = execute("SHOW RETENTION POLICIES ON \"#{database}\"", parse: true)
-        data = fetch_series(resp).fetch(0)
+        data = fetch_series(resp).fetch(0, {})
 
-        data['values'.freeze].map do |policy|
+        data.fetch("values".freeze, []).map do |policy|
           policy.each.with_index.inject({}) do |hash, (value, index)|
             hash.tap { |h| h[data['columns'.freeze][index]] = value }
           end
