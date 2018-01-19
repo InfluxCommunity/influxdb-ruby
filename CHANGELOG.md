@@ -6,6 +6,11 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 - None.
 
+## v0.5.3, released 2018-01-19
+
+- Fix `NoMethodError` in `InfluxDB::Client#list_retention_policies` when
+  the database has no RPs defined (#213, @djoos)
+
 ## v0.5.2, released 2017-11-28
 
 - Add async option to block on full queue (#209, @davemt)
