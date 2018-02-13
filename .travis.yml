@@ -7,27 +7,27 @@ before_install:
   - gem update bundler --no-doc
   - bin/provision.sh
 rvm:
-  - 2.2.8
-  - 2.3.5
-  - 2.4.3
+  # - 2.2.8
+  # - 2.3.5
+  # - 2.4.3
   - 2.5.0
-  - ruby-head
+  # - ruby-head
 env:
   - TEST_TASK=spec
 
 matrix:
   allow_failures:
-    - rvm: jruby-head
-    - rvm: ruby-head
-    - rvm: jruby-9.1.5.0
+    # - rvm: jruby-head
+    # - rvm: ruby-head
+    # - rvm: jruby-9.1.5.0
     - rvm: 2.5.0
       env: influx_version=nightly channel=nightlies
   include:
-    - rvm: 2.5.0
-      env: TEST_TASK=rubocop
-    - rvm: jruby-9.1.5.0
-    - rvm: jruby-head
-      env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+    # - rvm: 2.5.0
+    #   env: TEST_TASK=rubocop
+    # - rvm: jruby-9.1.5.0
+    # - rvm: jruby-head
+    #   env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
     - rvm: 2.5.0
       env: influx_version=1.0.2 pkghash=3e4c349cb57507913d9abda1459bdbed
     - rvm: 2.5.0
@@ -46,4 +46,4 @@ addons:
     packages:
       - haveged
       - libgmp-dev
-script: bundle exec rake $TEST_TASK
+script: bundle exec rspec spec/smoke/issue201_spec.rb
