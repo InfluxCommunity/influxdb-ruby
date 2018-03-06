@@ -37,7 +37,6 @@ module InfluxDB
           denormalize ? denormalized_series_list(series) : series
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       # Example:
       # write_points([

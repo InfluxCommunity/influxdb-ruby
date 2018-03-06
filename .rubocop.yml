@@ -40,6 +40,9 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 6
 
+Naming/UncommunicativeMethodParamName:
+  AllowedNames: [io, id, db]
+
 Style/FormatStringToken:
   Enabled: false
 
@@ -55,8 +58,12 @@ Style/RescueModifier:
 Style/StringLiterals:
   Enabled: false
 
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: comma
   Exclude:
   - "spec/**/*.rb"
 
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+  Exclude:
+  - "spec/**/*.rb"

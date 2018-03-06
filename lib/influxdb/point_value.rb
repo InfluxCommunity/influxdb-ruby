@@ -30,18 +30,18 @@ module InfluxDB
 
     private_constant :ESCAPES
 
-    def escape(s, type)
+    def escape(str, type)
       # rubocop:disable Layout/AlignParameters
-      s = s.encode "UTF-8".freeze, "UTF-8".freeze,
+      str = str.encode "UTF-8".freeze, "UTF-8".freeze,
         invalid: :replace,
         undef: :replace,
         replace: "".freeze
       # rubocop:enable Layout/AlignParameters
 
       ESCAPES[type].each do |ch|
-        s = s.gsub(ch) { "\\#{ch}" }
+        str = str.gsub(ch) { "\\#{ch}" }
       end
-      s
+      str
     end
 
     def escape_values(values)
