@@ -33,5 +33,71 @@ describe InfluxDB::Client do
       expected_result = [{ "name" => "requests_per_minute", "tags" => nil, "values" => [] }]
       expect(subject.query(query)).to eq(expected_result)
     end
+
+    context "with multiple queries when there is no data for a query" do
+      let(:query) {
+        [
+          "SELECT value FROM requests_per_minute WHERE time > 1437019900;",
+          "SELECT value FROM requests_per_minute WHERE time > now();",
+          "SELECT value FROM requests_per_minute WHERE time > 1437019900;",
+        ].join('')
+      }
+      let(:response) do
+        { "results" => [
+          {"statement_id"=>0, "series"=> [{
+            "name"=>"requests_per_minute",
+            "columns"=>["time", "value"],
+            "values"=> [["2018-04-02T00:00:00Z", "204"]]
+          }]},
+          {"statement_id"=>1},
+          {"statement_id"=>2, "series"=> [{
+            "name"=>"requests_per_minute",
+            "columns"=>["time", "value"],
+            "values"=> [["2018-04-02T00:00:00Z", "204"]]
+          }]}]
+        }
+      end
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(query: { db: "database", precision: "s", u: "username", p: "password", q: query })
+          .to_return(body: JSON.generate(response), status: 200)
+      end
+
+      it "should return responses for all statements" do
+        expect(subject.query(query).length).to eq(response['results'].length)
+      end
+    end
+
+    context "with a group by tag query" do
+      let(:query) { "SELECT value FROM requests_per_minute WHERE time > now() - 1d GROUP BY status_code;" }
+      let(:response) do
+        { "results" => [
+          {"statement_id"=>0, "series"=> [
+            {
+              "name"=>"requests_per_minute",
+              "tags"=>{ "status_code": "200" },
+              "columns"=>["time", "value"],
+              "values"=> [["2018-04-02T00:00:00Z", "204"]]
+            }, {
+              "name"=>"requests_per_minute",
+              "tags"=>{ "status_code": "500" },
+              "columns"=>["time", "value"],
+              "values"=> [["2018-04-02T00:00:00Z", "204"]]
+            }
+          ]}
+        ]}
+      end
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(query: { db: "database", precision: "s", u: "username", p: "password", q: query })
+          .to_return(body: JSON.generate(response), status: 200)
+      end
+
+      it "should return a single result" do
+        expect(subject.query(query).length).to eq(response['results'].length)
+      end
+    end
   end
 end
