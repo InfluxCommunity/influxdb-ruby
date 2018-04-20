@@ -9,6 +9,7 @@ require "influxdb/writer/async"
 require "influxdb/writer/udp"
 
 require "influxdb/query/core"
+require "influxdb/query/batch"
 require "influxdb/query/cluster"
 require "influxdb/query/database"
 require "influxdb/query/user"
