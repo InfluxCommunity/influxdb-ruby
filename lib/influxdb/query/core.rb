@@ -44,9 +44,7 @@ module InfluxDB
         chunk_size:   config.chunk_size,
         **opts
       )
-        if queries.empty?
-          []
-        end
+        return [] if queries.empty?
 
         url = full_url("/query".freeze, query_params(queries.join(""), opts))
         series = fetch_batched_series(get(url, parse: true, json_streaming: !chunk_size.nil?))
@@ -60,6 +58,7 @@ module InfluxDB
           denormalize ? denormalized_batched_series_list(series) : series
         end
       end
+
       # Example:
       # write_points([
       #   {
