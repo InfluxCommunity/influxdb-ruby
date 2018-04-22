@@ -40,32 +40,35 @@ module InfluxDB
       private
 
       def build_result(series)
-        return series unless block_given?
+        return series.values unless block_given?
 
-        series.each_with_index do |s,i|
-          if s[0]
-            yield i, s[0]["name".freeze], s[0]["tags".freeze], raw_values(s[0])
-          else
-            yield i, nil, nil, []
+        series.each do |id, statement_results|
+          statement_results.each do |s|
+            yield id, s["name".freeze], s["tags".freeze], raw_values(s)
           end
+
+          # indicate empty result: yield useful amount of "nothing"
+          yield id, nil, {}, [] if statement_results.empty?
         end
       end
 
       def build_denormalized_result(series)
-        return series.map { |s| denormalized_series_list(s) } unless block_given?
+        return series.map { |_, s| denormalized_series_list(s) } unless block_given?
 
-        series.each_with_index do |s,i|
-          if s[0]
-            yield i, s[0]["name".freeze], s[0]["tags".freeze], denormalize_series(s[0])
-          else
-            yield i, nil, nil, []
+        series.each do |id, statement_results|
+          statement_results.each do |s|
+            yield id, s["name".freeze], s["tags".freeze], denormalize_series(s)
           end
+
+          # indicate empty result: yield useful amount of "nothing"
+          yield id, nil, {}, [] if statement_results.empty?
         end
       end
 
       def fetch_series(response)
-        response.fetch("results".freeze, []).map do |result|
-          result.fetch("series".freeze, [])
+        response.fetch("results".freeze).each_with_object({}) do |result, list|
+          sid = result["statement_id".freeze]
+          list[sid] = result.fetch("series".freeze, [])
         end
       end
 

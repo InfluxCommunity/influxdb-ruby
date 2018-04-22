@@ -125,6 +125,32 @@ describe InfluxDB::Client, smoke: true do
             expect(res["values"][0]["count"]).to be value
           end
         end
+
+        it "with block yields statement id" do
+          batch = client.batch do |b|
+            queries.each { |q| b.add(q) }
+          end
+
+          got_santa_monica = got_coyote_creek = got_empty_result = false
+
+          batch.execute do |sid, _, tags, values|
+            case [sid, tags["location"]]
+            when [0, "santa_monica"]
+              expect(values[0]["count"]).to be 7654
+              got_santa_monica = true
+            when [0, "coyote_creek"]
+              expect(values[0]["count"]).to be 7604
+              got_coyote_creek = true
+            when [1, nil]
+              expect(values).to eq []
+              got_empty_result = true
+            end
+          end
+
+          expect(got_coyote_creek).to be true
+          expect(got_santa_monica).to be true
+          expect(got_empty_result).to be true
+        end
       end
     end
   end
