@@ -4,7 +4,12 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## Unreleased changes
 
-- None.
+- Add batch query support via `InfluxDB::Client#batch` (and using
+  `InfluxDB::Query::Batch`). Using multiple queries joined with `;`
+  will cause issues with `Client#query` in combination with either
+  `GROUP BY` clauses or empty results, as discussed in #217.
+
+  Initial code and PR#218 from @satyanash.
 
 ## v0.5.3, released 2018-01-19
 
