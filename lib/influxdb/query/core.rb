@@ -86,11 +86,11 @@ module InfluxDB
       private
 
       def query_params(
-          query,
-          precision:  config.time_precision,
-          epoch:      config.epoch,
-          chunk_size: config.chunk_size,
-          database:   config.database
+        query,
+        precision:  config.time_precision,
+        epoch:      config.epoch,
+        chunk_size: config.chunk_size,
+        database:   config.database
       )
         params = { q: query, db: database }
         params[:precision] = precision if precision

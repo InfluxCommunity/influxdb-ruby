@@ -3,19 +3,14 @@ require "json"
 
 describe InfluxDB::Client do
   let(:subject) do
-    described_class.new(
-      "database",
-      {
-        host: "influxdb.test",
-        port: 9999,
-        username: "username",
-        password: "password",
-        time_precision: "s"
-      }.merge(args)
-    )
+    described_class.new \
+      database:       "database",
+      host:           "influxdb.test",
+      port:           9999,
+      username:       "username",
+      password:       "password",
+      time_precision: "s"
   end
-
-  let(:args) { {} }
 
   describe "#list_continuous_queries" do
     let(:query) { "SHOW CONTINUOUS QUERIES" }
@@ -108,10 +103,10 @@ describe InfluxDB::Client do
     let(:name) { "event_counts_per_10m_by_type" }
     let(:database) { "testdb" }
     let(:query) { "DROP CONTINUOUS QUERY #{name} ON #{database}" }
+
     before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: query }
-      )
+      stub_request(:get, "http://influxdb.test:9999/query")
+        .with(query: { u: "username", p: "password", q: query })
     end
 
     it "should GET to remove continuous query" do

@@ -23,11 +23,9 @@ describe InfluxDB::Client do
     let(:query) { "SHOW SERIES" }
 
     before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: query, db: "database" }
-      ).to_return(
-        body: JSON.generate(response)
-      )
+      stub_request(:get, "http://influxdb.test:9999/query")
+        .with(query: { u: "username", p: "password", q: query, db: "database" })
+        .to_return(body: JSON.generate(response))
     end
 
     it "returns a list of all series names" do
@@ -40,11 +38,9 @@ describe InfluxDB::Client do
     let(:query) { "SHOW SERIES" }
 
     before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: query, db: "database" }
-      ).to_return(
-        body: JSON.generate(response)
-      )
+      stub_request(:get, "http://influxdb.test:9999/query")
+        .with(query: { u: "username", p: "password", q: query, db: "database" })
+        .to_return(body: JSON.generate(response))
     end
 
     it "returns a empty list" do
@@ -57,9 +53,8 @@ describe InfluxDB::Client do
     let(:query) { "DROP SERIES FROM #{name}" }
 
     before do
-      stub_request(:get, "http://influxdb.test:9999/query").with(
-        query: { u: "username", p: "password", q: query, db: "database" }
-      )
+      stub_request(:get, "http://influxdb.test:9999/query")
+        .with(query: { u: "username", p: "password", q: query, db: "database" })
     end
 
     it "should GET to remove a database" do

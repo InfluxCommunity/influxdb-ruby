@@ -3,26 +3,22 @@ require "json"
 
 describe InfluxDB::Client do
   let(:subject) do
-    described_class.new(
-      "database",
-      {
-        host: "influxdb.test",
-        port: 9999,
-        username: "username",
-        password: "password",
-        time_precision: "s"
-      }.merge(args)
-    )
+    described_class.new \
+      database:       "database",
+      host:           "influxdb.test",
+      port:           9999,
+      username:       "username",
+      password:       "password",
+      time_precision: "s"
   end
 
-  let(:args) { {} }
   let(:query) { nil }
   let(:response) { { "results" => [{ "statement_id" => 0 }] } }
 
   before do
-    stub_request(:get, "http://influxdb.test:9999/query").with(
-      query: { u: "username", p: "password", q: query }
-    ).to_return(body: JSON.generate(response))
+    stub_request(:get, "http://influxdb.test:9999/query")
+      .with(query: { u: "username", p: "password", q: query })
+      .to_return(body: JSON.generate(response))
   end
 
   describe "#create_database" do

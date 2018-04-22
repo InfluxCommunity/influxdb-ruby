@@ -3,16 +3,14 @@ require "json"
 
 describe InfluxDB::Client do
   let(:subject) do
-    described_class.new "database", {
-      host: "influxdb.test",
-      port: 9999,
-      username: "username",
-      password: "password",
+    described_class.new \
+      database:       "database",
+      host:           "influxdb.test",
+      port:           9999,
+      username:       "username",
+      password:       "password",
       time_precision: "s"
-    }.merge(args)
   end
-
-  let(:args) { {} }
 
   let(:database) { subject.config.database }
 
