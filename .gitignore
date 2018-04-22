@@ -21,3 +21,5 @@ Gemfile.lock
 _yardoc
 doc/
 *.local
+
+/noaa.txt
