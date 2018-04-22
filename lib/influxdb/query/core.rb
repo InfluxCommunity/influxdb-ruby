@@ -1,3 +1,4 @@
+require_relative 'batch'
 require_relative 'builder'
 
 module InfluxDB
@@ -36,6 +37,10 @@ module InfluxDB
         else
           denormalize ? denormalized_series_list(series) : series
         end
+      end
+
+      def batch(&block)
+        Batch.new self, &block
       end
 
       # Example:

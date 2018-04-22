@@ -8,7 +8,6 @@ module InfluxDB
     include InfluxDB::Logging
     include InfluxDB::HTTP
     include InfluxDB::Query::Core
-    include InfluxDB::Query::Batch
     include InfluxDB::Query::Cluster
     include InfluxDB::Query::Database
     include InfluxDB::Query::User

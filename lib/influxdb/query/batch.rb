@@ -1,40 +1,78 @@
-require_relative 'builder'
-
 module InfluxDB
-  module Query # :nodoc: all
-    module Batch
-      def batched_query( # rubocop:disable Metrics/MethodLength
-        queries: [],
+  module Query
+    # Batch collects multiple queries and executes them together.
+    #
+    # You shouldn't use Batch directly, instead call Client.batch, which
+    # constructs a new batch for you.
+    class Batch
+      attr_reader :client, :statements
+
+      def initialize(client)
+        @client     = client
+        @statements = []
+
+        yield self if block_given?
+      end
+
+      def add(query, params: nil)
+        statements << client.builder.build(query.chomp(";"), params)
+        statements.size - 1
+      end
+
+      def execute(
         denormalize:  config.denormalize,
         chunk_size:   config.chunk_size,
-        **opts
+        **opts,
+        &block
       )
-        return [] if queries.empty?
+        return [] if statements.empty?
 
-        url = full_url("/query".freeze, query_params(queries.join(""), opts))
-        series = fetch_batched_series(get(url, parse: true, json_streaming: !chunk_size.nil?))
+        url = full_url "/query".freeze, query_params(statements.join(";"), opts)
+        series = fetch_series get(url, parse: true, json_streaming: !chunk_size.nil?)
 
-        if block_given?
-          series.each do |s|
-            values = denormalize ? denormalize_batched_series(s) : raw_values(s)
-            yield s['name'.freeze], s['tags'.freeze], values
-          end
+        if denormalize
+          build_denormalized_result(series, &block)
         else
-          denormalize ? denormalized_batched_series_list(series) : series
+          build_result(series, &block)
         end
       end
 
       private
 
-      def denormalized_batched_series_list(series_list)
-        series_list.map do |series|
-          denormalized_series_list(series)
+      def build_result(series)
+        return series unless block_given?
+
+        series.each do |s|
+          yield s["name".freeze], s["tags".freeze], raw_values(s)
         end
       end
 
-      def fetch_batched_series(response)
-        response.fetch('results'.freeze, []).map do |result|
-          result.fetch('series'.freeze, [])
+      def build_denormalized_result(series)
+        return series.map { |s| denormalized_series_list(s) } unless block_given?
+
+        series.each do |s|
+          yield s["name".freeze], s["tags".freeze], denormalize_series(s)
+        end
+      end
+
+      def fetch_series(response)
+        response.fetch("results".freeze, []).map do |result|
+          result.fetch("series".freeze, [])
+        end
+      end
+
+      # build simple method delegators
+      %i[
+        config
+        full_url
+        query_params
+        get
+        raw_values
+        denormalize_series
+        denormalized_series_list
+      ].each do |method_name|
+        define_method(method_name) do |*args|
+          client.send method_name, *args
         end
       end
     end
