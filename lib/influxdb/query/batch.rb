@@ -42,16 +42,24 @@ module InfluxDB
       def build_result(series)
         return series unless block_given?
 
-        series.each do |s|
-          yield s["name".freeze], s["tags".freeze], raw_values(s)
+        series.each_with_index do |s,i|
+          if s[0]
+            yield i, s[0]["name".freeze], s[0]["tags".freeze], raw_values(s[0])
+          else
+            yield i, nil, nil, []
+          end
         end
       end
 
       def build_denormalized_result(series)
         return series.map { |s| denormalized_series_list(s) } unless block_given?
 
-        series.each do |s|
-          yield s["name".freeze], s["tags".freeze], denormalize_series(s)
+        series.each_with_index do |s,i|
+          if s[0]
+            yield i, s[0]["name".freeze], s[0]["tags".freeze], denormalize_series(s[0])
+          else
+            yield i, nil, nil, []
+          end
         end
       end
 

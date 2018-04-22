@@ -74,37 +74,56 @@ describe InfluxDB::Client, smoke: true do
       expect(results[1]["values"][0]["count"]).to be 7604
     end
 
-    it "#batch.execute returns expected results" do
-      results = client.batch do |b|
-        queries.each { |q| b.add(q) }
-      end.execute
-
-      expect(results.size).to be 3
-      expect(results[0][0]["values"][0]["count"]).to be 7654
-      expect(results[1]).to eq []
-      expect(results[2][0]["values"][0]["count"]).to be 7604
-    end
-
-    context "#batch with tags" do
-      let :queries do
-        [
-          "select count(water_level) from h2o_feet group by location",
-          "select * from h2o_feet where time > now()", # empty result
-        ]
-      end
-
+    context "#batch.execute" do
       it "returns expected results" do
         results = client.batch do |b|
           queries.each { |q| b.add(q) }
         end.execute
 
-        expect(results.size).to be 2
-        results[0].each do |res|
-          location = res["tags"]["location"]
-          expect(%w[coyote_creek santa_monica]).to include location
+        expect(results.size).to be 3
+        expect(results[0][0]["values"][0]["count"]).to be 7654
+        expect(results[1]).to eq []
+        expect(results[2][0]["values"][0]["count"]).to be 7604
+      end
 
-          value = location == "santa_monica" ? 7654 : 7604
-          expect(res["values"][0]["count"]).to be value
+      it "with block yields statement id" do
+        batch = client.batch do |b|
+          queries.each { |q| b.add(q) }
+        end
+
+        batch.execute do |sid, _, _, values|
+          case sid
+          when 0
+            expect(values[0]["count"]).to be 7654
+          when 1
+            expect(values).to eq []
+          when 2
+            expect(values[0]["count"]).to be 7604
+          end
+        end
+      end
+
+      context "with tags" do
+        let :queries do
+          [
+            "select count(water_level) from h2o_feet group by location",
+            "select * from h2o_feet where time > now()", # empty result
+          ]
+        end
+
+        it "returns expected results" do
+          results = client.batch do |b|
+            queries.each { |q| b.add(q) }
+          end.execute
+
+          expect(results.size).to be 2
+          results[0].each do |res|
+            location = res["tags"]["location"]
+            expect(%w[coyote_creek santa_monica]).to include location
+
+            value = location == "santa_monica" ? 7654 : 7604
+            expect(res["values"][0]["count"]).to be value
+          end
         end
       end
     end
