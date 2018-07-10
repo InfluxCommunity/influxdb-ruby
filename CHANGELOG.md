@@ -2,7 +2,7 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## Unreleased changes
+## v0.6.0, released 2018-07-10
 
 - Add batch query support via `InfluxDB::Client#batch` (and using
   `InfluxDB::Query::Batch`). Using multiple queries joined with `;`
