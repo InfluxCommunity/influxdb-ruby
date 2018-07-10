@@ -161,9 +161,7 @@ this, your points will be squashed!**
 > field set and the new field set, where any ties go to the new field set. This
 > is the intended behavior.
 
-See [How does InfluxDB handle duplicate
-points?](https://docs.influxdata.com/influxdb/v1.3/troubleshooting/frequently-asked-questions/#how-does-influxdb-handle-duplicate-points)
-for details.
+See [How does InfluxDB handle duplicate points?][docs-faq] for details.
 
 For example, this is how to specify millisecond precision (which moves the
 pitfall from the second- to the millisecond barrier):
@@ -172,7 +170,7 @@ pitfall from the second- to the millisecond barrier):
 influxdb = InfluxDB::Client.new(time_precision: "ms")
 time = (Time.now.to_r * 1000).to_i
 # A faster, albeit less readable alternative:
-# time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+# time = Process.clock_gettime(Process::CLOCK_REALTIME, :millisecond)
 influxdb.write_point("foobar", { values: { n: 42 }, timestamp: time })
 ```
 
@@ -682,8 +680,7 @@ influxdb = InfluxDB::Client.new database,
   chunk_size: 10000
 ```
 
-See the [official documentation](http://docs.influxdata.com/influxdb/v0.13/guides/querying_data/#chunking)
-for more details.
+See the [official documentation][docs-chunking] for more details.
 
 
 #### Retry
