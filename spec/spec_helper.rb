@@ -9,7 +9,9 @@ end
 # rubocop:enable Lint/HandleExceptions
 
 def min_influx_version(version)
-  current = Gem::Version.new ENV.fetch("influx_version", "0")
+  v = ENV.fetch("influx_version", "0")
+  return true if v == "nightly"
+  current = Gem::Version.new(v)
   current >= Gem::Version.new(version)
 end
 
