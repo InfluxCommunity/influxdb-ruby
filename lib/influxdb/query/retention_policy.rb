@@ -8,7 +8,7 @@ module InfluxDB
                                   default = false,
                                   shard_duration: nil)
         execute(
-          "CREATE RETENTION POLICY \"#{name}\" ON #{database} " \
+          "CREATE RETENTION POLICY \"#{name}\" ON \"#{database}\" " \
           "DURATION #{duration} REPLICATION #{replication}" \
           "#{shard_duration ? " SHARD DURATION #{shard_duration}" : ''}" \
           "#{default ? ' DEFAULT' : ''}"
@@ -27,7 +27,7 @@ module InfluxDB
       end
 
       def delete_retention_policy(name, database)
-        execute("DROP RETENTION POLICY \"#{name}\" ON #{database}")
+        execute("DROP RETENTION POLICY \"#{name}\" ON \"#{database}\"")
       end
 
       def alter_retention_policy(name,
@@ -37,7 +37,7 @@ module InfluxDB
                                  default = false,
                                  shard_duration: nil)
         execute(
-          "ALTER RETENTION POLICY \"#{name}\" ON #{database} " \
+          "ALTER RETENTION POLICY \"#{name}\" ON \"#{database}\" " \
           "DURATION #{duration} REPLICATION #{replication}" \
           "#{shard_duration ? " SHARD DURATION #{shard_duration}" : ''}" \
           "#{default ? ' DEFAULT' : ''}"
