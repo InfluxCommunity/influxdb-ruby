@@ -37,7 +37,7 @@ module InfluxDB
                                  default = false,
                                  shard_duration: nil)
         execute(
-          "ALTER RETENTION POLICY \"#{name}\" ON #{database} " \
+          "ALTER RETENTION POLICY \"#{name}\" ON \"#{database}\" " \
           "DURATION #{duration} REPLICATION #{replication}" \
           "#{shard_duration ? " SHARD DURATION #{shard_duration}" : ''}" \
           "#{default ? ' DEFAULT' : ''}"
