@@ -78,7 +78,7 @@ describe InfluxDB::Client do
   end
 
   describe "#delete_retention_policy" do
-    let(:query) { "DROP RETENTION POLICY \"1h.cpu\" ON foo" }
+    let(:query) { "DROP RETENTION POLICY \"1h.cpu\" ON \"foo\"" }
 
     it "should GET to remove a database" do
       expect(subject.delete_retention_policy('1h.cpu', 'foo')).to be_a(Net::HTTPOK)
