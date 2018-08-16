@@ -45,7 +45,7 @@ describe InfluxDB::Client do
 
   describe "#create_retention_policy" do
     context "default" do
-      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 1h REPLICATION 2 DEFAULT" }
+      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON \"foo\" DURATION 1h REPLICATION 2 DEFAULT" }
 
       it "should GET to create a new database" do
         expect(subject.create_retention_policy('1h.cpu', 'foo', '1h', 2, true)).to be_a(Net::HTTPOK)
@@ -53,7 +53,7 @@ describe InfluxDB::Client do
     end
 
     context "non-default" do
-      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 1h REPLICATION 2" }
+      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON \"foo\" DURATION 1h REPLICATION 2" }
 
       it "should GET to create a new database" do
         expect(subject.create_retention_policy('1h.cpu', 'foo', '1h', 2)).to be_a(Net::HTTPOK)
@@ -61,7 +61,7 @@ describe InfluxDB::Client do
     end
 
     context "default_with_shard_duration" do
-      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 48h REPLICATION 2 SHARD DURATION 1h DEFAULT" }
+      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON \"foo\" DURATION 48h REPLICATION 2 SHARD DURATION 1h DEFAULT" }
 
       it "should GET to create a new database" do
         expect(subject.create_retention_policy('1h.cpu', 'foo', '48h', 2, true, shard_duration: '1h')).to be_a(Net::HTTPOK)
@@ -69,7 +69,7 @@ describe InfluxDB::Client do
     end
 
     context "non-default_with_shard_duration" do
-      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON foo DURATION 48h REPLICATION 2 SHARD DURATION 1h" }
+      let(:query) { "CREATE RETENTION POLICY \"1h.cpu\" ON \"foo\" DURATION 48h REPLICATION 2 SHARD DURATION 1h" }
 
       it "should GET to create a new database" do
         expect(subject.create_retention_policy('1h.cpu', 'foo', '48h', 2, shard_duration: '1h')).to be_a(Net::HTTPOK)
