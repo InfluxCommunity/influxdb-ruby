@@ -2,6 +2,13 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## v0.6.1, released 2018-08-23
+
+- Fix `InfluxDB::Client#delete_retention_policy`: the database name
+  argument is now quoted (#221, #222 @AishwaryaRK).
+- Add `InfluxDB::Client#list_measurements` and `#delete_measuerment`
+  (#220)
+
 ## v0.6.0, released 2018-07-10
 
 - Add batch query support via `InfluxDB::Client#batch` (and using
