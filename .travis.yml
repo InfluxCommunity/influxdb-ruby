@@ -41,6 +41,8 @@ matrix:
     - rvm: 2.5.1
       env: influx_version=1.5.2 pkghash256=42fede7b497bdf30d4eb5138db218d1add986fca4fce4a8bcd9c7d6dabaf572a
     - rvm: 2.5.1
+      env: influx_version=1.6.1 pkghash256=a833ac16890182a75983c61e5fe6471ae27cbab7984d7b7361034887b7428de2
+    - rvm: 2.5.1
       env: influx_version=nightly channel=nightlies
   fail_fast: true
 addons:
