@@ -5,6 +5,7 @@ module InfluxDB
 
     def initialize(max = 10_000)
       raise ArgumentError, "queue size must be positive" if max <= 0
+
       @max = max
       super()
     end

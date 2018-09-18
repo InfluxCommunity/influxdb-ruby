@@ -4,6 +4,7 @@ module InfluxDB
       def list_measurements(database = config.database)
         data = execute("SHOW MEASUREMENTS", db: database, parse: true)
         return nil if data.nil? || data["results"][0]["series"].nil?
+
         data["results"][0]["series"][0]["values"].flatten
       end
 

@@ -10,6 +10,7 @@ module InfluxDB
 
       def logger
         return false if @logger == false
+
         @logger ||= ::Logger.new(STDERR).tap { |logger| logger.level = Logger::INFO }
       end
 
