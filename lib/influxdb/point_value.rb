@@ -46,6 +46,7 @@ module InfluxDB
 
     def escape_values(values)
       return if values.nil?
+
       values.map do |k, v|
         key = escape(k.to_s, :field_key)
         val = escape_value(v)

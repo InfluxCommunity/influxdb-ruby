@@ -58,6 +58,7 @@ module InfluxDB
         unless (config.retry == -1 || retry_count <= config.retry) && !stopped?
           raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
         end
+
         log(:warn) { "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s." }
         sleep delay
         delay = [config.max_delay, delay * 2].min
@@ -96,13 +97,14 @@ module InfluxDB
       end
 
       errors = errors_from_response(parsed_response)
-
       raise InfluxDB::QueryError, errors if errors
+
       options.fetch(:parse, false) ? parsed_response : response
     end
 
     def errors_from_response(parsed_resp)
       return unless parsed_resp.is_a?(Hash)
+
       parsed_resp
         .fetch('results', [])
         .fetch(0, {})

@@ -11,6 +11,7 @@ end
 def min_influx_version(version)
   v = ENV.fetch("influx_version", "0")
   return true if v == "nightly"
+
   current = Gem::Version.new(v)
   current >= Gem::Version.new(version)
 end

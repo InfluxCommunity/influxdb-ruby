@@ -168,6 +168,7 @@ module InfluxDB
 
       OPTIONS_FROM_PARAMS.each_with_object({}) do |k, opts|
         next unless params[k.to_s].size == 1
+
         opts[k] = coerce(k, params[k.to_s].first)
       end
     end
