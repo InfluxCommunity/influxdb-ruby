@@ -6,10 +6,10 @@ describe InfluxDB::Client do
     described_class.new(
       "database",
       {
-        host: "influxdb.test",
-        port: 9999,
-        username: "username",
-        password: "password",
+        host:           "influxdb.test",
+        port:           9999,
+        username:       "username",
+        password:       "password",
         time_precision: "s"
       }.merge(args)
     )
@@ -22,7 +22,7 @@ describe InfluxDB::Client do
   describe "retrying requests" do
     let(:series) { "cpu" }
     let(:data) do
-      { tags: { region: 'us', host: 'server_1' },
+      { tags:   { region: 'us', host: 'server_1' },
         values: { temp: 88, value: 54 } }
     end
     let(:body) do
@@ -34,9 +34,9 @@ describe InfluxDB::Client do
     before do
       allow(client).to receive(:log)
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: { u: "username", p: "password", precision: 's', db: database },
+        query:   { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
-        body: body
+        body:    body
       ).to_raise(Timeout::Error)
     end
 
@@ -74,9 +74,9 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write")
           .with(
-            query: { u: "username", p: "password", precision: 's', db: database },
+            query:   { u: "username", p: "password", precision: 's', db: database },
             headers: { "Content-Type" => "application/octet-stream" },
-            body: body
+            body:    body
           )
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
@@ -93,9 +93,9 @@ describe InfluxDB::Client do
 
     it "raise an exception if the server didn't return 200" do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: { u: "username", p: "password", precision: 's', db: database },
+        query:   { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
-        body: body
+        body:    body
       ).to_return(status: 401)
 
       expect { client.write_point(series, data) }.to raise_error(InfluxDB::AuthenticationError)

@@ -5,7 +5,7 @@ describe InfluxDB::PointValue do
     let(:data) do
       point = {
         series: '1= ,"\\1',
-        tags: {
+        tags:   {
           '2= ,"\\2' => '3= ,"\\3'
         },
         values: {
@@ -47,10 +47,10 @@ describe InfluxDB::PointValue do
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new \
-          series:     "responses",
-          values:     { value: 5, threshold: 0.54 },
-          tags:       { region: 'eu', status: 200 },
-          timestamp:  1_436_349_652
+          series:    "responses",
+          values:    { value: 5, threshold: 0.54 },
+          tags:      { region: 'eu', status: 200 },
+          timestamp: 1_436_349_652
 
         expect(point.dump).to eq(expected_value)
       end
@@ -62,9 +62,9 @@ describe InfluxDB::PointValue do
       end
       it 'should have proper form' do
         point = InfluxDB::PointValue.new \
-          series:     "responses",
-          values:     { value: 5, threshold: 0.54 },
-          timestamp:  1_436_349_652
+          series:    "responses",
+          values:    { value: 5, threshold: 0.54 },
+          timestamp: 1_436_349_652
 
         expect(point.dump).to eq(expected_value)
       end

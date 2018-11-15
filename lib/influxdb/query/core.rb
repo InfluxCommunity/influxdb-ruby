@@ -74,8 +74,8 @@ module InfluxDB
 
       def write(data, precision, retention_policy = nil, database = nil)
         params = {
-          db:         database || config.database,
-          precision:  precision || config.time_precision,
+          db:        database || config.database,
+          precision: precision || config.time_precision,
         }
 
         params[:rp] = retention_policy if retention_policy

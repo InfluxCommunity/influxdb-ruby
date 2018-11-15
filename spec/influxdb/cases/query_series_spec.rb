@@ -6,10 +6,10 @@ describe InfluxDB::Client do
     described_class.new(
       "database",
       {
-        host: "influxdb.test",
-        port: 9999,
-        username: "username",
-        password: "password",
+        host:           "influxdb.test",
+        port:           9999,
+        username:       "username",
+        password:       "password",
         time_precision: "s"
       }.merge(args)
     )

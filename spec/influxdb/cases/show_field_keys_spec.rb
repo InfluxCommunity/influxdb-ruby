@@ -43,13 +43,13 @@ describe InfluxDB::Client do
     let(:expected_result) do
       {
         "measurement_a" => {
-          "a_string_field"    => ["string"],
-          "a_boolean_field"   => ["boolean"],
-          "a_float_field"     => ["float"],
-          "an_integer_field"  => ["integer"],
+          "a_string_field"   => ["string"],
+          "a_boolean_field"  => ["boolean"],
+          "a_float_field"    => ["float"],
+          "an_integer_field" => ["integer"],
         },
         "measurement_b" => {
-          "another_string"    => ["string"],
+          "another_string" => ["string"],
         }
       }
     end

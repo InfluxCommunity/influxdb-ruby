@@ -65,26 +65,26 @@ describe InfluxDB::Client do
 
       let :response do
         { "results" => [{ "statement_id" => 0,
-                          "series" => [{ "name" => "requests_per_minute",
-                                         "columns" => %w[time value],
-                                         "values" => [%w[2018-04-02T00:00:00Z 204]] }] },
+                          "series"       => [{ "name"    => "requests_per_minute",
+                                               "columns" => %w[time value],
+                                               "values"  => [%w[2018-04-02T00:00:00Z 204]] }] },
                         { "statement_id" => 1 },
                         { "statement_id" => 2,
-                          "series" => [{ "name" => "requests_per_minute",
-                                         "columns" => %w[time value],
-                                         "values" => [%w[2018-04-02T00:00:00Z 204]] }] }] }
+                          "series"       => [{ "name"    => "requests_per_minute",
+                                               "columns" => %w[time value],
+                                               "values"  => [%w[2018-04-02T00:00:00Z 204]] }] }] }
       end
 
       let :expected_result do
         [
-          [{ "name" => "requests_per_minute",
-             "tags" => nil,
-             "values" => [{ "time" => "2018-04-02T00:00:00Z",
+          [{ "name"   => "requests_per_minute",
+             "tags"   => nil,
+             "values" => [{ "time"  => "2018-04-02T00:00:00Z",
                             "value" => "204" }] }],
           [],
-          [{ "name" => "requests_per_minute",
-             "tags" => nil,
-             "values" => [{ "time" => "2018-04-02T00:00:00Z",
+          [{ "name"   => "requests_per_minute",
+             "tags"   => nil,
+             "values" => [{ "time"  => "2018-04-02T00:00:00Z",
                             "value" => "204" }] }],
         ]
       end
@@ -113,24 +113,24 @@ describe InfluxDB::Client do
 
       let :response do
         { "results" => [{ "statement_id" => 0,
-                          "series" => [{ "name" => "requests_per_minute",
-                                         "tags" => { "status_code" => "200" },
-                                         "columns" => %w[time value],
-                                         "values" => [%w[2018-04-02T00:00:00Z 204]] },
-                                       { "name" => "requests_per_minute",
-                                         "tags" => { "status_code" => "500" },
-                                         "columns" => %w[time value],
-                                         "values" => [%w[2018-04-02T00:00:00Z 204]] }] }] }
+                          "series"       => [{ "name"    => "requests_per_minute",
+                                               "tags"    => { "status_code" => "200" },
+                                               "columns" => %w[time value],
+                                               "values"  => [%w[2018-04-02T00:00:00Z 204]] },
+                                             { "name"    => "requests_per_minute",
+                                               "tags"    => { "status_code" => "500" },
+                                               "columns" => %w[time value],
+                                               "values"  => [%w[2018-04-02T00:00:00Z 204]] }] }] }
       end
 
       let :expected_result do
-        [[{ "name" => "requests_per_minute",
-            "tags" => { "status_code" => "200" },
-            "values" => [{ "time" => "2018-04-02T00:00:00Z",
+        [[{ "name"   => "requests_per_minute",
+            "tags"   => { "status_code" => "200" },
+            "values" => [{ "time"  => "2018-04-02T00:00:00Z",
                            "value" => "204" }] },
-          { "name" => "requests_per_minute",
-            "tags" => { "status_code" => "500" },
-            "values" => [{ "time" => "2018-04-02T00:00:00Z",
+          { "name"   => "requests_per_minute",
+            "tags"   => { "status_code" => "500" },
+            "values" => [{ "time"  => "2018-04-02T00:00:00Z",
                            "value" => "204" }] }]]
       end
 

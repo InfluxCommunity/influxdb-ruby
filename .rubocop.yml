@@ -21,6 +21,10 @@ Layout/EmptyLinesAroundArguments:
 Layout/SpaceBeforeBlockBraces:
   EnforcedStyleForEmptyBraces: space
 
+Layout/AlignHash:
+  EnforcedColonStyle: table
+  EnforcedHashRocketStyle: table
+
 Metrics/AbcSize:
   Max: 20
 

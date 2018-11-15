@@ -24,7 +24,7 @@ describe InfluxDB::Client do
   describe "#write with discard_write_errors" do
     let(:client) do
       described_class.new(
-        udp: { host: "localhost", port: 44_444 },
+        udp:                  { host: "localhost", port: 44_444 },
         discard_write_errors: true
       )
     end

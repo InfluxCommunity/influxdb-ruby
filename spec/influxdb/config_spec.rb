@@ -25,10 +25,10 @@ describe InfluxDB::Config do
   context "with no database specified" do
     let(:args) do
       [{
-        host: "host",
-        port: "port",
-        username: "username",
-        password: "password",
+        host:           "host",
+        port:           "port",
+        username:       "username",
+        password:       "password",
         time_precision: "m"
       }]
     end
@@ -46,10 +46,10 @@ describe InfluxDB::Config do
     let(:args) do
       [
         "database",
-        host: "host",
-        port: "port",
-        username: "username",
-        password: "password",
+        host:           "host",
+        port:           "port",
+        username:       "username",
+        password:       "password",
         time_precision: "m"
       ]
     end
@@ -169,7 +169,7 @@ describe InfluxDB::Config do
     let(:args) do
       [
         "primarydb",
-        url: url,
+        url:          url,
         open_timeout: 20,
         read_timeout: 30,
       ]

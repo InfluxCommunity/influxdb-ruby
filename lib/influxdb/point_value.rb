@@ -21,11 +21,11 @@ module InfluxDB
     private
 
     ESCAPES = {
-      measurement:  [' '.freeze, ','.freeze],
-      tag_key:      ['='.freeze, ' '.freeze, ','.freeze],
-      tag_value:    ['='.freeze, ' '.freeze, ','.freeze],
-      field_key:    ['='.freeze, ' '.freeze, ','.freeze, '"'.freeze],
-      field_value:  ["\\".freeze, '"'.freeze],
+      measurement: [' '.freeze, ','.freeze],
+      tag_key:     ['='.freeze, ' '.freeze, ','.freeze],
+      tag_value:   ['='.freeze, ' '.freeze, ','.freeze],
+      field_key:   ['='.freeze, ' '.freeze, ','.freeze, '"'.freeze],
+      field_value: ["\\".freeze, '"'.freeze],
     }.freeze
 
     private_constant :ESCAPES
@@ -34,7 +34,7 @@ module InfluxDB
       # rubocop:disable Layout/AlignParameters
       str = str.encode "UTF-8".freeze, "UTF-8".freeze,
         invalid: :replace,
-        undef: :replace,
+        undef:   :replace,
         replace: "".freeze
       # rubocop:enable Layout/AlignParameters
 

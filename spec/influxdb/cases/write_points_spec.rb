@@ -17,7 +17,7 @@ describe InfluxDB::Client do
   describe "#write_point" do
     let(:series) { "cpu" }
     let(:data) do
-      { tags: { region: 'us', host: 'server_1' },
+      { tags:   { region: 'us', host: 'server_1' },
         values: { temp: 88, value: 54 } }
     end
     let(:body) do
@@ -26,9 +26,9 @@ describe InfluxDB::Client do
 
     before do
       stub_request(:post, "http://influxdb.test:9999/write").with(
-        query: { u: "username", p: "password", precision: 's', db: database },
+        query:   { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
-        body: body
+        body:    body
       ).to_return(status: 204)
     end
 
@@ -48,10 +48,10 @@ describe InfluxDB::Client do
     context "with multiple series" do
       let(:data) do
         [{ series: 'cpu',
-           tags: { region: 'us', host: 'server_1' },
+           tags:   { region: 'us', host: 'server_1' },
            values: { temp: 88, value: 54 } },
          { series: 'gpu',
-           tags: { region: 'uk', host: 'server_5' },
+           tags:   { region: 'uk', host: 'server_5' },
            values: { value: 0.5435345 } }]
       end
       let(:body) do
@@ -62,9 +62,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 's', db: database },
+          query:   { u: "username", p: "password", precision: 's', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
-          body: body
+          body:    body
         ).to_return(status: 204)
       end
 
@@ -88,9 +88,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 's', db: database },
+          query:   { u: "username", p: "password", precision: 's', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
-          body: body
+          body:    body
         ).to_return(status: 204)
       end
 
@@ -101,11 +101,11 @@ describe InfluxDB::Client do
 
     context "with time precision set to milisceconds" do
       let(:data) do
-        [{ series: 'cpu',
-           values: { temp: 88, value: 54 },
+        [{ series:    'cpu',
+           values:    { temp: 88, value: 54 },
            timestamp: (Time.now.to_f * 1000).to_i },
-         { series: 'gpu',
-           values: { value: 0.5435345 },
+         { series:    'gpu',
+           values:    { value: 0.5435345 },
            timestamp: (Time.now.to_f * 1000).to_i }]
       end
 
@@ -117,9 +117,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 'ms', db: database },
+          query:   { u: "username", p: "password", precision: 'ms', db: database },
           headers: { "Content-Type" => "application/octet-stream" },
-          body: body
+          body:    body
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
@@ -143,9 +143,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 's', db: database, rp: 'rp_1_hour' },
+          query:   { u: "username", p: "password", precision: 's', db: database, rp: 'rp_1_hour' },
           headers: { "Content-Type" => "application/octet-stream" },
-          body: body
+          body:    body
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
@@ -169,9 +169,9 @@ describe InfluxDB::Client do
 
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
-          query: { u: "username", p: "password", precision: 's', db: 'overriden_db' },
+          query:   { u: "username", p: "password", precision: 's', db: 'overriden_db' },
           headers: { "Content-Type" => "application/octet-stream" },
-          body: body
+          body:    body
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
