@@ -14,7 +14,7 @@ module InfluxDB #:nodoc:
   #
   # `convert_timestamp(Time.now, "ms")` might return `1543533308243`.
   def self.convert_timestamp(time, time_precision)
-    factor = TIMESTAMP_CONVERSIONS.fetch(time_precision.to_s) do
+    factor = TIMESTAMP_CONVERSIONS.fetch(time_precision) do
       raise "Invalid time precision: #{time_precision}"
     end
 
