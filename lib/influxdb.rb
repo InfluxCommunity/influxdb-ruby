@@ -4,6 +4,7 @@ require "influxdb/logging"
 require "influxdb/max_queue"
 require "influxdb/point_value"
 require "influxdb/config"
+require "influxdb/timestamp_conversion"
 
 require "influxdb/writer/async"
 require "influxdb/writer/udp"
