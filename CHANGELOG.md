@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## v0.6.2, released 2018-11-30
+
+- Added `InfluxDB.convert_timestamp` utility to convert a `Time` to a
+  timestamp with (taken from PR influxdb-rails#53 by @ChrisBr).
+
 ## v0.6.1, released 2018-08-23
 
 - Fix `InfluxDB::Client#delete_retention_policy`: the database name
