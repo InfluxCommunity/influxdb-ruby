@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## v0.6.3, released 2018-11-30
+
+- Added `InfluxDB.now(precision)` and `InfluxDB::Client#now` as companions
+  to `InfluxDB.convert_timestamp`.
+
 ## v0.6.2, released 2018-11-30
 
 - Added `InfluxDB.convert_timestamp` utility to convert a `Time` to a
