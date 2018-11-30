@@ -14,7 +14,7 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 - [Usage](#usage)
   - [Creating a client](#creating-a-client)
   - [Writing data](#writing-data)
-    - [A Note About Time Precision](#a-note-about-time-precision)
+  - [A Note About Time Precision](#a-note-about-time-precision)
   - [Querying](#querying)
 - [Advanced Topics](#advanced-topics)
   - [Administrative tasks](#administrative-tasks)
@@ -145,34 +145,8 @@ influxdb.write_point(name, data)
 influxdb.write_point(name, data, time_precision)
 ```
 
-### A Note About Time Precision
-
-The default precision in this gem is `"s"` (second), as Ruby's `Time#to_i`
-operates on this resolution.
-
-If you write data points with sub-second resolution, you _have_ to configure
-your client instance with a more granular `time_precision` option **and** you
-need to provide timestamp values which reflect this precision. **If you don't do
-this, your points will be squashed!**
-
-> A point is uniquely identified by the measurement name, tag set, and
-> timestamp. If you submit a new point with the same measurement, tag set, and
-> timestamp as an existing point, the field set becomes the union of the old
-> field set and the new field set, where any ties go to the new field set. This
-> is the intended behavior.
-
-See [How does InfluxDB handle duplicate points?][docs-faq] for details.
-
-For example, this is how to specify millisecond precision (which moves the
-pitfall from the second- to the millisecond barrier):
-
-```ruby
-influxdb = InfluxDB::Client.new(time_precision: "ms")
-time = (Time.now.to_r * 1000).to_i
-# A faster, albeit less readable alternative:
-# time = Process.clock_gettime(Process::CLOCK_REALTIME, :millisecond)
-influxdb.write_point("foobar", { values: { n: 42 }, timestamp: time })
-```
+> **Attention:** Please also read the
+> [note about time precision](#a-note-about-time-precision) below.
 
 Allowed values for `time_precision` are:
 
@@ -337,6 +311,56 @@ influxdb = InfluxDB::Client.new(
 influxdb.write_point('hitchhiker', { values: { value: 666 } })
 ```
 
+### A Note About Time Precision
+
+The default precision in this gem is `"s"` (second), as Ruby's `Time#to_i`
+operates on this resolution.
+
+If you write data points with sub-second resolution, you _have_ to configure
+your client instance with a more granular `time_precision` option **and** you
+need to provide timestamp values which reflect this precision. **If you don't do
+this, your points will be squashed!**
+
+> A point is uniquely identified by the measurement name, tag set, and
+> timestamp. If you submit a new point with the same measurement, tag set, and
+> timestamp as an existing point, the field set becomes the union of the old
+> field set and the new field set, where any ties go to the new field set. This
+> is the intended behavior.
+
+See [How does InfluxDB handle duplicate points?][docs-faq] for details.
+
+For example, this is how to specify millisecond precision (which moves the
+pitfall from the second- to the millisecond barrier):
+
+```ruby
+client = InfluxDB::Client.new(time_precision: "ms")
+time = (Time.now.to_r * 1000).to_i
+client.write_point("foobar", { values: { n: 42 }, timestamp: time })
+```
+
+For convenience, InfluxDB provides a few helper methods:
+
+```ruby
+# to get a timestamp with the precision configured in the client:
+client.now
+
+# to get a timestamp with the given precision:
+InfluxDB.now(time_precision)
+
+# to convert a Time into a timestamp with the given precision:
+InfluxDB.convert_timestamp(Time.now, time_precision)
+```
+
+As with `client.write_point`, allowed values for `time_precision` are:
+
+- `"ns"` or `nil` for nanosecond
+- `"u"` for microsecond
+- `"ms"` for millisecond
+- `"s"` for second
+- `"m"` for minute
+- `"h"` for hour
+
+[docs-faq]: http://docs.influxdata.com/influxdb/v1.7/troubleshooting/frequently-asked-questions/#how-does-influxdb-handle-duplicate-points
 
 ### Querying
 

@@ -48,7 +48,7 @@ module InfluxDB
     # +:verify_ssl+:: verify ssl server certificate?
     # +:ssl_ca_cert+:: ssl CA certificate, chainfile or CA path.
     #                  The system CA path is automatically included
-    # +:retry:: number of times a failed request should be retried. Defaults to infinite.
+    # +:retry+:: number of times a failed request should be retried. Defaults to infinite.
     def initialize(database = nil, **opts)
       opts[:database] = database if database.is_a? String
       @config = InfluxDB::Config.new(opts)
@@ -70,6 +70,10 @@ module InfluxDB
 
     def stopped?
       @stopped
+    end
+
+    def now
+      InfluxDB.now(config.time_precision)
     end
 
     private
