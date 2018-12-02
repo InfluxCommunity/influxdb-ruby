@@ -31,7 +31,7 @@ module InfluxDB #:nodoc:
   #  InfluxDB.now("m")    #=> 25726868
   #  InfluxDB.now("h")    #=> 428781
   def self.now(precision = "s")
-    name, divisor = TIME_PRECISION_FACTORS.fetch(precision) do
+    name, divisor = CLOCK_NAMES.fetch(precision) do
       raise ArgumentError, "invalid time precision: #{precision}"
     end
 
@@ -56,8 +56,8 @@ module InfluxDB #:nodoc:
     "u"  => [:microsecond, 1],
     "ms" => [:millisecond, 1],
     "s"  => [:second, 1],
-    "m"  => [:second, 1.to_r / 60],
-    "h"  => [:second, 1.to_r / 60 / 60],
+    "m"  => [:second, 60.to_r],
+    "h"  => [:second, (60 * 60).to_r],
   }.freeze
   private_constant :CLOCK_NAMES
 end

@@ -23,4 +23,23 @@ RSpec.describe InfluxDB do
         .to raise_exception(/invalid time precision.*whatever/i)
     end
   end
+
+  describe ".now" do
+    {
+      "ns" => [:nanosecond,   1_513_009_229_111_222_333],
+      nil  => [:nanosecond,   1_513_009_229_111_222_333],
+      "u"  => [:microsecond,  1_513_009_229_111_222],
+      "ms" => [:millisecond,  1_513_009_229_111],
+      "s"  => [:second,       1_513_009_229],
+      "m"  => [:second,       25_216_820,   1_513_009_229],
+      "h"  => [:second,       420_280,      1_513_009_229],
+    }.each do |precision, (name, expected, stub)|
+      it "should return the current time in #{precision.inspect}" do
+        expect(Process).to receive(:clock_gettime)
+          .with(Process::CLOCK_REALTIME, name)
+          .and_return(stub || expected)
+        expect(described_class.now(precision)).to eq(expected)
+      end
+    end
+  end
 end
