@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## v0.6.4, releases 2018-12-02
+
+- Fix newly introduced `InfluxDB.now(precision)` for precisions larger
+  than "s".
+
 ## v0.6.3, released 2018-11-30
 
 - Added `InfluxDB.now(precision)` and `InfluxDB::Client#now` as companions
