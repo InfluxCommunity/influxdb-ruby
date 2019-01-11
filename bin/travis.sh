@@ -10,5 +10,7 @@ else
 fi
 
 # Bundler 2.0 fails spectacular
-gem uninstall bundler || true
+rm /home/travis/.rvm/gems/ruby-2.3.7@global/specifications/bundler-2.0.1.gemspec || true
+gem uninstall bundler -x -a || true
 gem install bundler --no-doc --version '< 2'
+bundler --version
