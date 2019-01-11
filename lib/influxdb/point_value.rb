@@ -13,6 +13,7 @@ module InfluxDB
     def dump
       dump =  @series.dup
       dump << ",#{@tags}" if @tags
+      dump << " ".freeze if dump[-1] == "\\"
       dump << " #{@values}"
       dump << " #{@timestamp}" if @timestamp
       dump
