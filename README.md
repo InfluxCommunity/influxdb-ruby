@@ -39,8 +39,10 @@ Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://githu
 
 ## Ruby support
 
-Since v0.4.0, this gem requires Ruby >= 2.2.0. Support for MRI < 2.2 is
-still available in the v0.3.x series, see [stable-03 branch](https://github.com/influxdata/influxdb-ruby/tree/stable-03)
+Since v0.7.0, this gem requires Ruby >= 2.3.0. MRI 2.2 *should* still work,
+however we are unable to test this properly, since our toolchain (Bundler)
+has dropped support for it. Support for MRI < 2.2 is still available in the
+v0.3.x series, see [stable-03 branch](https://github.com/influxdata/influxdb-ruby/tree/stable-03)
 for documentation.
 
 ## Installation

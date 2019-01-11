@@ -2,10 +2,9 @@ sudo: required
 dist: trusty
 language: ruby
 before_install:
-  - bin/travis.sh
+  - gem update --system --no-doc
   - bin/provision.sh
 rvm:
-  - "2.2"
   - "2.3"
   - "2.4"
   - "2.5"

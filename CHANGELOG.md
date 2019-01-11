@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## unreleased
+
+- Drop support for Ruby 2.2, since Bundler dropped it and we want to use
+  Bundler in the development cycle as well.
+
 ## v0.6.4, releases 2018-12-02
 
 - Fix newly introduced `InfluxDB.now(precision)` for precisions larger
