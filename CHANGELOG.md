@@ -2,10 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## unreleased
+## v0.7.0, released 2018-01-11
 
 - Drop support for Ruby 2.2, since Bundler dropped it and we want to use
   Bundler in the development cycle as well.
+- Fix issue with tag values ending in a backslash.
 
 ## v0.6.4, releases 2018-12-02
 
