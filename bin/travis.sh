@@ -9,5 +9,5 @@ else
 	gem update --system --no-doc
 fi
 
-gem install bundler --no-doc
-gem update bundler --no-doc
+# Bundler 2.0 fails spectacular
+gem install bundler --no-doc --version '< 2'
