@@ -10,4 +10,5 @@ else
 fi
 
 # Bundler 2.0 fails spectacular
+gem uninstall bundler || true
 gem install bundler --no-doc --version '< 2'
