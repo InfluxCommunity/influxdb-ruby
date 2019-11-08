@@ -1,8 +1,12 @@
 module InfluxDB
   module Query
     module Series # :nodoc:
-      def delete_series(name)
-        execute("DROP SERIES FROM #{name}", db: config.database)
+      def delete_series(name, where: nil, db: config.database)
+        if where
+          execute("DROP SERIES FROM \"#{name}\" WHERE #{where}", db: db)
+        else
+          execute("DROP SERIES FROM \"#{name}\"", db: db)
+        end
       end
 
       def list_series
