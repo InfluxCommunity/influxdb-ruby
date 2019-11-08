@@ -49,16 +49,32 @@ describe InfluxDB::Client do
   end
 
   describe "#delete_series" do
-    let(:name) { "events" }
-    let(:query) { "DROP SERIES FROM #{name}" }
+    describe "without a where clause" do
+      let(:name) { "events" }
+      let(:query) { "DROP SERIES FROM \"#{name}\"" }
 
-    before do
-      stub_request(:get, "http://influxdb.test:9999/query")
-        .with(query: { u: "username", p: "password", q: query, db: "database" })
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(query: { u: "username", p: "password", q: query, db: "database" })
+      end
+
+      it "should GET to remove a database" do
+        expect(subject.delete_series(name)).to be_a(Net::HTTPOK)
+      end
     end
 
-    it "should GET to remove a database" do
-      expect(subject.delete_series(name)).to be_a(Net::HTTPOK)
+    describe "with a where clause" do
+      let(:name) { "events" }
+      let(:query) { "DROP SERIES FROM \"#{name}\" WHERE \"tag\"='value'" }
+
+      before do
+        stub_request(:get, "http://influxdb.test:9999/query")
+          .with(query: { u: "username", p: "password", q: query, db: "database" })
+      end
+
+      it "should GET to remove a database" do
+        expect(subject.delete_series(name, where: "\"tag\"='value'")).to be_a(Net::HTTPOK)
+      end
     end
   end
 end
