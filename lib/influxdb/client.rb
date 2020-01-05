@@ -51,7 +51,7 @@ module InfluxDB
     # +:retry+:: number of times a failed request should be retried. Defaults to infinite.
     def initialize(database = nil, **opts)
       opts[:database] = database if database.is_a? String
-      @config = InfluxDB::Config.new(opts)
+      @config = InfluxDB::Config.new(**opts)
       @stopped = false
       @writer = find_writer
 
