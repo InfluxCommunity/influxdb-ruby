@@ -40,6 +40,14 @@ describe InfluxDB::PointValue do
       expected = series.join(",") + " " + fields.join(",")
       expect(point.dump).to eq(expected)
     end
+
+    context 'with empty values' do
+      let(:empty_values_data) { { series: 'test_series', values: {} } }
+
+      it 'should raise an exception' do
+        expect { InfluxDB::PointValue.new(empty_values_data) }.to raise_error(InfluxDB::LineProtocolError)
+      end
+    end
   end
 
   describe 'dump' do

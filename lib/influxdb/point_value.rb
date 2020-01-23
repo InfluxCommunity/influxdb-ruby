@@ -46,7 +46,9 @@ module InfluxDB
     end
 
     def escape_values(values)
-      return if values.nil?
+      if values.nil? || values.empty?
+        raise InfluxDB::LineProtocolError, "Cannot create point with empty values".freeze
+      end
 
       values.map do |k, v|
         key = escape(k.to_s, :field_key)
