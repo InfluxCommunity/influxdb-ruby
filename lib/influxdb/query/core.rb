@@ -121,9 +121,13 @@ module InfluxDB
       end
 
       def generate_payload(data)
-        data.map do |point|
-          InfluxDB::PointValue.new(point).dump
-        end.join("\n".freeze)
+        data.map { |point| generate_point(point) }.join("\n".freeze)
+      end
+
+      def generate_point(point)
+        InfluxDB::PointValue.new(point).dump
+      rescue InfluxDB::LineProtocolError => e
+        (log :error, "Cannot write data: #{e.inspect}") && nil
       end
 
       def execute(query, db: nil, **options)

@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## unreleased
+
+- Raise a LineProtocolError if attempting to write empty values as field set is required.
+  Adds descriptive feedback to `{"error":"unable to parse '{series},{tags} ': invalid field format"}`
+
 ## v0.7.0, released 2019-01-11
 
 - Drop support for Ruby 2.2, since Bundler dropped it and we want to use

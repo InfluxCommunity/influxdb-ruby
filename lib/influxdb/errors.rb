@@ -5,6 +5,7 @@ module InfluxDB # :nodoc:
   Error               = Class.new StandardError
   AuthenticationError = Class.new Error
   ConnectionError     = Class.new Error
+  LineProtocolError   = Class.new Error
   SeriesNotFound      = Class.new Error
   JSONParserError     = Class.new Error
   QueryError          = Class.new Error
