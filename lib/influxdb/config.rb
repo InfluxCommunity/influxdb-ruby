@@ -16,6 +16,8 @@ module InfluxDB
     open_timeout:         5,
     read_timeout:         300,
     auth_method:          nil,
+    proxy_addr:           nil,
+    proxy_port:           nil,
 
     # SSL options
     use_ssl:              false,

@@ -20,6 +20,8 @@ describe InfluxDB::Config do
     specify { expect(conf).not_to be_udp }
     specify { expect(conf).not_to be_async }
     specify { expect(conf.epoch).to be_falsey }
+    specify { expect(conf.proxy_addr).to be_nil }
+    specify { expect(conf.proxy_port).to be_nil }
   end
 
   context "with no database specified" do
@@ -204,5 +206,22 @@ describe InfluxDB::Config do
       expect(conf.auth_method).to eq "params"
       expect(conf).not_to be_async
     end
+  end
+
+  context "given explicit proxy information" do
+    let(:args) do
+      [{
+         host:           "host",
+         port:           "port",
+         username:       "username",
+         password:       "password",
+         time_precision: "m",
+         proxy_addr:     "my.proxy.addr",
+         proxy_port:     8080
+       }]
+    end
+
+    specify { expect(conf.proxy_addr).to eq("my.proxy.addr") }
+    specify { expect(conf.proxy_port).to eq(8080) }
   end
 end

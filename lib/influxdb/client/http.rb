@@ -44,8 +44,11 @@ module InfluxDB
       delay = config.initial_delay
       retry_count = 0
 
+      proxy_addr = config.proxy_addr
+      proxy_port = config.proxy_port
+
       begin
-        http = Net::HTTP.new(host, config.port)
+        http = build_http(host, config.port)
         http.open_timeout = config.open_timeout
         http.read_timeout = config.read_timeout
 
@@ -132,6 +135,16 @@ module InfluxDB
         end
       end
       store
+    end
+
+    # Builds an http instance, taking into account any configured
+    # proxy configuration
+    def build_http(host, port)
+      if config.proxy_addr
+        Net::HTTP.new(host, port, config.proxy_addr, config.proxy_port)
+      else
+        Net::HTTP.new(host, port)
+      end
     end
   end
   # rubocop:enable Metrics/MethodLength
