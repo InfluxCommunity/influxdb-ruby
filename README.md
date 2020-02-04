@@ -94,6 +94,21 @@ url = "https://influxdb.example.com:8086/database_name?open_timeout=3"
 influxdb = InfluxDB::Client.new url: url, open_timeout: 10
 ```
 
+#### Using a custom HTTP Proxy
+
+By default, the `Net::HTTP` proxy behavior is used (see [Net::HTTP Proxy][proxy])
+You can optionally set a proxy address and port via the `proxy_addr` and
+`proxy_port` options:
+
+``` ruby
+influxdb = InfluxDB::Client.new database,
+  host:       "influxdb.domain.com",
+  proxy_addr: "your.proxy.addr",
+  proxy_port: 8080
+```
+
+[proxy]: https://docs.ruby-lang.org/en/2.7.0/Net/HTTP.html#class-Net::HTTP-label-Proxies
+
 ### Writing data
 
 Write some data:
