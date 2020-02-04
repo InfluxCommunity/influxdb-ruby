@@ -44,9 +44,6 @@ module InfluxDB
       delay = config.initial_delay
       retry_count = 0
 
-      proxy_addr = config.proxy_addr
-      proxy_port = config.proxy_port
-
       begin
         http = build_http(host, config.port)
         http.open_timeout = config.open_timeout

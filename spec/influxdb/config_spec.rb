@@ -211,14 +211,14 @@ describe InfluxDB::Config do
   context "given explicit proxy information" do
     let(:args) do
       [{
-         host:           "host",
-         port:           "port",
-         username:       "username",
-         password:       "password",
-         time_precision: "m",
-         proxy_addr:     "my.proxy.addr",
-         proxy_port:     8080
-       }]
+        host:           "host",
+        port:           "port",
+        username:       "username",
+        password:       "password",
+        time_precision: "m",
+        proxy_addr:     "my.proxy.addr",
+        proxy_port:     8080
+      }]
     end
 
     specify { expect(conf.proxy_addr).to eq("my.proxy.addr") }
