@@ -2,10 +2,14 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## unreleased
+## v0.8.0, released 2020-02-05
 
-- Raise a LineProtocolError if attempting to write empty values as field set is required.
-  Adds descriptive feedback to `{"error":"unable to parse '{series},{tags} ': invalid field format"}`
+- Allow dropping of specific series from specific DBs (#233, @cantino)
+- Add support for MRI 2.7 (#235, @jeffkowalski)
+- Raise a LineProtocolError if attempting to write empty values as field
+  set is required. This adds descriptive feedback to the error "unable to
+  parse '{series},{tags} ': invalid field format" (#236, @todtb)
+- Add support for configuring HTTP Proxy (#238, @epchris)
 
 ## v0.7.0, released 2019-01-11
 
