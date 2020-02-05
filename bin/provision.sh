@@ -36,7 +36,7 @@ echo "-- Download has SHA256 hash: ${sha2_sum}"
 echo "== Installing"
 
 sudo dpkg -i "${HOME}/${package_name}"
-sudo /etc/init.d/influxdb start
+sudo service influxdb start || true
 
 echo "-- waiting for daemon to start"
 while ! curl --head --fail --silent http://localhost:8086/ping; do
@@ -78,7 +78,7 @@ if [ ! -f /etc/influxdb/influxdb.conf ]; then
 fi
 
 sudo sed -i 's/auth-enabled = false/auth-enabled = true/' /etc/influxdb/influxdb.conf
-sudo /etc/init.d/influxdb restart
+sudo service influxdb restart || true
 
 echo "-- waiting for daemon to restart"
 while ! curl --head --fail --silent http://localhost:8086/ping; do
