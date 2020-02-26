@@ -11,6 +11,9 @@ module InfluxDB
         @port = port
       end
 
+      # No-op for UDP writers
+      def stop!; end
+
       def write(payload, _precision = nil, _retention_policy = nil, _database = nil)
         with_socket { |sock| sock.send(payload, 0) }
       end

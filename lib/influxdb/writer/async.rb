@@ -9,6 +9,16 @@ module InfluxDB
       def initialize(client, config)
         @client = client
         @config = config
+        @stopped = false
+      end
+
+      def stopped?
+        @stopped
+      end
+
+      def stop!
+        worker.stop!
+        @stopped = true
       end
 
       def write(data, precision = nil, retention_policy = nil, database = nil)
@@ -29,7 +39,7 @@ module InfluxDB
         end
       end
 
-      class Worker
+      class Worker # rubocop:disable Metrics/ClassLength
         attr_reader :client,
                     :queue,
                     :threads,
@@ -37,7 +47,8 @@ module InfluxDB
                     :max_queue_size,
                     :num_worker_threads,
                     :sleep_interval,
-                    :block_on_full_queue
+                    :block_on_full_queue,
+                    :shutdown_timeout
 
         include InfluxDB::Logging
 
@@ -47,7 +58,7 @@ module InfluxDB
         SLEEP_INTERVAL      = 5
         BLOCK_ON_FULL_QUEUE = false
 
-        def initialize(client, config)
+        def initialize(client, config) # rubocop:disable Metrics/MethodLength
           @client = client
           config = config.is_a?(Hash) ? config : {}
 
@@ -56,10 +67,11 @@ module InfluxDB
           @num_worker_threads  = config.fetch(:num_worker_threads,  NUM_WORKER_THREADS)
           @sleep_interval      = config.fetch(:sleep_interval,      SLEEP_INTERVAL)
           @block_on_full_queue = config.fetch(:block_on_full_queue, BLOCK_ON_FULL_QUEUE)
+          @shutdown_timeout    = config.fetch(:shutdown_timeout,    2 * @sleep_interval)
 
           queue_class = @block_on_full_queue ? SizedQueue : InfluxDB::MaxQueue
           @queue = queue_class.new max_queue_size
-
+          @should_stop = false
           spawn_threads!
         end
 
@@ -68,11 +80,11 @@ module InfluxDB
         end
 
         def current_threads
-          Thread.list.select { |t| t[:influxdb] == object_id }
+          @threads
         end
 
         def current_thread_count
-          Thread.list.count { |t| t[:influxdb] == object_id }
+          @threads.count
         end
 
         # rubocop:disable Metrics/CyclomaticComplexity
@@ -87,7 +99,7 @@ module InfluxDB
             @threads << Thread.new do
               Thread.current[:influxdb] = object_id
 
-              until client.stopped?
+              until @should_stop
                 check_background_queue(thread_num)
                 sleep rand(sleep_interval)
               end
@@ -97,7 +109,7 @@ module InfluxDB
           end
         end
 
-        def check_background_queue(thread_num = 0)
+        def check_background_queue(thread_num = -1)
           log(:debug) do
             "Checking background queue on thread #{thread_num} (#{current_thread_count} active)"
           end
@@ -123,10 +135,10 @@ module InfluxDB
             return if data.values.flatten.empty?
 
             begin
-              log(:debug) { "Found data in the queue! (#{sizes(data)})" }
+              log(:debug) { "Found data in the queue! (#{sizes(data)}) on thread #{thread_num}" }
               write(data)
             rescue StandardError => e
-              log :error, "Cannot write data: #{e.inspect}"
+              log :error, "Cannot write data: #{e.inspect} on thread #{thread_num}"
             end
 
             break if queue.length > max_post_points
@@ -138,7 +150,22 @@ module InfluxDB
         # rubocop:enable Metrics/AbcSize
 
         def stop!
-          log(:debug) { "Thread exiting, flushing queue." }
+          log(:debug) { "Worker is being stopped, flushing queue." }
+
+          # If retry was infinite (-1), set it to zero to give the threads one
+          # last chance to write their data
+          client.config.retry = 0 if client.config.retry < 0
+
+          # Signal the background threads that they should exit.
+          @should_stop = true
+
+          # Wait for the threads to exit and then kill them
+          @threads.each do |t|
+            r = t.join(shutdown_timeout)
+            t.kill if r.nil?
+          end
+
+          # Flush any remaining items in the queue on the main thread
           check_background_queue until queue.empty?
         end
 

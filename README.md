@@ -295,7 +295,10 @@ async_options = {
   # checking if there are new jobs in the queue
   sleep_interval:      5,
   # whether client will block if queue is full
-  block_on_full_queue: false
+  block_on_full_queue: false,
+  # Max time (in seconds) the main thread will wait for worker threads to stop
+  # on shutdown. Defaults to 2x sleep_interval.
+  shutdown_timeout: 10
 }
 
 influxdb = InfluxDB::Client.new database, async: async_options

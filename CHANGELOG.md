@@ -2,6 +2,11 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## unreleased
+
+- Ensure workers can send data popped off the queue at shutdown (#239,
+  @onlynone)
+
 ## v0.8.0, released 2020-02-05
 
 - Allow dropping of specific series from specific DBs (#233, @cantino)
