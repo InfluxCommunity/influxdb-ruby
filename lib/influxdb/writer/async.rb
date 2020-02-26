@@ -9,6 +9,16 @@ module InfluxDB
       def initialize(client, config)
         @client = client
         @config = config
+        @stopped = false
+      end
+
+      def stopped?
+        @stopped
+      end
+
+      def stop!
+        worker.stop!
+        @stopped = true
       end
 
       def write(data, precision = nil, retention_policy = nil, database = nil)
@@ -29,7 +39,7 @@ module InfluxDB
         end
       end
 
-      class Worker
+      class Worker # rubocop:disable Metrics/ClassLength
         attr_reader :client,
                     :queue,
                     :threads,
@@ -47,7 +57,7 @@ module InfluxDB
         SLEEP_INTERVAL      = 5
         BLOCK_ON_FULL_QUEUE = false
 
-        def initialize(client, config)
+        def initialize(client, config) # rubocop:disable Metrics/MethodLength
           @client = client
           config = config.is_a?(Hash) ? config : {}
 
@@ -59,7 +69,7 @@ module InfluxDB
 
           queue_class = @block_on_full_queue ? SizedQueue : InfluxDB::MaxQueue
           @queue = queue_class.new max_queue_size
-
+          @should_stop = false
           spawn_threads!
         end
 
@@ -87,7 +97,7 @@ module InfluxDB
             @threads << Thread.new do
               Thread.current[:influxdb] = object_id
 
-              until client.stopped?
+              until @should_stop
                 check_background_queue(thread_num)
                 sleep rand(sleep_interval)
               end
@@ -139,7 +149,21 @@ module InfluxDB
 
         def stop!
           log(:debug) { "Thread exiting, flushing queue." }
+
+          # If retry was infinite (-1), set it to zero to give the threads one
+          # last chance to write their data
+          client.config.retry = 0 if client.config.retry < 0
+
+          # Signal the background threads that they should exit.
+          @should_stop = true
+
+          # Flush any remaining items in the queue on the main thread
           check_background_queue until queue.empty?
+
+          # Wait for the threads to exit for at most twice their sleep interval
+          current_threads.each do |t|
+            t.join(sleep_interval * 2)
+          end
         end
 
         private
