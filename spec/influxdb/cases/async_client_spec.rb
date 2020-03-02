@@ -2,7 +2,7 @@ require "spec_helper"
 require "timeout"
 
 describe InfluxDB::Client do
-  let(:async_options) { true }
+  let(:async_options) { { sleep_interval: 0.1 } }
   let(:client) { described_class.new(async: async_options) }
   let(:subject) { client }
   let(:stub_url) { "http://localhost:8086/write?db=&p=root&precision=s&u=root" }
@@ -18,14 +18,7 @@ describe InfluxDB::Client do
         subject.write_point('a', values: { i: i })
       end
 
-      # The timout code is fragile, and heavily dependent on system load
-      # (and scheduler decisions). On the CI, the system is less
-      # responsive and needs a bit more time.
-      timeout_stretch = ENV["TRAVIS"] == "true" ? 10 : 3
-
-      Timeout.timeout(timeout_stretch * worker.sleep_interval) do
-        subject.stop!
-      end
+      subject.stop!
 
       worker.threads.each do |t|
         expect(t.stop?).to be true
@@ -41,6 +34,7 @@ describe InfluxDB::Client do
       let(:precision)        { 'test_precision' }
       let(:retention_policy) { 'test_period' }
       let(:database)         { 'test_database' }
+      let(:async_options)    { {num_worker_threads: 1, sleep_interval: 0.1} }
 
       it "writes aggregate payload to the client" do
         queue = Queue.new
@@ -51,9 +45,9 @@ describe InfluxDB::Client do
         subject.write_point(series, { values: { t: 60 } }, precision, retention_policy, database)
         subject.write_point(series, { values: { t: 61 } }, precision, retention_policy, database)
 
-        Timeout.timeout(worker.sleep_interval) do
-          expect(queue.pop).to eq ["#{series} t=60i\n#{series} t=61i", precision, retention_policy, database]
-        end
+        subject.stop!
+
+        expect(queue.pop).to eq ["#{series} t=60i\n#{series} t=61i", precision, retention_policy, database]
       end
 
       context 'when different precision, retention_policy and database are given' do
@@ -72,36 +66,60 @@ describe InfluxDB::Client do
           subject.write_point(series, { values: { t: 62 } }, precision,  retention_policy2, database)
           subject.write_point(series, { values: { t: 63 } }, precision,  retention_policy,  database2)
 
-          Timeout.timeout(worker.sleep_interval) do
-            expect(queue.pop).to eq ["#{series} t=60i", precision,  retention_policy,  database]
-            expect(queue.pop).to eq ["#{series} t=61i", precision2, retention_policy,  database]
-            expect(queue.pop).to eq ["#{series} t=62i", precision,  retention_policy2, database]
-            expect(queue.pop).to eq ["#{series} t=63i", precision,  retention_policy,  database2]
-          end
+          subject.stop!
+
+          expect(queue.pop).to eq ["#{series} t=60i", precision,  retention_policy,  database]
+          expect(queue.pop).to eq ["#{series} t=61i", precision2, retention_policy,  database]
+          expect(queue.pop).to eq ["#{series} t=62i", precision,  retention_policy2, database]
+          expect(queue.pop).to eq ["#{series} t=63i", precision,  retention_policy,  database2]
         end
       end
     end
   end
 
   describe "async options" do
-    let(:async_options) do
-      {
-        max_post_points:     10,
-        max_queue_size:      100,
-        num_worker_threads:  1,
-        sleep_interval:      0.5,
-        block_on_full_queue: false
-      }
-    end
-
     subject { worker }
     before { worker.stop! }
 
-    specify { expect(subject.max_post_points).to be 10 }
-    specify { expect(subject.max_queue_size).to be 100 }
-    specify { expect(subject.num_worker_threads).to be 1 }
-    specify { expect(subject.sleep_interval).to be_within(0.0001).of(0.5) }
-    specify { expect(subject.block_on_full_queue).to be false }
-    specify { expect(subject.queue).to be_kind_of(InfluxDB::MaxQueue) }
+    context 'when all options are given' do
+      let(:async_options) do
+        {
+          max_post_points:     10,
+          max_queue_size:      100,
+          num_worker_threads:  1,
+          sleep_interval:      0.5,
+          block_on_full_queue: false,
+          shutdown_timeout:    0.6,
+        }
+      end
+
+      it "uses the specified values" do
+        expect(subject.max_post_points).to be 10
+        expect(subject.max_queue_size).to be 100
+        expect(subject.num_worker_threads).to be 1
+        expect(subject.sleep_interval).to be_within(0.0001).of(0.5)
+        expect(subject.block_on_full_queue).to be false
+        expect(subject.queue).to be_kind_of(InfluxDB::MaxQueue)
+        expect(subject.shutdown_timeout).to be_within(0.0001).of(0.6)
+      end
+    end
+
+    context 'when only sleep_interval is given' do
+      let(:async_options) { { sleep_interval: 0.2 } }
+
+      it "uses a value for shutdown_timeout that is 2x sleep_interval" do
+        expect(subject.sleep_interval).to be_within(0.0001).of(0.2)
+        expect(subject.shutdown_timeout).to be_within(0.0001).of(0.4)
+      end
+    end
+
+    context 'when only shutdown_timeout is given' do
+      let(:async_options) { { shutdown_timeout: 0.3 } }
+
+      it "uses that value" do
+        expect(subject.sleep_interval).to be_within(0.0001).of(5)
+        expect(subject.shutdown_timeout).to be_within(0.0001).of(0.3)
+      end
+    end
   end
 end

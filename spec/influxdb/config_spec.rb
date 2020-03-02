@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe InfluxDB::Config do
-  let(:conf) do
-    InfluxDB::Client.new(*args).config
-  end
+  after { client.stop! }
+
+  let(:client) { InfluxDB::Client.new(*args) }
+  let(:conf) { client.config }
 
   let(:args) { {} }
 

@@ -47,7 +47,8 @@ module InfluxDB
                     :max_queue_size,
                     :num_worker_threads,
                     :sleep_interval,
-                    :block_on_full_queue
+                    :block_on_full_queue,
+                    :shutdown_timeout
 
         include InfluxDB::Logging
 
@@ -66,6 +67,7 @@ module InfluxDB
           @num_worker_threads  = config.fetch(:num_worker_threads,  NUM_WORKER_THREADS)
           @sleep_interval      = config.fetch(:sleep_interval,      SLEEP_INTERVAL)
           @block_on_full_queue = config.fetch(:block_on_full_queue, BLOCK_ON_FULL_QUEUE)
+          @shutdown_timeout    = config.fetch(:shutdown_timeout,    2 * @sleep_interval)
 
           queue_class = @block_on_full_queue ? SizedQueue : InfluxDB::MaxQueue
           @queue = queue_class.new max_queue_size
@@ -78,11 +80,11 @@ module InfluxDB
         end
 
         def current_threads
-          Thread.list.select { |t| t[:influxdb] == object_id }
+          @threads
         end
 
         def current_thread_count
-          Thread.list.count { |t| t[:influxdb] == object_id }
+          @threads.count
         end
 
         # rubocop:disable Metrics/CyclomaticComplexity
@@ -107,7 +109,7 @@ module InfluxDB
           end
         end
 
-        def check_background_queue(thread_num = 0)
+        def check_background_queue(thread_num = -1)
           log(:debug) do
             "Checking background queue on thread #{thread_num} (#{current_thread_count} active)"
           end
@@ -133,10 +135,10 @@ module InfluxDB
             return if data.values.flatten.empty?
 
             begin
-              log(:debug) { "Found data in the queue! (#{sizes(data)})" }
+              log(:debug) { "Found data in the queue! (#{sizes(data)}) on thread #{thread_num}" }
               write(data)
             rescue StandardError => e
-              log :error, "Cannot write data: #{e.inspect}"
+              log :error, "Cannot write data: #{e.inspect} on thread #{thread_num}"
             end
 
             break if queue.length > max_post_points
@@ -148,7 +150,7 @@ module InfluxDB
         # rubocop:enable Metrics/AbcSize
 
         def stop!
-          log(:debug) { "Thread exiting, flushing queue." }
+          log(:debug) { "Worker is being stopped, flushing queue." }
 
           # If retry was infinite (-1), set it to zero to give the threads one
           # last chance to write their data
@@ -160,9 +162,10 @@ module InfluxDB
           # Flush any remaining items in the queue on the main thread
           check_background_queue until queue.empty?
 
-          # Wait for the threads to exit for at most twice their sleep interval
-          current_threads.each do |t|
-            t.join(sleep_interval * 2)
+          # Wait for the threads to exit and then kill them
+          @threads.each do |t|
+            r = t.join(shutdown_timeout)
+            t.kill if r.nil?
           end
         end
 
