@@ -159,14 +159,14 @@ module InfluxDB
           # Signal the background threads that they should exit.
           @should_stop = true
 
-          # Flush any remaining items in the queue on the main thread
-          check_background_queue until queue.empty?
-
           # Wait for the threads to exit and then kill them
           @threads.each do |t|
             r = t.join(shutdown_timeout)
             t.kill if r.nil?
           end
+
+          # Flush any remaining items in the queue on the main thread
+          check_background_queue until queue.empty?
         end
 
         private

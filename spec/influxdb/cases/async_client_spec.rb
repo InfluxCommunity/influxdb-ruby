@@ -18,6 +18,10 @@ describe InfluxDB::Client do
         subject.write_point('a', values: { i: i })
       end
 
+      until worker.threads.none? {|t| t[:influxdb].nil? } do
+        sleep 1
+      end
+
       subject.stop!
 
       worker.threads.each do |t|
@@ -45,6 +49,10 @@ describe InfluxDB::Client do
         subject.write_point(series, { values: { t: 60 } }, precision, retention_policy, database)
         subject.write_point(series, { values: { t: 61 } }, precision, retention_policy, database)
 
+        until worker.threads.none? {|t| t[:influxdb].nil? } do
+          sleep 1
+        end
+
         subject.stop!
 
         expect(queue.pop).to eq ["#{series} t=60i\n#{series} t=61i", precision, retention_policy, database]
@@ -65,6 +73,10 @@ describe InfluxDB::Client do
           subject.write_point(series, { values: { t: 61 } }, precision2, retention_policy,  database)
           subject.write_point(series, { values: { t: 62 } }, precision,  retention_policy2, database)
           subject.write_point(series, { values: { t: 63 } }, precision,  retention_policy,  database2)
+
+          until worker.threads.none? {|t| t[:influxdb].nil? } do
+            sleep 1
+          end
 
           subject.stop!
 
