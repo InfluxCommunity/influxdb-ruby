@@ -18,9 +18,7 @@ describe InfluxDB::Client do
         subject.write_point('a', values: { i: i })
       end
 
-      until worker.threads.none? {|t| t[:influxdb].nil? } do
-        sleep 1
-      end
+      sleep 1 until worker.threads.none? { |t| t[:influxdb].nil? }
 
       subject.stop!
 
@@ -38,7 +36,7 @@ describe InfluxDB::Client do
       let(:precision)        { 'test_precision' }
       let(:retention_policy) { 'test_period' }
       let(:database)         { 'test_database' }
-      let(:async_options)    { {num_worker_threads: 1, sleep_interval: 0.1} }
+      let(:async_options)    { { num_worker_threads: 1, sleep_interval: 0.1 } }
 
       it "writes aggregate payload to the client" do
         queue = Queue.new
@@ -49,9 +47,7 @@ describe InfluxDB::Client do
         subject.write_point(series, { values: { t: 60 } }, precision, retention_policy, database)
         subject.write_point(series, { values: { t: 61 } }, precision, retention_policy, database)
 
-        until worker.threads.none? {|t| t[:influxdb].nil? } do
-          sleep 1
-        end
+        sleep 1 until worker.threads.none? { |t| t[:influxdb].nil? }
 
         subject.stop!
 
@@ -74,9 +70,7 @@ describe InfluxDB::Client do
           subject.write_point(series, { values: { t: 62 } }, precision,  retention_policy2, database)
           subject.write_point(series, { values: { t: 63 } }, precision,  retention_policy,  database2)
 
-          until worker.threads.none? {|t| t[:influxdb].nil? } do
-            sleep 1
-          end
+          sleep 1 until worker.threads.none? { |t| t[:influxdb].nil? }
 
           subject.stop!
 
