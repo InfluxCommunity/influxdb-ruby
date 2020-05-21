@@ -6,6 +6,8 @@
 The official Ruby client library for [InfluxDB](https://influxdata.com/time-series-platform/influxdb/).
 Maintained by [@toddboom](https://github.com/toddboom) and [@dmke](https://github.com/dmke).
 
+#### Note: This library is for use with InfluxDB 1.x. For connecting to InfluxDB 2.x instances, please use the [influxdb-client-ruby](https://github.com/influxdata/influxdb-client-ruby) client.
+
 ## Contents
 
 - [Platform support](#platform-support)
