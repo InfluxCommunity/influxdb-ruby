@@ -6,7 +6,8 @@ describe InfluxDB::Client do
   let(:client) { described_class.new(async: async_options) }
   let(:subject) { client }
   let(:stub_url) { "http://localhost:8086/write?db=&p=root&precision=s&u=root" }
-  let(:worker) { client.writer.worker }
+  let(:writer) { client.writer }
+  let(:worker) { writer.worker }
 
   specify { expect(subject.writer).to be_a(InfluxDB::Writer::Async) }
 
@@ -40,7 +41,7 @@ describe InfluxDB::Client do
 
       it "writes aggregate payload to the client" do
         queue = Queue.new
-        allow(client).to receive(:write) do |*args|
+        allow_any_instance_of(InfluxDB::Client).to receive(:write) do |_, *args|
           queue.push(args)
         end
 
@@ -61,7 +62,7 @@ describe InfluxDB::Client do
 
         it "writes separated payloads for each {precision, retention_policy, database} set" do
           queue = Queue.new
-          allow(client).to receive(:write) do |*args|
+          allow_any_instance_of(InfluxDB::Client).to receive(:write) do |_, *args|
             queue.push(args)
           end
 

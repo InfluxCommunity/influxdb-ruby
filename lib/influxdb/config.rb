@@ -83,6 +83,12 @@ module InfluxDB
       configure_hosts! opts[:hosts] || opts[:host] || "localhost".freeze
     end
 
+    def initialize_copy(source)
+      super
+
+      configure_hosts! source.hosts
+    end
+
     def udp?
       udp != false
     end
@@ -105,7 +111,15 @@ module InfluxDB
       end
     end
 
-    private
+    def writer_config
+      writer_config = dup
+
+      writer_config.set_ivar! :async, false
+
+      writer_config
+    end
+
+    protected
 
     def set_ivar!(name, value)
       case name
@@ -117,6 +131,8 @@ module InfluxDB
 
       instance_variable_set "@#{name}", value
     end
+
+    private
 
     def normalize_retry_option(value)
       case value
