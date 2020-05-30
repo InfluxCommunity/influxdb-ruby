@@ -6,7 +6,6 @@ module InfluxDB
 
     class << self
       attr_writer :logger
-      attr_writer :log_level
 
       def logger
         return false if @logger == false
@@ -15,18 +14,13 @@ module InfluxDB
       end
 
       def log_level
-        @log_level || Logger::INFO
+        logger&.level || Logger::INFO
       end
 
-      def log?(level)
-        case level
-        when :debug then log_level <= Logger::DEBUG
-        when :info  then log_level <= Logger::INFO
-        when :warn  then log_level <= Logger::WARN
-        when :error then log_level <= Logger::ERROR
-        when :fatal then log_level <= Logger::FATAL
-        else true
-        end
+      def log_level=(level)
+        return unless logger
+
+        logger.level = level
       end
     end
 
@@ -34,7 +28,6 @@ module InfluxDB
 
     def log(level, message = nil, &block)
       return unless InfluxDB::Logging.logger
-      return unless InfluxDB::Logging.log?(level)
 
       if block_given?
         InfluxDB::Logging.logger.send(level.to_sym, PREFIX, &block)
