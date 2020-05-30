@@ -40,16 +40,12 @@ module InfluxDB
     private
 
     def connect_with_retry
-      host = config.next_host
       delay = config.initial_delay
       retry_count = 0
 
-      begin
-        http = build_http(host, config.port)
-        http.open_timeout = config.open_timeout
-        http.read_timeout = config.read_timeout
+      http = build_http
 
-        http = setup_ssl(http)
+      begin
         yield http
       rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
         raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
@@ -136,12 +132,23 @@ module InfluxDB
 
     # Builds an http instance, taking into account any configured
     # proxy configuration
-    def build_http(host, port)
-      if config.proxy_addr
-        Net::HTTP.new(host, port, config.proxy_addr, config.proxy_port)
-      else
-        Net::HTTP.new(host, port)
-      end
+    def build_http
+      host  = config.next_host
+      port  = config.port
+
+      http =
+        if config.proxy_addr
+          Net::HTTP.new(host, port, config.proxy_addr, config.proxy_port)
+        else
+          Net::HTTP.new(host, port)
+        end
+
+      http.open_timeout = config.open_timeout
+      http.read_timeout = config.read_timeout
+
+      setup_ssl http
+
+      http
     end
   end
   # rubocop:enable Metrics/MethodLength
