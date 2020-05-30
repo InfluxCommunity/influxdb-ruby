@@ -60,6 +60,24 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#get_http" do
+    it "returns an existing connection with persistence enabled" do
+      first  = subject.send :get_http
+      second = subject.send :get_http
+
+      expect(first).to equal(second)
+    end
+
+    it "returns a new connection with persistence disabled" do
+      subject.config.persistent = false
+
+      first  = subject.send :get_http
+      second = subject.send :get_http
+
+      expect(first).to_not equal(second)
+    end
+  end
+
   describe "GET #ping" do
     it "returns OK" do
       stub_request(:get, "http://influxdb.test:9999/ping")

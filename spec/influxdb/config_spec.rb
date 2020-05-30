@@ -14,6 +14,7 @@ describe InfluxDB::Config do
     specify { expect(conf.port).to eq 8086 }
     specify { expect(conf.username).to eq "root" }
     specify { expect(conf.password).to eq "root" }
+    specify { expect(conf.persistent).to be_truthy }
     specify { expect(conf.use_ssl).to be_falsey }
     specify { expect(conf.time_precision).to eq "s" }
     specify { expect(conf.auth_method).to eq "params" }

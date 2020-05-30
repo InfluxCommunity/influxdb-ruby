@@ -136,6 +136,8 @@ module InfluxDB
     end
 
     def get_http
+      return build_http config.next_host unless config.persistent
+
       @https ||=
         begin
           https = config.hosts.map { |host|
