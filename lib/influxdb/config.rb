@@ -18,6 +18,7 @@ module InfluxDB
     auth_method:          nil,
     proxy_addr:           nil,
     proxy_port:           nil,
+    persistent:           true,
 
     # SSL options
     use_ssl:              false,
