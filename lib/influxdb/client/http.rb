@@ -43,13 +43,19 @@ module InfluxDB
       delay = config.initial_delay
       retry_count = 0
 
-      http = build_http
+      http = get_http
 
       begin
+        http.start unless http.started?
+
         yield http
       rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
+        http.finish
+
         raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
       rescue Timeout::Error, *InfluxDB::RECOVERABLE_EXCEPTIONS => e
+        http.finish
+
         retry_count += 1
         unless (config.retry == -1 || retry_count <= config.retry) && !stopped?
           raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
@@ -58,9 +64,8 @@ module InfluxDB
         log(:warn) { "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s." }
         sleep delay
         delay = [config.max_delay, delay * 2].min
+
         retry
-      ensure
-        http.finish if http.started?
       end
     end
 
@@ -130,11 +135,23 @@ module InfluxDB
       store
     end
 
+    def get_http
+      @https ||=
+        begin
+          https = config.hosts.map { |host|
+            build_http host
+          }
+
+          Hash[config.hosts.zip(https)]
+        end
+
+      @https[config.next_host]
+    end
+
     # Builds an http instance, taking into account any configured
     # proxy configuration
-    def build_http
-      host  = config.next_host
-      port  = config.port
+    def build_http(host)
+      port = config.port
 
       http =
         if config.proxy_addr
