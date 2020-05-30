@@ -14,7 +14,9 @@ module InfluxDB
       end
 
       def log_level
-        logger&.level || Logger::INFO
+        return Logger::INFO unless logger
+
+        logger.level
       end
 
       def log_level=(level)
