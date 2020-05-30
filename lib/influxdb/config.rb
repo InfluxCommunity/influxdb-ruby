@@ -45,6 +45,8 @@ module InfluxDB
     denormalize:          true,
   }.freeze
 
+  # rubocop:disable Metrics/ClassLength
+
   # InfluxDB client configuration
   class Config
     # Valid values for the "auth_method" option.
@@ -205,4 +207,5 @@ module InfluxDB
       end
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

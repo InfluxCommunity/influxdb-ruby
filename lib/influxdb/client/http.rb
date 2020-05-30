@@ -5,6 +5,7 @@ require 'net/https'
 
 module InfluxDB
   # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/ModuleLength
   # rubocop:disable Metrics/AbcSize
   module HTTP # :nodoc:
     def get(url, options = {})
@@ -43,7 +44,7 @@ module InfluxDB
       delay = config.initial_delay
       retry_count = 0
 
-      http = get_http
+      http = current_http
 
       begin
         http.start unless http.started?
@@ -135,14 +136,14 @@ module InfluxDB
       store
     end
 
-    def get_http
+    def current_http
       return build_http config.next_host unless config.persistent
 
       @https ||=
         begin
-          https = config.hosts.map { |host|
+          https = config.hosts.map do |host|
             build_http host
-          }
+          end
 
           Hash[config.hosts.zip(https)]
         end
@@ -171,5 +172,6 @@ module InfluxDB
     end
   end
   # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/ModuleLength
   # rubocop:enable Metrics/AbcSize
 end
