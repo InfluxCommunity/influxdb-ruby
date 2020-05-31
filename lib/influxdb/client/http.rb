@@ -62,7 +62,9 @@ module InfluxDB
           raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
         end
 
-        log(:warn) { "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s." }
+        log(:warn) do
+          "Failed to contact host #{http.address}: #{e.inspect} - retrying in #{delay}s."
+        end
         sleep delay
         delay = [config.max_delay, delay * 2].min
 
