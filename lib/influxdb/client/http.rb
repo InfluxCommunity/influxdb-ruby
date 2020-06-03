@@ -51,11 +51,11 @@ module InfluxDB
 
         yield http
       rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
-        http.finish
+        http.finish if http.started?
 
         raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
       rescue Timeout::Error, *InfluxDB::RECOVERABLE_EXCEPTIONS => e
-        http.finish
+        http.finish if http.started?
 
         retry_count += 1
         unless (config.retry == -1 || retry_count <= config.retry) && !stopped?
