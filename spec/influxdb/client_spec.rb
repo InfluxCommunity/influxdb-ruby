@@ -39,6 +39,19 @@ describe InfluxDB::Client do
     end
   end
 
+  describe "#connect_with_retry" do
+    it "raises InfluxDB::ConnectionError when the hostname is unknown" do
+      subject.config.retry = 0
+
+      allow_any_instance_of(Net::HTTP).to receive(:start) do
+        raise SocketError, "simulate getaddrinfo error"
+      end
+
+      error = InfluxDB::ConnectionError.new "Tried 0 times to reconnect but failed."
+      expect { subject.send(:connect_with_retry) }.to raise_error(InfluxDB::ConnectionError)
+    end
+  end
+
   describe "#full_url" do
     it "returns String" do
       expect(subject.send(:full_url, "/unknown")).to be_a String
