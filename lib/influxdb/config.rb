@@ -146,11 +146,11 @@ module InfluxDB
 
     def opts_from_non_params(url)
       {}.tap do |o|
-        o[:host]     = url.host        if url.host
-        o[:port]     = url.port        if url.port
-        o[:username] = URI.decode_www_form_component(url.user)        if url.user
-        o[:password] = URI.decode_www_form_component(url.password)    if url.password
-        o[:database] = url.path[1..-1] if url.path.length > 1
+        o[:host]     = url.host                                    if url.host
+        o[:port]     = url.port                                    if url.port
+        o[:username] = URI.decode_www_form_component(url.user)     if url.user
+        o[:password] = URI.decode_www_form_component(url.password) if url.password
+        o[:database] = url.path[1..-1]                             if url.path.length > 1
         o[:use_ssl]  = url.scheme == "https".freeze
 
         o[:udp] = { host: o[:host], port: o[:port] } if url.scheme == "udp"
