@@ -148,8 +148,8 @@ module InfluxDB
       {}.tap do |o|
         o[:host]     = url.host        if url.host
         o[:port]     = url.port        if url.port
-        o[:username] = url.user        if url.user
-        o[:password] = url.password    if url.password
+        o[:username] = URI.decode_www_form_component(url.user)        if url.user
+        o[:password] = URI.decode_www_form_component(url.password)    if url.password
         o[:database] = url.path[1..-1] if url.path.length > 1
         o[:use_ssl]  = url.scheme == "https".freeze
 
