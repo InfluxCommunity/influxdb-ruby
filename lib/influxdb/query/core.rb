@@ -26,7 +26,7 @@ module InfluxDB
       )
         query = builder.build(query, params)
 
-        url = full_url("/query".freeze, query_params(query, opts))
+        url = full_url("/query".freeze, query_params(query, **opts))
         series = fetch_series(get(url, parse: true, json_streaming: !chunk_size.nil?))
 
         if block_given?
