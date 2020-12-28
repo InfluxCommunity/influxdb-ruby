@@ -4,6 +4,7 @@ For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/
 
 ## unreleased
 
+- Support Ruby v3.0.0
 - Ensure workers can send data popped off the queue at shutdown (#239,
   @onlynone)
 
