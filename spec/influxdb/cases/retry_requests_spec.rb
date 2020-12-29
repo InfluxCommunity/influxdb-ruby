@@ -5,7 +5,7 @@ describe InfluxDB::Client do
   let(:client) do
     described_class.new(
       "database",
-      {
+      **{
         host:           "influxdb.test",
         port:           9999,
         username:       "username",

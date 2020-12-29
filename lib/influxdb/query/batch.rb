@@ -27,7 +27,7 @@ module InfluxDB
       )
         return [] if statements.empty?
 
-        url = full_url "/query".freeze, query_params(statements.join(";"), opts)
+        url = full_url "/query".freeze, **query_params(statements.join(";"), **opts)
         series = fetch_series get(url, parse: true, json_streaming: !chunk_size.nil?)
 
         if denormalize
@@ -82,8 +82,8 @@ module InfluxDB
         denormalize_series
         denormalized_series_list
       ].each do |method_name|
-        define_method(method_name) do |*args|
-          client.send method_name, *args
+        define_method(method_name) do |*args, **kwargs|
+          client.send method_name, *args, **kwargs
         end
       end
     end
