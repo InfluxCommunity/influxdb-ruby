@@ -38,6 +38,9 @@ describe InfluxDB::Logging do
   context "when logging is disabled" do
     subject { LoggerTest.new }
     it "does not log" do
+      pending "The test doesn't work since bugfix in rspec-mocks 3.10.1 " \
+              "(https://github.com/rspec/rspec-mocks/pull/1357)"
+
       InfluxDB::Logging.logger = false
       expect(InfluxDB::Logging.logger).not_to receive(:debug)
       subject.write_to_log(:debug, 'test')
