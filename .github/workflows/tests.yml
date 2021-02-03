@@ -1,5 +1,6 @@
 name: Tests
 
+# workflow_dispatch enables running workflow manually
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
