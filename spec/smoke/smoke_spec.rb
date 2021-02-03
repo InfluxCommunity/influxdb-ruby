@@ -25,14 +25,14 @@ describe InfluxDB::Client, smoke: true do
 
   context "retrieves data from the NOAA database" do
     sample_data1 = {
-      "time"              => "2015-08-18T00:00:00Z",
+      "time"              => "2019-08-17T00:00:00Z",
       "level description" => "below 3 feet",
       "location"          => "santa_monica",
       "water_level"       => 2.064
     }
 
     sample_data2 = {
-      "time"              => "2015-08-18T00:12:00Z",
+      "time"              => "2019-08-17T00:12:00Z",
       "level description" => "below 3 feet",
       "location"          => "santa_monica",
       "water_level"       => 2.028

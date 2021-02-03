@@ -63,7 +63,7 @@ echo "-- grant access"
 
 echo "== Download and import NOAA sample data"
 
-curl https://s3-us-west-1.amazonaws.com/noaa.water.database.0.9/NOAA_data.txt > noaa.txt
+curl https://s3.amazonaws.com/noaa.water-database/NOAA_data.txt > noaa.txt
 /usr/bin/influx -import -path noaa.txt -precision s
 
 echo "-- grant access"
