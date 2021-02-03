@@ -50,9 +50,18 @@ jobs:
           - '3.0'
           - head
         include:
-          - { os: ubuntu-20.04, ruby: jruby-9.1 }
-          - { os: ubuntu-20.04, ruby: jruby-9.2 }
-          - { os: ubuntu-20.04, ruby: jruby-head, allow-failure: true }
+          - os: ubuntu-20.04
+            ruby: jruby-9.1
+            jruby_opts: '--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+            allow-failure: true
+          - os: ubuntu-20.04
+            ruby: jruby-9.2
+            jruby_opts: '--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+            allow-failure: true
+          - os: ubuntu-20.04
+            ruby: jruby-head
+            jruby_opts: '--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Xss2m -J-Xmx256M'
+            allow-failure: true
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
