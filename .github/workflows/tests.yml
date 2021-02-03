@@ -5,9 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   specs:
-    name: >-
-      ${{ matrix.os }} ${{ matrix.ruby }}
-
+    name: ${{ matrix.os }} ${{ matrix.ruby }}
     runs-on: ${{ matrix.os }}
     if: |
       !(   contains(github.event.pull_request.title,  '[ci skip]')
@@ -34,21 +32,14 @@ jobs:
           - { os: ubuntu-20.04, ruby: jruby-9.1 }
           - { os: ubuntu-20.04, ruby: jruby-9.2 }
           - { os: ubuntu-20.04, ruby: jruby-head, allow-failure: true }
-
     steps:
       - uses: actions/checkout@v2
-
-      - run: bin/provision.sh
-
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
-
-      - name: Run specs
+      - run: bundle exec rake
         continue-on-error: ${{ matrix.allow-failure || false }}
-        run: bundle exec rake spec
 
   smoketests:
     name: smoketest with influx ${{ matrix.influx_version }}
@@ -70,23 +61,16 @@ jobs:
           - { ruby: 2.7, influx_version: 1.5.4, pkghash: fa6f8d3196d13ffc376d533581b534692c738181ce3427c53484c138d9e6b902 }
           - { ruby: 2.7, influx_version: 1.6.4, pkghash: dbfa13a0f9e38a8e7b19294c30144903bb681ac0aba0a3a8f4f349c37d5de5f9 }
           - { ruby: 2.7, influx_version: 1.7.9, pkghash: 02759d70cef670d336768fd38a9cf2f046a1bf40618be78ba215e7ce75b5075f }
-          - { ruby: 2.7, influx_version: nightly, channel: nightlies }
-
+          - { ruby: 2.7, influx_version: nightly, channel: nightlies, allow-failure: true }
     env:
       influx_version: ${{ matrix.influx_version }}
       pkghash: ${{ matrix.pkghash }}
       channel: ${{ matrix.channel }}
     steps:
       - uses: actions/checkout@v2
-
-      - run: bin/provision.sh
-
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
-
-      - name: Run specs
+      - run: bundle exec rake spec
         continue-on-error: ${{ matrix.allow-failure || false }}
-        run: bundle exec rake spec
