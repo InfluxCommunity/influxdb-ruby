@@ -29,6 +29,11 @@ jobs:
           # YAML gotcha: https://github.com/actions/runner/issues/849
           - '3.0'
           - head
+        include:
+          - { os: ubuntu-20.04, ruby: jruby-9.1 }
+          - { os: ubuntu-20.04, ruby: jruby-9.2 }
+          - { os: ubuntu-20.04, ruby: jruby-head, allow-failure: true }
+
     env:
       influx_version: nightly
       channel: nightlies
