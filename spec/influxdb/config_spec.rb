@@ -70,7 +70,7 @@ describe InfluxDB::Config do
   end
 
   context "with ssl option specified" do
-    let(:args) { [ use_ssl: true ] }
+    let(:args) { [use_ssl: true] }
 
     specify { expect(conf.database).to be_nil }
     specify { expect(conf.hosts).to eq ["localhost"] }
@@ -81,7 +81,7 @@ describe InfluxDB::Config do
   end
 
   context "with multiple hosts specified" do
-    let(:args) { [ hosts: ["1.1.1.1", "2.2.2.2"] ] }
+    let(:args) { [hosts: ["1.1.1.1", "2.2.2.2"]] }
 
     specify { expect(conf.database).to be_nil }
     specify { expect(conf.port).to eq 8086 }
@@ -220,8 +220,7 @@ describe InfluxDB::Config do
        password:       "password",
        time_precision: "m",
        proxy_addr:     "my.proxy.addr",
-       proxy_port:     8080
-      ]
+       proxy_port:     8080]
     end
 
     specify { expect(conf.proxy_addr).to eq("my.proxy.addr") }
