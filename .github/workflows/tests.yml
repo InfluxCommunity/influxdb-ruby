@@ -4,6 +4,27 @@ name: Tests
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  rubocop:
+    name: RuboCop
+    runs-on: ${{ matrix.os }}
+    if: |
+      !(   contains(github.event.pull_request.title,  '[ci skip]')
+        || contains(github.event.pull_request.title,  '[skip ci]')
+        || contains(github.event.head_commit.message, '[ci skip]')
+        || contains(github.event.head_commit.message, '[skip ci]'))
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        ruby: [2.7]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ matrix.ruby }}
+      - run: bundle exec rake rubocop
+
   specs:
     name: ${{ matrix.os }} ${{ matrix.ruby }}
     runs-on: ${{ matrix.os }}
