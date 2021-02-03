@@ -17,12 +17,12 @@ def min_influx_version(version)
 end
 
 RSpec.configure do |config|
-  config.color = ENV["TRAVIS"] != "true"
-  config.filter_run_excluding smoke: ENV["TRAVIS"] != "true" || !ENV.key?("influx_version")
-  puts "SMOKE TESTS ARE NOT CURRENTLY RUNNING" if ENV["TRAVIS"] != "true"
+  config.color = ENV["CI"] != "true"
+  config.filter_run_excluding smoke: ENV["CI"] != "true" || !ENV.key?("influx_version")
+  puts "SMOKE TESTS ARE NOT CURRENTLY RUNNING" if ENV["CI"] != "true"
 
   # rubocop:disable Style/ConditionalAssignment
-  if config.files_to_run.one? || ENV["TRAVIS"] == "true"
+  if config.files_to_run.one? || ENV["CI"] == "true"
     config.formatter = :documentation
   else
     config.formatter = :progress

@@ -14,7 +14,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = FileList[file_pattern]
 end
 
-if ENV.key?("TRAVIS")
+if ENV.key?("CI")
   task default: %i[spec]
 else
   task default: %i[spec rubocop]
