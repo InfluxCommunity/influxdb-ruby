@@ -51,9 +51,7 @@ jobs:
         run: bundle exec rake spec
 
   smoketests:
-    name: >-
-      ${{ matrix.ruby }} (influx {{ matrix.influx_version }})
-
+    name: smoketest with influx ${{ matrix.influx_version }}
     runs-on: ubuntu-20.04
     if: |
       !(   contains(github.event.pull_request.title,  '[ci skip]')
