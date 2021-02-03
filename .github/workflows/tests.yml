@@ -20,9 +20,13 @@ jobs:
           - ubuntu-16.04
         ruby:
           - 2.7
-
+    env:
+      influx_version: nightly
+      channel: nightlies
     steps:
       - uses: actions/checkout@v2
+
+      - run: bin/provision.sh
 
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1
