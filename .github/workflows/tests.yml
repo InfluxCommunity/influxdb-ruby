@@ -102,5 +102,6 @@ jobs:
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
+      - run: bin/provision.sh
       - run: bundle exec rake spec
         continue-on-error: ${{ matrix.allow-failure || false }}
