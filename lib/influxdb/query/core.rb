@@ -26,7 +26,7 @@ module InfluxDB
       )
         query = builder.build(query, params)
 
-        url = full_url("/query".freeze, query_params(query, **opts))
+        url = full_url("/query".freeze, **query_params(query, **opts))
         series = fetch_series(get(url, parse: true, json_streaming: !chunk_size.nil?))
 
         if block_given?
@@ -79,7 +79,7 @@ module InfluxDB
         }
 
         params[:rp] = retention_policy if retention_policy
-        url = full_url("/write", params)
+        url = full_url("/write", **params)
         post(url, data)
       end
 
@@ -133,7 +133,7 @@ module InfluxDB
       def execute(query, db: nil, **options)
         params = { q: query }
         params[:db] = db if db
-        url = full_url("/query".freeze, params)
+        url = full_url("/query".freeze, **params)
         get(url, options)
       end
 
@@ -147,7 +147,7 @@ module InfluxDB
         series.select { |k, _| %w[columns values].include?(k) }
       end
 
-      def full_url(path, params = {})
+      def full_url(path, **params)
         if config.auth_method == "params".freeze
           params[:u] = config.username
           params[:p] = config.password

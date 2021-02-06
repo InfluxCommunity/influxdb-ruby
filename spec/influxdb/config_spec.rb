@@ -3,10 +3,13 @@ require 'spec_helper'
 describe InfluxDB::Config do
   after { client.stop! }
 
-  let(:client) { InfluxDB::Client.new(*args) }
+  let(:client) do
+    kwargs = args.last.is_a?(Hash) ? args.pop : {}
+    InfluxDB::Client.new(*args, **kwargs)
+  end
   let(:conf) { client.config }
 
-  let(:args) { {} }
+  let(:args) { [] }
 
   context "with no parameters specified" do
     specify { expect(conf.database).to be_nil }
@@ -27,13 +30,13 @@ describe InfluxDB::Config do
 
   context "with no database specified" do
     let(:args) do
-      [{
+      [
         host:           "host",
         port:           "port",
         username:       "username",
         password:       "password",
         time_precision: "m"
-      }]
+      ]
     end
 
     specify { expect(conf.database).to be_nil }
@@ -67,7 +70,7 @@ describe InfluxDB::Config do
   end
 
   context "with ssl option specified" do
-    let(:args) { [{ use_ssl: true }] }
+    let(:args) { [use_ssl: true] }
 
     specify { expect(conf.database).to be_nil }
     specify { expect(conf.hosts).to eq ["localhost"] }
@@ -78,7 +81,7 @@ describe InfluxDB::Config do
   end
 
   context "with multiple hosts specified" do
-    let(:args) { [{ hosts: ["1.1.1.1", "2.2.2.2"] }] }
+    let(:args) { [hosts: ["1.1.1.1", "2.2.2.2"]] }
 
     specify { expect(conf.database).to be_nil }
     specify { expect(conf.port).to eq 8086 }
@@ -88,7 +91,7 @@ describe InfluxDB::Config do
   end
 
   context "with auth_method basic auth specified" do
-    let(:args) { [{ auth_method: 'basic_auth' }] }
+    let(:args) { [auth_method: 'basic_auth'] }
 
     specify { expect(conf.database).to be_nil }
     specify { expect(conf.hosts).to eq ["localhost"] }
@@ -99,38 +102,38 @@ describe InfluxDB::Config do
   end
 
   context "with udp specified with params" do
-    let(:args) { [{ udp: { host: 'localhost', port: 4444 } }] }
+    let(:args) { [udp: { host: 'localhost', port: 4444 }] }
 
     specify { expect(conf).to be_udp }
   end
 
   context "with udp specified as true" do
-    let(:args) { [{ udp: true }] }
+    let(:args) { [udp: true] }
 
     specify { expect(conf).to be_udp }
   end
 
   context "with async specified with params" do
-    let(:args) { [{ async: { max_queue: 20_000 } }] }
+    let(:args) { [async: { max_queue: 20_000 }] }
 
     specify { expect(conf).to be_async }
   end
 
   context "with async specified as true" do
-    let(:args) { [{ async: true }] }
+    let(:args) { [async: true] }
 
     specify { expect(conf).to be_async }
   end
 
   context "with epoch specified as seconds" do
-    let(:args) { [{ epoch: 's' }] }
+    let(:args) { [epoch: 's'] }
 
     specify { expect(conf.epoch).to eq 's' }
   end
 
   context "given a config URL" do
     let(:url) { "https://foo:bar@influx.example.com:8765/testdb?open_timeout=42&unknown=false&denormalize=false" }
-    let(:args) { [{ url: url }] }
+    let(:args) { [url: url] }
 
     it "applies values found in URL" do
       expect(conf.database).to eq "testdb"
@@ -211,15 +214,13 @@ describe InfluxDB::Config do
 
   context "given explicit proxy information" do
     let(:args) do
-      [{
-        host:           "host",
-        port:           "port",
-        username:       "username",
-        password:       "password",
-        time_precision: "m",
-        proxy_addr:     "my.proxy.addr",
-        proxy_port:     8080
-      }]
+      [host:           "host",
+       port:           "port",
+       username:       "username",
+       password:       "password",
+       time_precision: "m",
+       proxy_addr:     "my.proxy.addr",
+       proxy_port:     8080]
     end
 
     specify { expect(conf.proxy_addr).to eq("my.proxy.addr") }
