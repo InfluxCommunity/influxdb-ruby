@@ -23,7 +23,7 @@ describe InfluxDB::Client do
 
   describe "#create_database" do
     describe "from param" do
-      let(:query) { "CREATE DATABASE foo" }
+      let(:query) { "CREATE DATABASE \"foo\"" }
 
       it "should GET to create a new database" do
         expect(subject.create_database("foo")).to be_a(Net::HTTPOK)
@@ -31,7 +31,7 @@ describe InfluxDB::Client do
     end
 
     describe "from config" do
-      let(:query) { "CREATE DATABASE database" }
+      let(:query) { "CREATE DATABASE \"database\"" }
 
       it "should GET to create a new database using database name from config" do
         expect(subject.create_database).to be_a(Net::HTTPOK)
@@ -41,7 +41,7 @@ describe InfluxDB::Client do
 
   describe "#delete_database" do
     describe "from param" do
-      let(:query) { "DROP DATABASE foo" }
+      let(:query) { "DROP DATABASE \"foo\"" }
 
       it "should GET to remove a database" do
         expect(subject.delete_database("foo")).to be_a(Net::HTTPOK)
@@ -49,7 +49,7 @@ describe InfluxDB::Client do
     end
 
     describe "from config" do
-      let(:query) { "DROP DATABASE database" }
+      let(:query) { "DROP DATABASE \"database\"" }
 
       it "should GET to remove a database using database name from config" do
         expect(subject.delete_database).to be_a(Net::HTTPOK)
