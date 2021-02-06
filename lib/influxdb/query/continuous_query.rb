@@ -24,7 +24,7 @@ module InfluxDB
       end
 
       def delete_continuous_query(name, database)
-        execute("DROP CONTINUOUS QUERY #{name} ON #{database}")
+        execute("DROP CONTINUOUS QUERY \"#{name}\" ON \"#{database}\"")
       end
     end
   end
