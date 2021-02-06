@@ -40,6 +40,8 @@ module InfluxDB
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def connect_with_retry
       delay = config.initial_delay
       retry_count = 0
@@ -71,6 +73,8 @@ module InfluxDB
         retry
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def do_request(http, req, data = nil)
       req.basic_auth config.username, config.password if basic_auth?

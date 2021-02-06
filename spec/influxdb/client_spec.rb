@@ -47,8 +47,7 @@ describe InfluxDB::Client do
         raise SocketError, "simulate getaddrinfo error"
       end
 
-      error = InfluxDB::ConnectionError.new "Tried 0 times to reconnect but failed."
-      expect { subject.send(:connect_with_retry) }.to raise_error(InfluxDB::ConnectionError)
+      expect { subject.send(:connect_with_retry) }.to raise_error(InfluxDB::ConnectionError, "Tried 0 times to reconnect but failed.")
     end
   end
 
