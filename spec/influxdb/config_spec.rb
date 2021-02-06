@@ -162,6 +162,15 @@ describe InfluxDB::Config do
       expect(conf).not_to be_async
     end
 
+    context "with encoded values" do
+      let(:url) { "https://weird%24user:weird%25pass@influx.example.com:8765/testdb" }
+
+      it "decode encoded values" do
+        expect(conf.username).to eq "weird$user"
+        expect(conf.password).to eq "weird%pass"
+      end
+    end
+
     context "UDP" do
       let(:url) { "udp://test.localhost:2345?discard_write_errors=1" }
       specify { expect(conf).to be_udp }
