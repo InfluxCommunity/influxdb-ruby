@@ -17,7 +17,7 @@ describe InfluxDB::Client do
   describe "#create_cluster_admin" do
     let(:user) { 'adminadmin' }
     let(:pass) { 'passpass' }
-    let(:query) { "CREATE USER #{user} WITH PASSWORD '#{pass}' WITH ALL PRIVILEGES" }
+    let(:query) { "CREATE USER \"#{user}\" WITH PASSWORD '#{pass}' WITH ALL PRIVILEGES" }
 
     context 'with existing admin user' do
       before do
@@ -67,7 +67,7 @@ describe InfluxDB::Client do
 
   describe "#revoke_cluster_admin_privileges" do
     let(:user) { 'useruser' }
-    let(:query) { "REVOKE ALL PRIVILEGES FROM #{user}" }
+    let(:query) { "REVOKE ALL PRIVILEGES FROM \"#{user}\"" }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query").with(

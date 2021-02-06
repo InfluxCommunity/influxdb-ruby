@@ -104,7 +104,7 @@ describe InfluxDB::Client do
   describe "#delete_continuous_query" do
     let(:name) { "event_counts_per_10m_by_type" }
     let(:database) { "testdb" }
-    let(:query) { "DROP CONTINUOUS QUERY #{name} ON #{database}" }
+    let(:query) { "DROP CONTINUOUS QUERY \"#{name}\" ON \"#{database}\"" }
 
     before do
       stub_request(:get, "http://influxdb.test:9999/query")
