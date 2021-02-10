@@ -7,11 +7,6 @@ jobs:
   rubocop:
     name: RuboCop
     runs-on: ${{ matrix.os }}
-    if: |
-      !(   contains(github.event.pull_request.title,  '[ci skip]')
-        || contains(github.event.pull_request.title,  '[skip ci]')
-        || contains(github.event.head_commit.message, '[ci skip]')
-        || contains(github.event.head_commit.message, '[skip ci]'))
     strategy:
       fail-fast: false
       matrix:
@@ -28,11 +23,6 @@ jobs:
   specs:
     name: ${{ matrix.os }} ${{ matrix.ruby }}
     runs-on: ${{ matrix.os }}
-    if: |
-      !(   contains(github.event.pull_request.title,  '[ci skip]')
-        || contains(github.event.pull_request.title,  '[skip ci]')
-        || contains(github.event.head_commit.message, '[ci skip]')
-        || contains(github.event.head_commit.message, '[skip ci]'))
     strategy:
       fail-fast: false
       matrix:
@@ -74,11 +64,6 @@ jobs:
   smoketests:
     name: smoketest with influx ${{ matrix.influx_version }}
     runs-on: ubuntu-20.04
-    if: |
-      !(   contains(github.event.pull_request.title,  '[ci skip]')
-        || contains(github.event.pull_request.title,  '[skip ci]')
-        || contains(github.event.head_commit.message, '[ci skip]')
-        || contains(github.event.head_commit.message, '[skip ci]'))
     strategy:
       fail-fast: false
       matrix:
