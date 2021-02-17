@@ -2,10 +2,14 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
-## unreleased
+## v0.8.1, release 2021-02-17
 
 - Ensure workers can send data popped off the queue at shutdown (#239,
   @onlynone)
+- Add support for special characters in password when using url keyword (#242,
+  @swistak35)
+- Add Ruby 3.0 support (#249, @dentarg, @paul and @track8)
+- Support characters that need quoting for usernames and database names (#248, @estheruary)
 
 ## v0.8.0, released 2020-02-05
 
