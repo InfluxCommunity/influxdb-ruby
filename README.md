@@ -772,6 +772,7 @@ found in `lib/influxdb/config.rb` for the source of truth.
 |                 | `:open_timeout`         | 5             | socket timeout
 |                 | `:read_timeout`         | 300           | socket timeout
 |                 | `:auth_method`          | "params"      | "params", "basic_auth" or "none"
+|                 | `:persistent`           | true          | set to false to disable persistent connections
 | Retry           | `:retry`                | -1            | max. number of retry attempts (reading and writing)
 |                 | `:initial_delay`        | 0.01          | initial wait time (doubles every retry attempt)
 |                 | `:max_delay`            | 30            | max. wait time when retrying

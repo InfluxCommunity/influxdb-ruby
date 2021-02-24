@@ -5,6 +5,7 @@ require 'net/https'
 
 module InfluxDB
   # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/ModuleLength
   # rubocop:disable Metrics/AbcSize
   module HTTP # :nodoc:
     def get(url, options = {})
@@ -39,34 +40,41 @@ module InfluxDB
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def connect_with_retry
-      host = config.next_host
       delay = config.initial_delay
       retry_count = 0
 
-      begin
-        http = build_http(host, config.port)
-        http.open_timeout = config.open_timeout
-        http.read_timeout = config.read_timeout
+      http = current_http
 
-        http = setup_ssl(http)
+      begin
+        http.start unless http.started?
+
         yield http
       rescue *InfluxDB::NON_RECOVERABLE_EXCEPTIONS => e
+        http.finish if http.started?
+
         raise InfluxDB::ConnectionError, InfluxDB::NON_RECOVERABLE_MESSAGE
       rescue Timeout::Error, *InfluxDB::RECOVERABLE_EXCEPTIONS => e
+        http.finish if http.started?
+
         retry_count += 1
         unless (config.retry == -1 || retry_count <= config.retry) && !stopped?
           raise InfluxDB::ConnectionError, "Tried #{retry_count - 1} times to reconnect but failed."
         end
 
-        log(:warn) { "Failed to contact host #{host}: #{e.inspect} - retrying in #{delay}s." }
+        log(:warn) do
+          "Failed to contact host #{http.address}: #{e.inspect} - retrying in #{delay}s."
+        end
         sleep delay
         delay = [config.max_delay, delay * 2].min
+
         retry
-      ensure
-        http.finish if http.started?
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def do_request(http, req, data = nil)
       req.basic_auth config.username, config.password if basic_auth?
@@ -134,16 +142,42 @@ module InfluxDB
       store
     end
 
+    def current_http
+      return build_http config.next_host unless config.persistent
+
+      @https ||=
+        begin
+          https = config.hosts.map do |host|
+            build_http host
+          end
+
+          Hash[config.hosts.zip(https)]
+        end
+
+      @https[config.next_host]
+    end
+
     # Builds an http instance, taking into account any configured
     # proxy configuration
-    def build_http(host, port)
-      if config.proxy_addr
-        Net::HTTP.new(host, port, config.proxy_addr, config.proxy_port)
-      else
-        Net::HTTP.new(host, port)
-      end
+    def build_http(host)
+      port = config.port
+
+      http =
+        if config.proxy_addr
+          Net::HTTP.new(host, port, config.proxy_addr, config.proxy_port)
+        else
+          Net::HTTP.new(host, port)
+        end
+
+      http.open_timeout = config.open_timeout
+      http.read_timeout = config.read_timeout
+
+      setup_ssl http
+
+      http
     end
   end
   # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/ModuleLength
   # rubocop:enable Metrics/AbcSize
 end
