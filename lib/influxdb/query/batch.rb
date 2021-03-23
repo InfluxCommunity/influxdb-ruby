@@ -82,15 +82,10 @@ module InfluxDB
         denormalize_series
         denormalized_series_list
       ].each do |method_name|
-        if RUBY_VERSION < "2.7"
-          define_method(method_name) do |*args|
-            client.send method_name, *args
-          end
-        else
-          define_method(method_name) do |*args, **kwargs|
-            client.send method_name, *args, **kwargs
-          end
+        define_method(method_name) do |*args|
+          client.send method_name, *args
         end
+        ruby2_keywords(method_name) if respond_to?(:ruby2_keywords, true)
       end
     end
   end
