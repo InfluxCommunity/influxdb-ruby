@@ -49,9 +49,12 @@ module InfluxDB
     # +:ssl_ca_cert+:: ssl CA certificate, chainfile or CA path.
     #                  The system CA path is automatically included
     # +:retry+:: number of times a failed request should be retried. Defaults to infinite.
-    def initialize(database = nil, **opts)
+    def initialize(database = nil, config = nil, **opts)
+      raise ArgumentError, "provide config or opts, not both" if
+        config && !opts.empty?
+
       opts[:database] = database if database.is_a? String
-      @config = InfluxDB::Config.new(**opts)
+      @config = config || InfluxDB::Config.new(**opts)
       @stopped = false
       @writer = find_writer
 
@@ -82,7 +85,9 @@ module InfluxDB
 
     def find_writer
       if config.async?
-        InfluxDB::Writer::Async.new(self, config.async)
+        client = InfluxDB::Client.new nil, config.writer_config
+
+        InfluxDB::Writer::Async.new(client, config.async)
       elsif config.udp.is_a?(Hash)
         InfluxDB::Writer::UDP.new(self, **config.udp)
       elsif config.udp?
