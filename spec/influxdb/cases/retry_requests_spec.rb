@@ -36,7 +36,7 @@ describe InfluxDB::Client do
       stub_request(:post, "http://influxdb.test:9999/write").with(
         query:   { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
-        body:    body
+        body:    Zlib.gzip(body, level: 1)
       ).to_raise(Timeout::Error)
     end
 
@@ -76,7 +76,7 @@ describe InfluxDB::Client do
           .with(
             query:   { u: "username", p: "password", precision: 's', db: database },
             headers: { "Content-Type" => "application/octet-stream" },
-            body:    body
+            body:    Zlib.gzip(body, level: 1)
           )
           .to_raise(Timeout::Error).then
           .to_raise(Timeout::Error).then
@@ -95,7 +95,7 @@ describe InfluxDB::Client do
       stub_request(:post, "http://influxdb.test:9999/write").with(
         query:   { u: "username", p: "password", precision: 's', db: database },
         headers: { "Content-Type" => "application/octet-stream" },
-        body:    body
+        body:    Zlib.gzip(body, level: 1)
       ).to_return(status: 401)
 
       expect { client.write_point(series, data) }.to raise_error(InfluxDB::AuthenticationError)

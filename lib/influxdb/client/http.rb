@@ -2,6 +2,7 @@ require 'uri'
 require 'cgi'
 require 'net/http'
 require 'net/https'
+require 'zlib'
 
 module InfluxDB
   # rubocop:disable Metrics/MethodLength
@@ -22,7 +23,8 @@ module InfluxDB
     end
 
     def post(url, data)
-      headers = { "Content-Type" => "application/octet-stream" }
+      headers = { "Content-Type" => "application/octet-stream",
+                  "Content-Encoding" => "gzip" }
       connect_with_retry do |http|
         response = do_request http, Net::HTTP::Post.new(url, headers), data
 
@@ -70,7 +72,7 @@ module InfluxDB
 
     def do_request(http, req, data = nil)
       req.basic_auth config.username, config.password if basic_auth?
-      req.body = data if data
+      req.body = Zlib.gzip(data, level: Zlib::BEST_SPEED) if data
       http.request(req)
     end
 
