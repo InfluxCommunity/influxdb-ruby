@@ -27,8 +27,8 @@ describe InfluxDB::Client do
     before do
       stub_request(:post, "http://influxdb.test:9999/write").with(
         query:   { u: "username", p: "password", precision: 's', db: database },
-        headers: { "Content-Type" => "application/octet-stream" },
-        body:    body
+        headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+        body:    Zlib.gzip(body, level: 1)
       ).to_return(status: 204)
     end
 
@@ -63,8 +63,8 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           query:   { u: "username", p: "password", precision: 's', db: database },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body:    body
+          headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+          body:    Zlib.gzip(body, level: 1)
         ).to_return(status: 204)
       end
 
@@ -89,8 +89,8 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           query:   { u: "username", p: "password", precision: 's', db: database },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body:    body
+          headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+          body:    Zlib.gzip(body, level: 1)
         ).to_return(status: 204)
       end
 
@@ -118,8 +118,8 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           query:   { u: "username", p: "password", precision: 'ms', db: database },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body:    body
+          headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+          body:    Zlib.gzip(body, level: 1)
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
@@ -144,8 +144,8 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           query:   { u: "username", p: "password", precision: 's', db: database, rp: 'rp_1_hour' },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body:    body
+          headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+          body:    Zlib.gzip(body, level: 1)
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
@@ -170,8 +170,8 @@ describe InfluxDB::Client do
       before do
         stub_request(:post, "http://influxdb.test:9999/write").with(
           query:   { u: "username", p: "password", precision: 's', db: 'overriden_db' },
-          headers: { "Content-Type" => "application/octet-stream" },
-          body:    body
+          headers: { "Content-Type" => "application/octet-stream", "Content-Encoding" => "gzip" },
+          body:    Zlib.gzip(body, level: 1)
         ).to_return(status: 204)
       end
       it "should POST multiple points" do
