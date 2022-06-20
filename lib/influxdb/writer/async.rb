@@ -28,12 +28,12 @@ module InfluxDB
 
       WORKER_MUTEX = Mutex.new
       def worker
-        return @worker if defined? @worker
+        return @worker if @worker
 
         WORKER_MUTEX.synchronize do
           # this return is necessary because the previous mutex holder
           # might have already assigned the @worker
-          return @worker if defined? @worker
+          return @worker if @worker
 
           @worker = Worker.new(client, config)
         end
