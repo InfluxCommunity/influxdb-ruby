@@ -2,6 +2,10 @@
 
 For the full commit log, [see here](https://github.com/influxdata/influxdb-ruby/commits/master).
 
+## unreleased
+
+- Check if `@worker` is defined using ruby's `defined?` method
+
 ## v0.8.1, release 2021-02-17
 
 - Ensure workers can send data popped off the queue at shutdown (#239,
